@@ -29,7 +29,6 @@ public class Member extends BaseTimeEntity {
     @Column(columnDefinition = "VARCHAR(10)", nullable = false, unique = true)
     private String nickname;
 
-    private LocalDate birthDate;
     private String profileImage;
 
     @Enumerated(EnumType.STRING)
@@ -45,11 +44,10 @@ public class Member extends BaseTimeEntity {
 
     @Builder
     public Member(String email, String name, String nickname,
-                  LocalDate birthDate, String profileImage, LoginType loginType, String socialId) {
+                  String profileImage, LoginType loginType, String socialId) {
         this.email = email;
         this.name = name;
         this.nickname = nickname;
-        this.birthDate = birthDate;
         this.profileImage = profileImage;
         this.loginType = loginType;
         this.socialId = socialId;

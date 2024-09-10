@@ -1,5 +1,7 @@
 package com.pinup.global.config;
 
+import com.pinup.global.jwt.JwtTokenFilter;
+import com.pinup.global.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -19,9 +22,11 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    private final JwtTokenProvider jwtTokenProvider;
+
     private static final String[] AUTH_API_URL = {
             "/api/auth",
-            "/api/auth/**"
+            "/api/auth/**",
     };
 
     @Bean
@@ -61,6 +66,7 @@ public class SecurityConfig {
                                 .requestMatchers(AUTH_API_URL).permitAll()
                                 .anyRequest().authenticated()
                 )
+                .addFilterBefore(new JwtTokenFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
         ;
 
         return httpSecurity.build();

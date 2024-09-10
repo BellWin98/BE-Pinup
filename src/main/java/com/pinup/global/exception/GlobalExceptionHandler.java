@@ -1,6 +1,7 @@
 package com.pinup.global.exception;
 
 import com.pinup.global.response.ApiErrorResponse;
+import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,5 +50,12 @@ public class GlobalExceptionHandler {
     protected ApiErrorResponse handleRuntimeException(RuntimeException e) {
         log.error(e.getMessage());
         return ApiErrorResponse.from(ErrorCode.INTERNAL_SERVER_ERROR);
+    }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(JwtException.class)
+    protected ApiErrorResponse handleJwtException(JwtException e) {
+        log.error(e.getMessage());
+        return ApiErrorResponse.from(ErrorCode.INVALID_TOKEN);
     }
 }
