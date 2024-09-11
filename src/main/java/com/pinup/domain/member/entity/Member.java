@@ -26,7 +26,7 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(columnDefinition = "VARCHAR(10)", nullable = false, unique = true)
+    @Column(columnDefinition = "VARCHAR(10)", unique = true)
     private String nickname;
 
     private String profileImage;

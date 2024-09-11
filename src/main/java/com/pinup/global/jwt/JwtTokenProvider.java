@@ -1,5 +1,6 @@
 package com.pinup.global.jwt;
 
+import com.pinup.global.enums.Role;
 import com.pinup.global.exception.PinUpException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -28,7 +29,7 @@ public class JwtTokenProvider {
         this.refreshTokenValidityInMilliseconds = tokenValidityInSeconds * 1000 * 3;
     }
 
-    public String createToken(String email, Enum role) {
+    public String createToken(String email, Role role) {
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("role", role);
 

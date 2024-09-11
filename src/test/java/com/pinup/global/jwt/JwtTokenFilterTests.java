@@ -1,4 +1,4 @@
-package com.pinup.jwt;
+package com.pinup.global.jwt;
 
 import com.pinup.global.jwt.JwtTokenFilter;
 import com.pinup.global.jwt.JwtTokenProvider;

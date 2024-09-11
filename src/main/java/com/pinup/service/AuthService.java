@@ -70,7 +70,6 @@ public class AuthService {
                 .orElseGet(() -> memberRepository.save(Member.builder()
                         .email(email)
                         .name(name)
-                        .nickname(generateRandomNickname())
                         .profileImage(picture)
                         .loginType(LoginType.GOOGLE)
                         .socialId(socialId)
@@ -154,17 +153,4 @@ public class AuthService {
         return response.getBody();
     }
 
-    public String generateRandomNickname() {
-        String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        StringBuilder nickname = new StringBuilder(10);
-
-        do {
-            for (int i = 0; i < 10; i++) {
-                int index = (int) (Math.random() * alphabet.length());
-                nickname.append(alphabet.charAt(index));
-            }
-        } while(memberRepository.existsByNickname(String.valueOf(nickname)));
-
-        return nickname.toString();
-    }
 }

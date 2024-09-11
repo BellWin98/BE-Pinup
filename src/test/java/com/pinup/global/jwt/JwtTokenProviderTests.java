@@ -1,4 +1,4 @@
-package com.pinup.jwt;
+package com.pinup.global.jwt;
 
 import com.pinup.global.jwt.JwtTokenProvider;
 import com.pinup.global.enums.Role;
