@@ -1,10 +1,12 @@
 package com.pinup.global.exception;
 
 import com.pinup.global.response.ApiErrorResponse;
+import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -49,5 +51,12 @@ public class GlobalExceptionHandler {
     protected ApiErrorResponse handleRuntimeException(RuntimeException e) {
         log.error(e.getMessage());
         return ApiErrorResponse.from(ErrorCode.INTERNAL_SERVER_ERROR);
+    }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(JwtException.class)
+    protected ApiErrorResponse handleJwtException(JwtException e) {
+        log.error(e.getMessage());
+        return ApiErrorResponse.from(ErrorCode.INVALID_TOKEN);
     }
 }
