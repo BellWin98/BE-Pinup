@@ -1,10 +1,11 @@
 package com.pinup.controller;
 
 
-import com.pinup.dto.request.token.TokenResponse;
 import com.pinup.global.response.ApiSuccessResponse;
+import com.pinup.global.response.TokenResponse;
 import com.pinup.service.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;

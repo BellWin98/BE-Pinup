@@ -1,4 +1,4 @@
-package com.pinup.domain.member.entity;
+package com.pinup.entity;
 
 import com.pinup.global.common.BaseTimeEntity;
 import com.pinup.global.enums.LoginType;
