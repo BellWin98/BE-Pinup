@@ -1,4 +1,4 @@
-package com.pinup.domain.member.entity;
+package com.pinup.entity;
 
 import com.pinup.global.common.BaseTimeEntity;
 import com.pinup.global.enums.LoginType;
@@ -8,8 +8,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
 
 @Getter
 @Entity

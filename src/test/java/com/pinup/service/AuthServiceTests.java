@@ -1,7 +1,7 @@
 package com.pinup.service;
 
-import com.pinup.domain.member.entity.Member;
-import com.pinup.dto.request.token.TokenResponse;
+import com.pinup.entity.Member;
+import com.pinup.global.response.TokenResponse;
 import com.pinup.global.jwt.JwtTokenProvider;
 import com.pinup.repository.MemberRepository;
 import org.junit.jupiter.api.DisplayName;

@@ -1,9 +1,9 @@
 package com.pinup.service;
 
 
-import com.pinup.domain.member.entity.Member;
+import com.pinup.entity.Member;
 
-import com.pinup.dto.request.token.TokenResponse;
+import com.pinup.global.response.TokenResponse;
 import com.pinup.global.enums.LoginType;
 import com.pinup.global.exception.PinUpException;
 import com.pinup.global.jwt.JwtTokenProvider;
@@ -89,9 +89,7 @@ public class AuthService {
         }
 
         String email = jwtTokenProvider.getEmail(refreshToken);
-        System.out.println(email);
         String storedRefreshToken = redisService.getValues(email);
-        System.out.println(refreshToken.equals(storedRefreshToken));
         if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
             throw PinUpException.INVALID_TOKEN;
         }
