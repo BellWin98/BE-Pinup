@@ -17,6 +17,7 @@ public class AuthController {
 
     private final AuthService authService;
 
+    @Autowired
     public AuthController(AuthService authService) {
         this.authService = authService;
     }
@@ -29,7 +30,7 @@ public class AuthController {
     }
 
     @GetMapping("/login/google/callback")
-    public ApiSuccessResponse<TokenResponse> googleCallback(@RequestParam String code) {
+    public ApiSuccessResponse<TokenResponse> googleCallback(@RequestParam("code") String code) {
         TokenResponse tokenResponse = authService.googleLogin(code);
         return ApiSuccessResponse.from(tokenResponse);
     }
