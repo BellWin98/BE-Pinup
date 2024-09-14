@@ -89,9 +89,7 @@ public class AuthService {
         }
 
         String email = jwtTokenProvider.getEmail(refreshToken);
-        System.out.println(email);
         String storedRefreshToken = redisService.getValues(email);
-        System.out.println(refreshToken.equals(storedRefreshToken));
         if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
             throw PinUpException.INVALID_TOKEN;
         }
