@@ -10,6 +10,11 @@ public class TestConstants {
     public static final String TEST_NICKNAME = "테스트닉네임";
     public static final String TEST_IMAGE_URL = "test image url";
 
+    public static final String SECOND_TEST_EMAIL = "second-test@example.com";
+    public static final String SECOND_TEST_NAME = "테스트 사용자 2";
+    public static final String SECOND_TEST_NICKNAME = "테스트닉네임2";
+    public static final String SECOND_TEST_IMAGE_URL = "second test image url";
+
     public static final LoginType TEST_LOGIN_TYPE = GOOGLE;
     public static final String TEST_ACCESS_TOKEN = "test_access_token";
     public static final String TEST_REFRESH_TOKEN = "test_refresh_token";

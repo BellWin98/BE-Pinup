@@ -5,20 +5,18 @@ import com.pinup.dto.request.token.TokenResponse;
 import com.pinup.global.response.ApiSuccessResponse;
 import com.pinup.service.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/auth")
 public class AuthController {
 
     private final AuthService authService;
-
-    public AuthController(AuthService authService) {
-        this.authService = authService;
-    }
 
     @GetMapping("/login/google")
     public void googleLogin(HttpServletResponse response) throws IOException {

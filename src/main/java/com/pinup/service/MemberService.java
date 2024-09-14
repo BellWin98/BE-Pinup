@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class SearchService {
+public class MemberService {
 
     private final MemberRepository memberRepository;
 
@@ -20,17 +20,7 @@ public class SearchService {
     public List<MemberSearchResponse> searchUsers(String query) {
         List<Member> users = memberRepository.findByNicknameContainingIgnoreCase(query);
         return users.stream()
-                .map(this::convertToUserSearchResponse)
+                .map(MemberSearchResponse::from)
                 .collect(Collectors.toList());
-    }
-
-    private MemberSearchResponse convertToUserSearchResponse(Member member) {
-        return MemberSearchResponse.builder()
-                .memberId(member.getId())
-                .email(member.getEmail())
-                .name(member.getName())
-                .profilePictureUrl(member.getProfileImageUrl())
-                .nickname(member.getNickname())
-                .build();
     }
 }

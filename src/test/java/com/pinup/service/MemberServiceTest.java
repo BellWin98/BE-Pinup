@@ -11,21 +11,19 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static com.pinup.constants.TestConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-public class SearchServiceTest {
+public class MemberServiceTest {
 
     @Mock
     private MemberRepository memberRepository;
 
     @InjectMocks
-    private SearchService searchService;
+    private MemberService memberService;
 
     @BeforeEach
     void setUp() {
@@ -48,7 +46,7 @@ public class SearchServiceTest {
         when(memberRepository.findByNicknameContainingIgnoreCase(TEST_NICKNAME)).thenReturn(List.of(testMember));
 
         // when
-        List<MemberSearchResponse> memberSearchResponses = searchService.searchUsers(TEST_NICKNAME);
+        List<MemberSearchResponse> memberSearchResponses = memberService.searchUsers(TEST_NICKNAME);
 
         // then
         assertThat(memberSearchResponses).isNotEmpty();

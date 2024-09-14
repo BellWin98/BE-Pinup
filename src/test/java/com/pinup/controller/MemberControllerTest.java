@@ -2,7 +2,7 @@ package com.pinup.controller;
 
 import com.pinup.dto.response.search.MemberSearchResponse;
 import com.pinup.mock.WithCustomMockUser;
-import com.pinup.service.SearchService;
+import com.pinup.service.MemberService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ public class SearchControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private SearchService searchService;
+    private MemberService memberService;
 
     @Test
     @WithCustomMockUser
@@ -46,10 +46,10 @@ public class SearchControllerTest {
                 .nickname(queryNickname)
                 .build();
 
-        when(searchService.searchUsers(anyString())).thenReturn(List.of(mockResponse));
+        when(memberService.searchUsers(anyString())).thenReturn(List.of(mockResponse));
 
         // when & then
-        mockMvc.perform(get("/api/search/members")
+        mockMvc.perform(get("/api/members/search")
                         .param("query", queryNickname)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -67,7 +67,7 @@ public class SearchControllerTest {
     public void 인증되지_않은_사용자는_멤버_검색_시_인증_오류를_받는다() throws Exception {
         String queryNickname = "testNick";
 
-        mockMvc.perform(get("/api/search/members")
+        mockMvc.perform(get("/api/members/search")
                         .param("query", queryNickname)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());

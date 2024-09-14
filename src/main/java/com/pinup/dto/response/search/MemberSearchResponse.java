@@ -1,5 +1,6 @@
 package com.pinup.dto.response.search;
 
+import com.pinup.domain.member.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,4 +16,14 @@ public class MemberSearchResponse {
     private String name;
     private String nickname;
     private String profilePictureUrl;
+
+    public static MemberSearchResponse from(Member member) {
+        return MemberSearchResponse.builder()
+                .memberId(member.getId())
+                .email(member.getEmail())
+                .name(member.getName())
+                .profilePictureUrl(member.getProfileImageUrl())
+                .nickname(member.getNickname())
+                .build();
+    }
 }
