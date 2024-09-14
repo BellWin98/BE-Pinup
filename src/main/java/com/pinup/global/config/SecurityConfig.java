@@ -24,9 +24,11 @@ public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
 
-    private static final String[] AUTH_API_URL = {
+    private static final String[] PERMITTED_API_URL = {
             "/api/auth",
             "/api/auth/**",
+            "/api/places",
+            "/api/places/**"
     };
 
     @Bean
@@ -63,7 +65,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequest ->
                         authorizeRequest
                                 .requestMatchers("/").permitAll()
-                                .requestMatchers(AUTH_API_URL).permitAll()
+                                .requestMatchers(PERMITTED_API_URL).permitAll()
                                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtTokenFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
