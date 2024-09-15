@@ -1,4 +1,4 @@
-package com.pinup.dto.request.token;
+package com.pinup.global.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,22 +1,26 @@
 package com.pinup.controller;
 
 
-import com.pinup.dto.request.token.TokenResponse;
 import com.pinup.global.response.ApiSuccessResponse;
+import com.pinup.global.response.TokenResponse;
 import com.pinup.service.AuthService;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/auth")
 public class AuthController {
 
     private final AuthService authService;
+
+    @Autowired
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
 
     @GetMapping("/login/google")
     public void googleLogin(HttpServletResponse response) throws IOException {
