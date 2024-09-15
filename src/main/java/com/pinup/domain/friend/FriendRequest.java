@@ -1,6 +1,6 @@
 package com.pinup.domain.friend;
 
-import com.pinup.domain.member.entity.Member;
+import com.pinup.entity.Member;
 import com.pinup.global.common.BaseTimeEntity;
 import com.pinup.global.enums.FriendRequestStatus;
 import jakarta.persistence.*;

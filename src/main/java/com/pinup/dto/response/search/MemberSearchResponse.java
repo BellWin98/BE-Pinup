@@ -1,6 +1,6 @@
 package com.pinup.dto.response.search;
 
-import com.pinup.domain.member.entity.Member;
+import com.pinup.entity.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

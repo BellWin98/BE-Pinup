@@ -1,7 +1,7 @@
 package com.pinup.service;
 
-import com.pinup.domain.member.entity.Member;
 import com.pinup.dto.response.search.MemberSearchResponse;
+import com.pinup.entity.Member;
 import com.pinup.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
