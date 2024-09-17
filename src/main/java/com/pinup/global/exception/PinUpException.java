@@ -19,6 +19,8 @@ public class PinUpException extends RuntimeException{
     public static final PinUpException NOT_EXPIRED_ACCESS_TOKEN = new PinUpException(ErrorCode.NOT_EXPIRED_ACCESS_TOKEN);
     public static final PinUpException ACCESS_DENIED = new PinUpException(ErrorCode.ACCESS_DENIED);
     public static final PinUpException EXPIRED_ACCESS_TOKEN = new PinUpException(ErrorCode.EXPIRED_ACCESS_TOKEN);
+    public static final PinUpException PLACE_NOT_FOUND = new PinUpException(ErrorCode.PLACE_NOT_FOUND);
+    public static final PinUpException FILE_EXTENSION_INVALID = new PinUpException(ErrorCode.FILE_EXTENSION_INVALID);
 
     private final ErrorCode errorCode;
 
