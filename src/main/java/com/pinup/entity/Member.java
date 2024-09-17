@@ -9,6 +9,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -39,6 +42,9 @@ public class Member extends BaseTimeEntity {
     private LoginType loginType;
 
     private String socialId; // 로그인 한 소셜 타입의 식별자 값
+
+    @OneToMany(mappedBy = "member", fetch = FetchType.EAGER)
+    private List<Review> reviews = new ArrayList<>();
 
     @Builder
     public Member(String email, String name, String nickname,

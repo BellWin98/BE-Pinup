@@ -8,6 +8,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -24,11 +27,14 @@ public class Place extends BaseTimeEntity {
 
     private int latitude; // 위도
     private int longitude; // 경도
-    private double averageRating; // 평균별점
+    private Double averageRating = 0.0; // 평균별점
     private String status; // 상태
 
     @Enumerated(EnumType.STRING)
     private PlaceType placeType;
+
+    @OneToMany(mappedBy = "place", fetch = FetchType.EAGER)
+    private List<Review> reviews = new ArrayList<>();
 
     @Builder
     public Place(String name, String address, String roadAddress,
@@ -46,7 +52,16 @@ public class Place extends BaseTimeEntity {
         this.defaultImgUrl = defaultImgUrl;
     }
 
-    public void updateAverageRating(double averageRating){
-        this.averageRating = averageRating;
+    // 평균 평점 업데이트
+    public void updateAverageRating() {
+
+        double totalRating = reviews.stream()
+                .mapToDouble(Review::getRating)
+                .sum();
+
+        double calculatedAverage = totalRating / reviews.size();
+
+        // 소수점 둘째 자리까지 반올림
+        this.averageRating = Math.round(calculatedAverage * 100) / 100.0;
     }
 }
