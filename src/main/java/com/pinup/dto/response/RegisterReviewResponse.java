@@ -9,7 +9,7 @@ import java.util.List;
 
 @Getter
 @Builder
-public class ReviewResponse {
+public class RegisterReviewResponse {
 
     private Long reviewId;
     private Long writerId;
@@ -21,11 +21,11 @@ public class ReviewResponse {
     private String createdAt;
     private String updatedAt;
 
-    public static ReviewResponse of(Review review,
-                                    List<String> reviewImageUrls,
-                                    List<String> reviewKeywords) {
+    public static RegisterReviewResponse of(Review review,
+                                            List<String> reviewImageUrls,
+                                            List<String> reviewKeywords) {
 
-        return ReviewResponse.builder()
+        return RegisterReviewResponse.builder()
                 .reviewId(review.getId())
                 .writerId(review.getMember().getId())
                 .placeId(review.getPlace().getId())
