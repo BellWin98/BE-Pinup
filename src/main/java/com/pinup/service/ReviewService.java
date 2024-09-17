@@ -1,7 +1,7 @@
 package com.pinup.service;
 
 import com.pinup.dto.request.ReviewRequest;
-import com.pinup.dto.response.ReviewResponse;
+import com.pinup.dto.response.RegisterReviewResponse;
 import com.pinup.entity.*;
 import com.pinup.global.exception.PinUpException;
 import com.pinup.global.s3.S3Service;
@@ -32,9 +32,9 @@ public class ReviewService {
     private final S3Service s3Service;
 
     @Transactional
-    public ReviewResponse register(Long placeId,
-                                   ReviewRequest reviewRequest,
-                                   List<MultipartFile> images) {
+    public RegisterReviewResponse register(Long placeId,
+                                           ReviewRequest reviewRequest,
+                                           List<MultipartFile> images) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -76,6 +76,18 @@ public class ReviewService {
         findPlace.updateAverageRating();
         placeRepository.save(findPlace);
 
-        return ReviewResponse.of(savedReview, uploadedFileUrls, inputKeywords);
+        return RegisterReviewResponse.of(savedReview, uploadedFileUrls, inputKeywords);
+    }
+
+    @Transactional(readOnly = true)
+    public RegisterReviewResponse viewPage(Long placeId) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        Member findMember = memberRepository.findByEmail(authentication.getName()).orElseThrow(() -> PinUpException.MEMBER_NOT_FOUND);
+        Place findPlace = placeRepository.findById(placeId).orElseThrow(() -> PinUpException.PLACE_NOT_FOUND);
+
+        return null;
+
     }
 }

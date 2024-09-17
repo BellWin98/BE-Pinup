@@ -52,7 +52,7 @@ public class Place extends BaseTimeEntity {
         this.defaultImgUrl = defaultImgUrl;
     }
 
-    // 평균 평점 업데이트
+    // 평균 평점 업데이트 (전체 유저)
     public void updateAverageRating() {
 
         double totalRating = reviews.stream()
@@ -64,4 +64,8 @@ public class Place extends BaseTimeEntity {
         // 소수점 둘째 자리까지 반올림
         this.averageRating = Math.round(calculatedAverage * 100) / 100.0;
     }
+
+    // TODO: 내 친구들이 해당 가게에 부여한 평점의 평균 계산 로직 구현예정.
+
+
 }

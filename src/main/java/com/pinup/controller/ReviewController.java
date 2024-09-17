@@ -1,7 +1,7 @@
 package com.pinup.controller;
 
 import com.pinup.dto.request.ReviewRequest;
-import com.pinup.dto.response.ReviewResponse;
+import com.pinup.dto.response.RegisterReviewResponse;
 import com.pinup.global.response.ApiSuccessResponse;
 import com.pinup.service.ReviewService;
 import jakarta.validation.Valid;
@@ -29,15 +29,20 @@ public class ReviewController {
      * 내용, 평점, 사진 여러장, 키워드 여러개 등록 가능
      */
     @PostMapping("/{placeId}/reviews")
-    public ResponseEntity<ApiSuccessResponse<ReviewResponse>> register(
+    public ResponseEntity<ApiSuccessResponse<RegisterReviewResponse>> register(
             @PathVariable("placeId") Long placeId,
             @Valid ReviewRequest reviewRequest,
             @RequestParam(value = "multipartFiles", required = false) List<MultipartFile> multipartFiles) {
 
-        ReviewResponse result = reviewService.register(placeId, reviewRequest, multipartFiles);
+        RegisterReviewResponse result = reviewService.register(placeId, reviewRequest, multipartFiles);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(ApiSuccessResponse.from(result));
     }
+
+    /**
+     * 리뷰 조회 API
+     * 가게에 내 친구들이 쓴 리뷰와 내가 쓴 리뷰만 조회
+     */
 }
