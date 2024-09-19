@@ -1,4 +1,4 @@
-package com.pinup.dto.response.search;
+package com.pinup.dto.response;
 
 import com.pinup.entity.Member;
 import lombok.AllArgsConstructor;

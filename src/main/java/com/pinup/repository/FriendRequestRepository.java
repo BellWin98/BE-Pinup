@@ -1,6 +1,6 @@
 package com.pinup.repository;
 
-import com.pinup.domain.friend.FriendRequest;
+import com.pinup.entity.FriendRequest;
 import com.pinup.entity.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

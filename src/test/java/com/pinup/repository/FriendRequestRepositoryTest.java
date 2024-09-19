@@ -1,6 +1,6 @@
 package com.pinup.repository;
 
-import com.pinup.domain.friend.FriendRequest;
+import com.pinup.entity.FriendRequest;
 import com.pinup.entity.Member;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

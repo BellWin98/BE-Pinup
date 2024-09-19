@@ -1,6 +1,6 @@
 package com.pinup.controller;
 
-import com.pinup.dto.response.search.MemberSearchResponse;
+import com.pinup.dto.response.MemberSearchResponse;
 import com.pinup.mock.WithCustomMockUser;
 import com.pinup.service.MemberService;
 import org.junit.jupiter.api.DisplayName;

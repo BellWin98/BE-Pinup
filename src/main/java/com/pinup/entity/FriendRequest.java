@@ -1,4 +1,4 @@
-package com.pinup.domain.friend;
+package com.pinup.entity;
 
 import com.pinup.entity.Member;
 import com.pinup.global.common.BaseTimeEntity;

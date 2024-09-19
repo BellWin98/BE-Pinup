@@ -1,6 +1,6 @@
 package com.pinup.controller;
 
-import com.pinup.dto.response.search.MemberSearchResponse;
+import com.pinup.dto.response.MemberSearchResponse;
 import com.pinup.global.response.ApiSuccessResponse;
 import com.pinup.service.MemberService;
 import lombok.RequiredArgsConstructor;

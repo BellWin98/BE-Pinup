@@ -1,6 +1,6 @@
 package com.pinup.service;
 
-import com.pinup.dto.response.search.MemberSearchResponse;
+import com.pinup.dto.response.MemberSearchResponse;
 import com.pinup.entity.Member;
 import com.pinup.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
