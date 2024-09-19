@@ -24,7 +24,7 @@ import static org.hamcrest.Matchers.containsString;
 
 @AutoConfigureMockMvc
 @SpringBootTest
-public class SearchControllerTest {
+public class MemberControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
