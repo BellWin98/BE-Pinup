@@ -8,8 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +61,6 @@ public class FriendRequestRepositoryTest {
     void 레포지토리에_친구요청이_있으면_id로_조회할_수_있다(){
         //given
         FriendRequest friendRequest = FriendRequest.builder()
-                .friendRequestStatus(PENDING)
                 .sender(sender)
                 .receiver(receiver)
                 .build();
@@ -86,7 +83,6 @@ public class FriendRequestRepositoryTest {
     void findBySenderAndReceiver_테스트() {
         // given
         FriendRequest friendRequest = FriendRequest.builder()
-                .friendRequestStatus(PENDING)
                 .sender(sender)
                 .receiver(receiver)
                 .build();
@@ -101,13 +97,12 @@ public class FriendRequestRepositoryTest {
     }
 
     @Test
-    @DisplayName("sender로 친구 요청을 페이지네이션하여 조회할 수 있다.")
+    @DisplayName("sender로 친구 요청을 조회할 수 있다.")
     void findBySender_테스트() {
         // given
         List<FriendRequest> savedRequests = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             FriendRequest friendRequest = FriendRequest.builder()
-                    .friendRequestStatus(PENDING)
                     .sender(sender)
                     .receiver(receiver)
                     .build();
@@ -115,22 +110,20 @@ public class FriendRequestRepositoryTest {
         }
 
         // when
-        Page<FriendRequest> foundRequests = friendRequestRepository.findBySender(sender, PageRequest.of(0, 3));
+        List<FriendRequest> foundRequests = friendRequestRepository.findBySender(sender);
 
         // then
-        assertThat(foundRequests.getContent()).hasSize(3);
-        assertThat(foundRequests.getTotalElements()).isEqualTo(5);
-        assertThat(foundRequests.getContent()).containsExactlyElementsOf(savedRequests.subList(0, 3));
+        assertThat(foundRequests).hasSize(5);
+        assertThat(foundRequests).containsExactlyElementsOf(savedRequests);
     }
 
     @Test
-    @DisplayName("receiver로 친구 요청을 페이지네이션하여 조회할 수 있다.")
+    @DisplayName("receiver로 친구 요청을 조회할 수 있다.")
     void findByReceiver_테스트() {
         // given
         List<FriendRequest> savedRequests = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             FriendRequest friendRequest = FriendRequest.builder()
-                    .friendRequestStatus(PENDING)
                     .sender(sender)
                     .receiver(receiver)
                     .build();
@@ -138,11 +131,10 @@ public class FriendRequestRepositoryTest {
         }
 
         // when
-        Page<FriendRequest> foundRequests = friendRequestRepository.findByReceiver(receiver, PageRequest.of(0, 3));
+        List<FriendRequest> foundRequests = friendRequestRepository.findByReceiver(receiver);
 
         // then
-        assertThat(foundRequests.getContent()).hasSize(3);
-        assertThat(foundRequests.getTotalElements()).isEqualTo(5);
-        assertThat(foundRequests.getContent()).containsExactlyElementsOf(savedRequests.subList(0, 3));
+        assertThat(foundRequests).hasSize(5);
+        assertThat(foundRequests).containsExactlyElementsOf(savedRequests);
     }
 }

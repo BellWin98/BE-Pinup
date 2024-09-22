@@ -2,8 +2,6 @@ package com.pinup.repository;
 
 import com.pinup.entity.FriendRequest;
 import com.pinup.entity.Member;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,7 +15,7 @@ public interface FriendRequestRepository extends JpaRepository<FriendRequest, Lo
 
     List<FriendRequest> findBySenderAndReceiver(Member sender, Member receiver);
 
-    Page<FriendRequest> findBySender(Member sender, Pageable pageable);
+    List<FriendRequest> findBySender(Member sender);
 
-    Page<FriendRequest> findByReceiver(Member receiver, Pageable pageable);
+    List<FriendRequest> findByReceiver(Member receiver);
 }

@@ -1,6 +1,5 @@
 package com.pinup.entity;
 
-import com.pinup.entity.Member;
 import com.pinup.global.common.BaseTimeEntity;
 import com.pinup.global.enums.FriendRequestStatus;
 import jakarta.persistence.*;
@@ -8,6 +7,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import static com.pinup.global.enums.FriendRequestStatus.*;
 
 @Getter
 @Entity
@@ -30,10 +31,18 @@ public class FriendRequest extends BaseTimeEntity {
     private Member receiver;
 
     @Builder
-    public FriendRequest(FriendRequestStatus friendRequestStatus, Member sender, Member receiver) {
-        this.friendRequestStatus = friendRequestStatus;
+    public FriendRequest(Member sender, Member receiver) {
+        this.friendRequestStatus = PENDING;
         this.sender = sender;
         this.receiver = receiver;
+    }
+
+    public void accept() {
+        this.friendRequestStatus = ACCEPTED;
+    }
+
+    public void reject() {
+        this.friendRequestStatus = REJECTED;
     }
 
 }
