@@ -8,10 +8,10 @@ import java.util.stream.Collectors;
 
 @Repository
 public class EventCacheRepository {
-    private Map<String, Object> eventCache = new ConcurrentHashMap<>();
+    private Map<String, String> eventCache = new ConcurrentHashMap<>();
 
-    public void save(String userId, String eventId, Object event) {
-        eventCache.put(makeKey(userId, eventId), event);
+    public void save(String userId, String eventId, String message) {
+        eventCache.put(makeKey(userId, eventId), message);
     }
 
     public Map<String, Object> findAllEventCacheStartsWithByUserId(String userId) {

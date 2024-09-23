@@ -1,6 +1,5 @@
 package com.pinup.service;
 
-import com.pinup.dto.request.NotificationRequest;
 import com.pinup.dto.response.FriendRequestResponse;
 import com.pinup.entity.FriendRequest;
 import com.pinup.entity.Member;
@@ -37,8 +36,8 @@ public class FriendRequestService {
                 .build();
         friendRequestRepository.save(friendRequest);
 
-        notificationService.sendNotification(new NotificationRequest(receiverId.toString(),
-                sender.getName() + "님이 친구 요청을 보냈습니다."));
+        notificationService.sendNotification(String.valueOf(receiverId),
+                sender.getName() + "님이 친구 요청을 보냈습니다.");
 
         return FriendRequestResponse.from(friendRequest);
     }
@@ -52,8 +51,8 @@ public class FriendRequestService {
         friendRequestRepository.save(friendRequest);
         friendShipService.createFriendShip(friendRequest.getSender(), friendRequest.getReceiver());
 
-        notificationService.sendNotification(new NotificationRequest(friendRequest.getSender().getId().toString(),
-                friendRequest.getReceiver().getName() + "님이 친구 요청을 수락했습니다."));
+        notificationService.sendNotification(String.valueOf(friendRequest.getSender().getId()),
+                friendRequest.getReceiver().getName() + "님이 친구 요청을 수락했습니다.");
 
         return FriendRequestResponse.from(friendRequest);
     }
@@ -66,8 +65,8 @@ public class FriendRequestService {
         friendRequest.reject();
         friendRequestRepository.save(friendRequest);
 
-        notificationService.sendNotification(new NotificationRequest(friendRequest.getSender().getId().toString(),
-                friendRequest.getReceiver().getName() + "님이 친구 요청을 거절했습니다."));
+        notificationService.sendNotification(String.valueOf(friendRequest.getSender().getId()),
+                friendRequest.getReceiver().getName() + "님이 친구 요청을 거절했습니다.");
 
         return FriendRequestResponse.from(friendRequest);
     }

@@ -1,6 +1,5 @@
 package com.pinup.service;
 
-import com.pinup.dto.request.NotificationRequest;
 import com.pinup.repository.EmitterRepository;
 import com.pinup.repository.EventCacheRepository;
 import lombok.RequiredArgsConstructor;
@@ -38,14 +37,14 @@ public class NotificationService {
         return emitter;
     }
 
-    public void sendNotification(NotificationRequest request) {
-        String eventId = makeEventId(request.getUserId());
+    public void sendNotification(String userId, String message) {
+        String eventId = makeEventId(userId);
 
-        eventCacheRepository.save(request.getUserId(), eventId, request);
+        eventCacheRepository.save(userId, eventId, message);
 
-        emitterRepository.findAllEmitterStartsWithByUserId(request.getUserId())
+        emitterRepository.findAllEmitterStartsWithByUserId(userId)
                 .forEach((key, emitter) -> {
-                    sendToClient(emitter, eventId, request.getMessage());
+                    sendToClient(emitter, eventId, message);
                 });
     }
 
