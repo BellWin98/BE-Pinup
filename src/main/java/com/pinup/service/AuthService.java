@@ -64,13 +64,13 @@ public class AuthService {
         String socialId = (String) userInfo.get("sub");
         String email = (String) userInfo.get("email");
         String name = (String) userInfo.get("name");
-        String picture = (String) userInfo.get("picture");
+        String profilePictureUrl = (String) userInfo.get("picture");
 
         Member member = memberRepository.findByEmail(email)
                 .orElseGet(() -> memberRepository.save(Member.builder()
                         .email(email)
                         .name(name)
-                        .profileImage(picture)
+                        .profileImageUrl(profilePictureUrl)
                         .loginType(LoginType.GOOGLE)
                         .socialId(socialId)
                         .build()));
