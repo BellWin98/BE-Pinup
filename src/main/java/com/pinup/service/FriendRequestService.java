@@ -7,6 +7,7 @@ import com.pinup.global.enums.FriendRequestStatus;
 import com.pinup.repository.FriendRequestRepository;
 import com.pinup.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,8 +25,10 @@ public class FriendRequestService {
     private final FriendShipService friendShipService;
 
     @Transactional
-    public FriendRequestResponse sendFriendRequest(Long senderId, Long receiverId) {
-        Member sender = memberRepository.findById(senderId)
+    public FriendRequestResponse sendFriendRequest(Long receiverId) {
+        String senderEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Member sender = memberRepository.findByEmail(senderEmail)
                 .orElseThrow(() -> MEMBER_NOT_FOUND);
         Member receiver = memberRepository.findById(receiverId)
                 .orElseThrow(() -> MEMBER_NOT_FOUND);
@@ -36,7 +39,7 @@ public class FriendRequestService {
                 .build();
         friendRequestRepository.save(friendRequest);
 
-        notificationService.sendNotification(String.valueOf(receiverId),
+        notificationService.sendNotification(receiver.getEmail(),
                 sender.getName() + "님이 친구 요청을 보냈습니다.");
 
         return FriendRequestResponse.from(friendRequest);
@@ -51,7 +54,7 @@ public class FriendRequestService {
         friendRequestRepository.save(friendRequest);
         friendShipService.createFriendShip(friendRequest.getSender(), friendRequest.getReceiver());
 
-        notificationService.sendNotification(String.valueOf(friendRequest.getSender().getId()),
+        notificationService.sendNotification(friendRequest.getSender().getEmail(),
                 friendRequest.getReceiver().getName() + "님이 친구 요청을 수락했습니다.");
 
         return FriendRequestResponse.from(friendRequest);
@@ -65,15 +68,17 @@ public class FriendRequestService {
         friendRequest.reject();
         friendRequestRepository.save(friendRequest);
 
-        notificationService.sendNotification(String.valueOf(friendRequest.getSender().getId()),
+        notificationService.sendNotification(friendRequest.getSender().getEmail(),
                 friendRequest.getReceiver().getName() + "님이 친구 요청을 거절했습니다.");
 
         return FriendRequestResponse.from(friendRequest);
     }
 
     @Transactional(readOnly = true)
-    public List<FriendRequestResponse> getReceivedFriendRequests(Long receiverId) {
-        Member receiver = memberRepository.findById(receiverId)
+    public List<FriendRequestResponse> getReceivedFriendRequests() {
+        String receiverEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Member receiver = memberRepository.findByEmail(receiverEmail)
                 .orElseThrow(() -> MEMBER_NOT_FOUND);
 
         return friendRequestRepository.findByReceiver(receiver)

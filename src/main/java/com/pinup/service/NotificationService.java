@@ -3,6 +3,7 @@ package com.pinup.service;
 import com.pinup.repository.EmitterRepository;
 import com.pinup.repository.EventCacheRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -16,19 +17,21 @@ public class NotificationService {
     private final EventCacheRepository eventCacheRepository;
     private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
 
-    public SseEmitter subscribe(String userId, String lastEventId) {
+    public SseEmitter subscribe(String lastEventId) {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+
         SseEmitter emitter = new SseEmitter(DEFAULT_TIMEOUT);
 
-        emitterRepository.save(userId, emitter);
+        emitterRepository.save(userEmail, emitter);
 
-        emitter.onCompletion(() -> emitterRepository.deleteById(userId));
-        emitter.onTimeout(() -> emitterRepository.deleteById(userId));
+        emitter.onCompletion(() -> emitterRepository.deleteByUserEmail(userEmail));
+        emitter.onTimeout(() -> emitterRepository.deleteByUserEmail(userEmail));
 
         // 503 에러 방지를 위한 더미 이벤트 전송
-        sendToClient(emitter, makeEventId(userId), "EventStream Created. [userId=" + userId + "]");
+        sendToClient(emitter, makeEventId(userEmail), "EventStream Created. [userEmail=" + userEmail + "]");
 
         if (!lastEventId.isEmpty()) {
-            Map<String, Object> events = eventCacheRepository.findAllEventCacheStartsWithByUserId(userId);
+            Map<String, Object> events = eventCacheRepository.findAllEventCacheStartsWithByUserEmail(userEmail);
             events.entrySet().stream()
                     .filter(entry -> entry.getKey().compareTo(lastEventId) > 0)
                     .forEach(entry -> sendToClient(emitter, entry.getKey(), entry.getValue()));
@@ -37,19 +40,19 @@ public class NotificationService {
         return emitter;
     }
 
-    public void sendNotification(String userId, String message) {
-        String eventId = makeEventId(userId);
+    public void sendNotification(String userEmail, String message) {
+        String eventId = makeEventId(userEmail);
 
-        eventCacheRepository.save(userId, eventId, message);
+        eventCacheRepository.save(userEmail, eventId, message);
 
-        emitterRepository.findAllEmitterStartsWithByUserId(userId)
+        emitterRepository.findAllEmitterStartsWithByUserEmail(userEmail)
                 .forEach((key, emitter) -> {
                     sendToClient(emitter, eventId, message);
                 });
     }
 
-    private String makeEventId(String userId) {
-        return userId + "_" + System.currentTimeMillis();
+    private String makeEventId(String userEmail) {
+        return userEmail + "_" + System.currentTimeMillis();
     }
 
     private void sendToClient(SseEmitter emitter, String eventId, Object data) {
@@ -59,7 +62,7 @@ public class NotificationService {
                     .name("sse")
                     .data(data));
         } catch (IOException exception) {
-            emitterRepository.deleteById(eventId);
+            emitterRepository.deleteByUserEmail(eventId);
             throw new RuntimeException("연결 오류!", exception);
         }
     }

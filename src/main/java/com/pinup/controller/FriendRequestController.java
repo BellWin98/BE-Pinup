@@ -2,7 +2,6 @@ package com.pinup.controller;
 
 import com.pinup.dto.request.SendFriendRequest;
 import com.pinup.dto.response.FriendRequestResponse;
-import com.pinup.global.jwt.JwtUtil;
 import com.pinup.global.response.ApiSuccessResponse;
 import com.pinup.service.FriendRequestService;
 import lombok.RequiredArgsConstructor;
@@ -18,13 +17,11 @@ import java.util.List;
 @RequestMapping("/api/friend-requests")
 public class FriendRequestController {
     private final FriendRequestService friendRequestService;
-    private final JwtUtil jwtUtil;
 
     @PostMapping("/send")
     public ResponseEntity<ApiSuccessResponse<FriendRequestResponse>> sendFriendRequest(
-            @RequestBody SendFriendRequest sendFriendRequest, @RequestHeader("Authorization") String authorizationHeader) {
-        Long senderId = jwtUtil.getUserIdFromAuthorizationHeader(authorizationHeader);
-        FriendRequestResponse result = friendRequestService.sendFriendRequest(senderId, sendFriendRequest.getReceiverId());
+            @RequestBody SendFriendRequest sendFriendRequest) {
+        FriendRequestResponse result = friendRequestService.sendFriendRequest(sendFriendRequest.getReceiverId());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiSuccessResponse.from(result));
@@ -49,10 +46,8 @@ public class FriendRequestController {
     }
 
     @GetMapping("/received")
-    public ResponseEntity<ApiSuccessResponse<List<FriendRequestResponse>>> getReceivedFriendRequests(
-            @RequestHeader("Authorization") String authorizationHeader) {
-        Long userId = jwtUtil.getUserIdFromAuthorizationHeader(authorizationHeader);
-        List<FriendRequestResponse> results = friendRequestService.getReceivedFriendRequests(userId);
+    public ResponseEntity<ApiSuccessResponse<List<FriendRequestResponse>>> getReceivedFriendRequests() {
+        List<FriendRequestResponse> results = friendRequestService.getReceivedFriendRequests();
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiSuccessResponse.from(results));

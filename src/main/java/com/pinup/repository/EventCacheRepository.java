@@ -10,12 +10,12 @@ import java.util.stream.Collectors;
 public class EventCacheRepository {
     private Map<String, String> eventCache = new ConcurrentHashMap<>();
 
-    public void save(String userId, String eventId, String message) {
-        eventCache.put(makeKey(userId, eventId), message);
+    public void save(String userEmail, String eventId, String message) {
+        eventCache.put(makeKey(userEmail, eventId), message);
     }
 
-    public Map<String, Object> findAllEventCacheStartsWithByUserId(String userId) {
-        String keyPrefix = makeKey(userId, "");
+    public Map<String, Object> findAllEventCacheStartsWithByUserEmail(String userEmail) {
+        String keyPrefix = makeKey(userEmail, "");
         return eventCache.entrySet().stream()
                 .filter(entry -> entry.getKey().startsWith(keyPrefix))
                 .collect(Collectors.toMap(
@@ -24,7 +24,7 @@ public class EventCacheRepository {
                 ));
     }
 
-    private String makeKey(String userId, String eventId) {
-        return "EVENT:USER:" + userId + ":" + eventId;
+    private String makeKey(String userEmail, String eventId) {
+        return "EVENT:USER:" + userEmail + ":" + eventId;
     }
 }

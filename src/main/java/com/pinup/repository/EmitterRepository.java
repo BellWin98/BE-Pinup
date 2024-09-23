@@ -11,25 +11,25 @@ import java.util.stream.Collectors;
 public class EmitterRepository {
     private Map<String, SseEmitter> emitters = new ConcurrentHashMap<>();
 
-    public SseEmitter save(String userId, SseEmitter sseEmitter) {
-        String key = makeKey(userId);
+    public SseEmitter save(String userEmail, SseEmitter sseEmitter) {
+        String key = makeKey(userEmail);
         emitters.put(key, sseEmitter);
         return sseEmitter;
     }
 
-    public void deleteById(String userId) {
-        String key = makeKey(userId);
+    public void deleteByUserEmail(String userEmail) {
+        String key = makeKey(userEmail);
         emitters.remove(key);
     }
 
-    public Map<String, SseEmitter> findAllEmitterStartsWithByUserId(String userId) {
-        String keyPrefix = makeKey(userId);
+    public Map<String, SseEmitter> findAllEmitterStartsWithByUserEmail(String userEmail) {
+        String keyPrefix = makeKey(userEmail);
         return emitters.entrySet().stream()
                 .filter(entry -> entry.getKey().startsWith(keyPrefix))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    private String makeKey(String userId) {
-        return "SSE:USER:" + userId + ":";
+    private String makeKey(String userEmail) {
+        return "SSE:USER:" + userEmail + ":";
     }
 }
