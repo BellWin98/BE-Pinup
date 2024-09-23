@@ -13,7 +13,7 @@ public class FriendRequestResponse {
 
     private Long id;
 
-    private FriendRequestStatus friendRequestStatus;
+    private String friendRequestStatus;
 
     private MemberResponse sender;
 
@@ -22,7 +22,7 @@ public class FriendRequestResponse {
     public static FriendRequestResponse from(FriendRequest friendRequest) {
         return FriendRequestResponse.builder()
                 .id(friendRequest.getId())
-                .friendRequestStatus(friendRequest.getFriendRequestStatus())
+                .friendRequestStatus(friendRequest.getFriendRequestStatus().getValue())
                 .sender(MemberResponse.from(friendRequest.getSender()))
                 .receiver(MemberResponse.from(friendRequest.getReceiver()))
                 .build();
