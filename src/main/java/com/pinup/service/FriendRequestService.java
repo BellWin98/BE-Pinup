@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.pinup.global.enums.FriendRequestStatus.*;
 import static com.pinup.global.exception.PinUpException.*;
 
 @RequiredArgsConstructor
@@ -83,7 +84,7 @@ public class FriendRequestService {
 
         return friendRequestRepository.findByReceiver(receiver)
                 .stream()
-                .filter(request -> request.getFriendRequestStatus() == FriendRequestStatus.PENDING)
+                .filter(request -> request.getFriendRequestStatus() == PENDING)
                 .map(FriendRequestResponse::from)
                 .collect(Collectors.toList());
     }

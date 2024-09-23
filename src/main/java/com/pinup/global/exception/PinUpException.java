@@ -20,6 +20,7 @@ public class PinUpException extends RuntimeException {
     public static final PinUpException ACCESS_DENIED = new PinUpException(ErrorCode.ACCESS_DENIED);
     public static final PinUpException EXPIRED_ACCESS_TOKEN = new PinUpException(ErrorCode.EXPIRED_ACCESS_TOKEN);
     public static final PinUpException FRIEND_REQUEST_NOT_FOUND = new PinUpException(ErrorCode.FRIEND_REQUEST_NOT_FOUND);
+    public static final PinUpException SSE_CONNECTION_ERROR = new PinUpException(ErrorCode.SSE_CONNECTION_ERROR);
 
     private final ErrorCode errorCode;
 

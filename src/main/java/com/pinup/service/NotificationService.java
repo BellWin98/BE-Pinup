@@ -1,5 +1,6 @@
 package com.pinup.service;
 
+import com.pinup.global.exception.PinUpException;
 import com.pinup.repository.EmitterRepository;
 import com.pinup.repository.EventCacheRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,8 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 import java.util.Map;
+
+import static com.pinup.global.exception.PinUpException.*;
 
 @Service
 @RequiredArgsConstructor
@@ -63,7 +66,7 @@ public class NotificationService {
                     .data(data));
         } catch (IOException exception) {
             emitterRepository.deleteByUserEmail(eventId);
-            throw new RuntimeException("연결 오류!", exception);
+            throw SSE_CONNECTION_ERROR;
         }
     }
 }
