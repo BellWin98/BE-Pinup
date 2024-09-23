@@ -1,6 +1,6 @@
 package com.pinup.service;
 
-import com.pinup.dto.response.MemberSearchResponse;
+import com.pinup.dto.response.MemberResponse;
 import com.pinup.entity.Member;
 import com.pinup.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,13 +46,13 @@ public class MemberServiceTest {
         when(memberRepository.findByNicknameContainingIgnoreCase(TEST_NICKNAME)).thenReturn(List.of(testMember));
 
         // when
-        List<MemberSearchResponse> memberSearchResponses = memberService.searchUsers(TEST_NICKNAME);
+        List<MemberResponse> memberRespons = memberService.searchUsers(TEST_NICKNAME);
 
         // then
-        assertThat(memberSearchResponses).isNotEmpty();
-        assertThat(memberSearchResponses).hasSize(1);
-        assertThat(memberSearchResponses)
-                .allSatisfy(response -> assertThat(response).isInstanceOf(MemberSearchResponse.class));
+        assertThat(memberRespons).isNotEmpty();
+        assertThat(memberRespons).hasSize(1);
+        assertThat(memberRespons)
+                .allSatisfy(response -> assertThat(response).isInstanceOf(MemberResponse.class));
     }
 
 

@@ -46,7 +46,7 @@ public class FriendRequestService {
     @Transactional
     public FriendRequestResponse acceptFriendRequest(Long friendRequestId) {
         FriendRequest friendRequest = friendRequestRepository.findById(friendRequestId)
-                .orElseThrow(() -> FRIEND_REQUEST_NOT_FOUNT);
+                .orElseThrow(() -> FRIEND_REQUEST_NOT_FOUND);
 
         friendRequest.accept();
         friendRequestRepository.save(friendRequest);
@@ -61,7 +61,7 @@ public class FriendRequestService {
     @Transactional
     public FriendRequestResponse rejectFriendRequest(Long friendRequestId) {
         FriendRequest friendRequest = friendRequestRepository.findById(friendRequestId)
-                .orElseThrow(() -> FRIEND_REQUEST_NOT_FOUNT);
+                .orElseThrow(() -> FRIEND_REQUEST_NOT_FOUND);
 
         friendRequest.reject();
         friendRequestRepository.save(friendRequest);

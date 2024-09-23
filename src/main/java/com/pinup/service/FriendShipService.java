@@ -1,6 +1,6 @@
 package com.pinup.service;
 
-import com.pinup.dto.response.MemberSearchResponse;
+import com.pinup.dto.response.MemberResponse;
 import com.pinup.entity.FriendShip;
 import com.pinup.entity.Member;
 import com.pinup.global.exception.PinUpException;
@@ -21,13 +21,13 @@ public class FriendShipService {
     private final MemberRepository memberRepository;
 
     @Transactional(readOnly = true)
-    public List<MemberSearchResponse> getAllFriends(Long memberId) {
+    public List<MemberResponse> getAllFriends(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> PinUpException.MEMBER_NOT_FOUND);
 
         return friendShipRepository.findAllByMember(member)
                 .stream()
-                .map(friendShip -> MemberSearchResponse.from(friendShip.getFriend()))
+                .map(friendShip -> MemberResponse.from(friendShip.getFriend()))
                 .collect(Collectors.toList());
     }
 

@@ -1,6 +1,6 @@
 package com.pinup.controller;
 
-import com.pinup.dto.response.MemberSearchResponse;
+import com.pinup.dto.response.MemberResponse;
 import com.pinup.global.response.ApiSuccessResponse;
 import com.pinup.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +19,8 @@ public class MemberController {
     private final MemberService memberService;
 
     @GetMapping("/search")
-    public ApiSuccessResponse<List<MemberSearchResponse>> searchMembers(@RequestParam("query") String query) {
-        List<MemberSearchResponse> searchResult = memberService.searchUsers(query);
+    public ApiSuccessResponse<List<MemberResponse>> searchMembers(@RequestParam("query") String query) {
+        List<MemberResponse> searchResult = memberService.searchUsers(query);
         return ApiSuccessResponse.from(searchResult);
     }
 

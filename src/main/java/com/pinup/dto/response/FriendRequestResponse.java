@@ -15,16 +15,16 @@ public class FriendRequestResponse {
 
     private FriendRequestStatus friendRequestStatus;
 
-    private MemberSearchResponse sender;
+    private MemberResponse sender;
 
-    private MemberSearchResponse receiver;
+    private MemberResponse receiver;
 
     public static FriendRequestResponse from(FriendRequest friendRequest) {
         return FriendRequestResponse.builder()
                 .id(friendRequest.getId())
                 .friendRequestStatus(friendRequest.getFriendRequestStatus())
-                .sender(MemberSearchResponse.from(friendRequest.getSender()))
-                .receiver(MemberSearchResponse.from(friendRequest.getReceiver()))
+                .sender(MemberResponse.from(friendRequest.getSender()))
+                .receiver(MemberResponse.from(friendRequest.getReceiver()))
                 .build();
     }
 }

@@ -10,15 +10,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MemberSearchResponse {
+public class MemberResponse {
     private Long memberId;
     private String email;
     private String name;
     private String nickname;
     private String profilePictureUrl;
 
-    public static MemberSearchResponse from(Member member) {
-        return MemberSearchResponse.builder()
+    public static MemberResponse from(Member member) {
+        return MemberResponse.builder()
                 .memberId(member.getId())
                 .email(member.getEmail())
                 .name(member.getName())

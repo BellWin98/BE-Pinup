@@ -1,6 +1,6 @@
 package com.pinup.controller;
 
-import com.pinup.dto.response.MemberSearchResponse;
+import com.pinup.dto.response.MemberResponse;
 import com.pinup.mock.WithCustomMockUser;
 import com.pinup.service.MemberService;
 import org.junit.jupiter.api.DisplayName;
@@ -38,7 +38,7 @@ public class MemberControllerTest {
     public void 인증된_사용자는_닉네임으로_다른_멤버를_검색할_수_있다() throws Exception {
         // given
         String queryNickname = "testNick";
-        MemberSearchResponse mockResponse = MemberSearchResponse.builder()
+        MemberResponse mockResponse = MemberResponse.builder()
                 .memberId(1L)
                 .email(TEST_EMAIL)
                 .name(TEST_NAME)

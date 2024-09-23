@@ -1,6 +1,6 @@
 package com.pinup.service;
 
-import com.pinup.dto.response.MemberSearchResponse;
+import com.pinup.dto.response.MemberResponse;
 import com.pinup.entity.Member;
 import com.pinup.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +17,10 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     @Transactional(readOnly = true)
-    public List<MemberSearchResponse> searchUsers(String query) {
+    public List<MemberResponse> searchUsers(String query) {
         List<Member> users = memberRepository.findByNicknameContainingIgnoreCase(query);
         return users.stream()
-                .map(MemberSearchResponse::from)
+                .map(MemberResponse::from)
                 .collect(Collectors.toList());
     }
 }

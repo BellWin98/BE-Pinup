@@ -1,6 +1,6 @@
 package com.pinup.controller;
 
-import com.pinup.dto.response.MemberSearchResponse;
+import com.pinup.dto.response.MemberResponse;
 import com.pinup.global.response.ApiSuccessResponse;
 import com.pinup.service.FriendShipService;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +21,9 @@ public class FriendShipController {
     private final FriendShipService friendShipService;
 
     @GetMapping("/{userId}")
-    public ResponseEntity<ApiSuccessResponse<List<MemberSearchResponse>>> getAllFriends(
+    public ResponseEntity<ApiSuccessResponse<List<MemberResponse>>> getAllFriends(
             @PathVariable Long userId) {
-        List<MemberSearchResponse> result = friendShipService.getAllFriends(userId);
+        List<MemberResponse> result = friendShipService.getAllFriends(userId);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiSuccessResponse.from(result));

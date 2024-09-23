@@ -1,6 +1,6 @@
 package com.pinup.controller;
 
-import com.pinup.dto.request.FriendRequestRequest;
+import com.pinup.dto.request.SendFriendRequest;
 import com.pinup.dto.response.FriendRequestResponse;
 import com.pinup.global.jwt.JwtUtil;
 import com.pinup.global.response.ApiSuccessResponse;
@@ -22,9 +22,9 @@ public class FriendRequestController {
 
     @PostMapping("/send")
     public ResponseEntity<ApiSuccessResponse<FriendRequestResponse>> sendFriendRequest(
-            @RequestBody FriendRequestRequest friendRequestRequest, @RequestHeader("Authorization") String authorizationHeader) {
+            @RequestBody SendFriendRequest sendFriendRequest, @RequestHeader("Authorization") String authorizationHeader) {
         Long senderId = jwtUtil.getUserIdFromAuthorizationHeader(authorizationHeader);
-        FriendRequestResponse result = friendRequestService.sendFriendRequest(senderId, friendRequestRequest.getReceiverId());
+        FriendRequestResponse result = friendRequestService.sendFriendRequest(senderId, sendFriendRequest.getReceiverId());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiSuccessResponse.from(result));
