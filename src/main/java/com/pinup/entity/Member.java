@@ -1,8 +1,8 @@
 package com.pinup.entity;
 
 import com.pinup.global.common.BaseTimeEntity;
-import com.pinup.global.enums.LoginType;
-import com.pinup.global.enums.Role;
+import com.pinup.enums.LoginType;
+import com.pinup.enums.Role;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

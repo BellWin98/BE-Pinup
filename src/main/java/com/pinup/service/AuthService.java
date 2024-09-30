@@ -4,7 +4,7 @@ package com.pinup.service;
 import com.pinup.entity.Member;
 
 import com.pinup.global.response.TokenResponse;
-import com.pinup.global.enums.LoginType;
+import com.pinup.enums.LoginType;
 import com.pinup.global.exception.PinUpException;
 import com.pinup.global.jwt.JwtTokenProvider;
 import com.pinup.repository.MemberRepository;

@@ -1,6 +1,7 @@
 package com.pinup.repository;
 
 import com.pinup.entity.Member;
+import com.pinup.enums.LoginType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

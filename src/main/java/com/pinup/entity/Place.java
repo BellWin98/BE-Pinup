@@ -1,7 +1,7 @@
 package com.pinup.entity;
 
 import com.pinup.global.common.BaseTimeEntity;
-import com.pinup.global.enums.PlaceType;
+import com.pinup.enums.PlaceType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
