@@ -1,4 +1,4 @@
-package com.pinup.domain.member.entity;
+package com.pinup.entity;
 
 import com.pinup.global.common.BaseTimeEntity;
 import com.pinup.global.enums.LoginType;
@@ -8,8 +8,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDate;
 
 @Getter
 @Entity
@@ -26,11 +24,10 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(columnDefinition = "VARCHAR(10)", nullable = false, unique = true)
+    @Column(columnDefinition = "VARCHAR(10)", unique = true)
     private String nickname;
 
-    private LocalDate birthDate;
-    private String profileImage;
+    private String profileImageUrl;
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -45,12 +42,11 @@ public class Member extends BaseTimeEntity {
 
     @Builder
     public Member(String email, String name, String nickname,
-                  LocalDate birthDate, String profileImage, LoginType loginType, String socialId) {
+                  String profileImageUrl, LoginType loginType, String socialId) {
         this.email = email;
         this.name = name;
         this.nickname = nickname;
-        this.birthDate = birthDate;
-        this.profileImage = profileImage;
+        this.profileImageUrl = profileImageUrl;
         this.loginType = loginType;
         this.socialId = socialId;
         this.role = Role.ROLE_USER;
