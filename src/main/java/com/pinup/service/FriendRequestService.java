@@ -1,5 +1,6 @@
 package com.pinup.service;
 
+import com.pinup.PinupApplication;
 import com.pinup.dto.response.FriendRequestResponse;
 import com.pinup.entity.FriendRequest;
 import com.pinup.entity.Member;
@@ -69,6 +70,7 @@ public class FriendRequestService {
         FriendRequest friendRequest = friendRequestRepository.findById(friendRequestId)
                 .orElseThrow(() -> FRIEND_REQUEST_NOT_FOUND);
         validateRequestReceiverIsCurrentUser(friendRequest);
+        validateFriendRequestStatus(friendRequest);
 
         friendRequest.accept();
         friendRequestRepository.save(friendRequest);
@@ -85,6 +87,7 @@ public class FriendRequestService {
         FriendRequest friendRequest = friendRequestRepository.findById(friendRequestId)
                 .orElseThrow(() -> FRIEND_REQUEST_NOT_FOUND);
         validateRequestReceiverIsCurrentUser(friendRequest);
+        validateFriendRequestStatus(friendRequest);
 
         friendRequest.reject();
         friendRequestRepository.save(friendRequest);
@@ -93,6 +96,12 @@ public class FriendRequestService {
                 friendRequest.getReceiver().getName() + "님이 친구 요청을 거절했습니다.");
 
         return FriendRequestResponse.from(friendRequest);
+    }
+
+    private void validateFriendRequestStatus(FriendRequest friendRequest) {
+        if(friendRequest.getFriendRequestStatus() != PENDING){
+            throw ALREADY_PROCESSED_FRIEND_REQUEST;
+        }
     }
 
     private void validateRequestReceiverIsCurrentUser(FriendRequest friendRequest) {

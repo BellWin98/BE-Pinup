@@ -25,6 +25,7 @@ public class PinUpException extends RuntimeException {
     public static final PinUpException ALREADY_EXIST_FRIEND_REQUEST = new PinUpException(ErrorCode.ALREADY_EXIST_FRIEND_REQUEST);
     public static final PinUpException FRIEND_REQUEST_RECEIVER_MISMATCH = new PinUpException(ErrorCode.FRIEND_REQUEST_RECEIVER_MISMATCH);
     public static final PinUpException SELF_FRIEND_REQUEST = new PinUpException(ErrorCode.SELF_FRIEND_REQUEST);
+    public static final PinUpException ALREADY_PROCESSED_FRIEND_REQUEST = new PinUpException(ErrorCode.ALREADY_PROCESSED_FRIEND_REQUEST);
 
     private final ErrorCode errorCode;
 
