@@ -15,14 +15,14 @@ public class Keyword extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String comment;
+    private String keyword;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "review_id", nullable = false)
     private Review review;
 
-    public Keyword(String comment) {
-        this.comment = comment;
+    public Keyword(String keyword) {
+        this.keyword = keyword;
     }
 
     public void attachReview(Review review) {

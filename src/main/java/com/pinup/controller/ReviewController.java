@@ -1,14 +1,18 @@
 package com.pinup.controller;
 
+import com.pinup.dto.request.PlaceRequest;
 import com.pinup.dto.request.ReviewRequest;
-import com.pinup.dto.response.RegisterReviewResponse;
+import com.pinup.dto.response.ReviewResponse;
 import com.pinup.global.response.ApiSuccessResponse;
 import com.pinup.service.ReviewService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -26,15 +30,17 @@ public class ReviewController {
 
     /**
      * 리뷰 등록 API
-     * 내용, 평점, 사진 여러장, 키워드 여러개 등록 가능
+     * 내용, 평점, 사진 최대 3장, 키워드 최대 10개 등록 가능
+     * 업체 첫 리뷰 등록 시, DB에 업체 사전 등록 필요
      */
-    @PostMapping("/{placeId}/reviews")
-    public ResponseEntity<ApiSuccessResponse<RegisterReviewResponse>> register(
-            @PathVariable("placeId") Long placeId,
+    @PostMapping("/reviews")
+    public ResponseEntity<ApiSuccessResponse<ReviewResponse>> register(
             @Valid ReviewRequest reviewRequest,
-            @RequestParam(value = "multipartFiles", required = false) List<MultipartFile> multipartFiles) {
+            @Valid PlaceRequest placeRequest,
+            @RequestParam(value = "multipartFiles", required = false)
+            List<MultipartFile> multipartFiles) {
 
-        RegisterReviewResponse result = reviewService.register(placeId, reviewRequest, multipartFiles);
+        ReviewResponse result = reviewService.register(reviewRequest, placeRequest, multipartFiles);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
