@@ -32,4 +32,20 @@ public class FriendShipController {
 
         return ResponseEntity.ok(ApiSuccessResponse.NO_DATA_RESPONSE);
     }
+
+    @GetMapping
+    public ResponseEntity<ApiSuccessResponse<List<MemberResponse>>> getAllFriends() {
+        List<MemberResponse> result = friendShipService.getAllFriends();
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiSuccessResponse.from(result));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiSuccessResponse<MemberResponse>> searchMembers(@RequestParam("query") String query) {
+        MemberResponse result = friendShipService.searchFriends(query);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiSuccessResponse.from(result));
+    }
 }

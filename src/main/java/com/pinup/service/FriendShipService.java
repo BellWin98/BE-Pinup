@@ -10,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -64,5 +65,35 @@ public class FriendShipService {
         FriendShip friendship2 = friendShipRepository.findByMemberAndFriend(friend, currentUser)
                 .orElseThrow(() -> FRIENDSHIP_NOT_FOUND);
         friendShipRepository.delete(friendship2);
+    }
+
+    @Transactional(readOnly = true)
+    public List<MemberResponse> getAllFriends() {
+        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        Member currentUser = memberRepository.findByEmail(currentUserEmail)
+                .orElseThrow(() -> MEMBER_NOT_FOUND);
+
+        List<MemberResponse> friendList = friendShipRepository.findAllByMember(currentUser)
+                .stream()
+                .map(friendShip -> MemberResponse.from(friendShip.getFriend()))
+                .collect(Collectors.toList());
+        friendList.sort(Comparator.comparing(MemberResponse::getNickname));
+
+        return friendList;
+    }
+
+    @Transactional(readOnly = true)
+    public MemberResponse searchFriends(String query) {
+        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        Member member = memberRepository.findByEmail(currentUserEmail)
+                .orElseThrow(() -> MEMBER_NOT_FOUND);
+
+        return friendShipRepository.findAllByMember(member)
+                .stream()
+                .filter(friendShip -> friendShip.getFriend().getNickname().equals(query))
+                .map(FriendShip::getFriend)
+                .map(MemberResponse::from)
+                .findFirst()
+                .orElseThrow(() -> FRIEND_NOT_FOUND);
     }
 }
