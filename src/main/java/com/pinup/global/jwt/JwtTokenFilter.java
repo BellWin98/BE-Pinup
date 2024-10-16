@@ -33,6 +33,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (PinUpException e) {
             response.sendError(e.getErrorCode().getHttpStatus().value(), e.getMessage());
+        } catch (Exception e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         } finally {
             SecurityContextHolder.clearContext();
         }
