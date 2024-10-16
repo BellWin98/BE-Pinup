@@ -43,7 +43,7 @@ public class FriendShipController {
 
     @GetMapping("/search")
     public ResponseEntity<ApiSuccessResponse<MemberResponse>> searchMembers(@RequestParam("query") String query) {
-        MemberResponse result = friendShipService.searchFriends(query);
+        MemberResponse result = friendShipService.searchMyFriendInfoByNickname(query);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiSuccessResponse.from(result));

@@ -5,7 +5,6 @@ import com.pinup.entity.Member;
 import com.pinup.global.exception.PinUpException;
 import com.pinup.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,11 +25,15 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public MemberResponse getCurrentMember(){
-        String currentMemberEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member currentMember = memberRepository.findByEmail(currentMemberEmail)
-                .orElseThrow(() -> PinUpException.MEMBER_NOT_FOUND);
+    public MemberResponse getCurrentMemberInfo(){
+        Member currentMember = getCurrentMember();
 
         return MemberResponse.from(currentMember);
+    }
+
+    private Member getCurrentMember() {
+        String currentMemberEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        return memberRepository.findByEmail(currentMemberEmail)
+                .orElseThrow(() -> PinUpException.MEMBER_NOT_FOUND);
     }
 }

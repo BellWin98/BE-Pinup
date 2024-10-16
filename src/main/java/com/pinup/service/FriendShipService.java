@@ -51,10 +51,7 @@ public class FriendShipService {
 
     @Transactional
     public void removeFriend(Long friendId) {
-        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        Member currentUser = memberRepository.findByEmail(currentUserEmail)
-                .orElseThrow(() -> MEMBER_NOT_FOUND);
+        Member currentUser = getCurrentMember();
         Member friend = memberRepository.findById(friendId)
                 .orElseThrow(() -> MEMBER_NOT_FOUND);
 
@@ -69,9 +66,7 @@ public class FriendShipService {
 
     @Transactional(readOnly = true)
     public List<MemberResponse> getAllFriends() {
-        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member currentUser = memberRepository.findByEmail(currentUserEmail)
-                .orElseThrow(() -> MEMBER_NOT_FOUND);
+        Member currentUser = getCurrentMember();
 
         List<MemberResponse> friendList = friendShipRepository.findAllByMember(currentUser)
                 .stream()
@@ -83,10 +78,8 @@ public class FriendShipService {
     }
 
     @Transactional(readOnly = true)
-    public MemberResponse searchFriends(String query) {
-        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member member = memberRepository.findByEmail(currentUserEmail)
-                .orElseThrow(() -> MEMBER_NOT_FOUND);
+    public MemberResponse searchMyFriendInfoByNickname(String query) {
+        Member member = getCurrentMember();
 
         return friendShipRepository.findAllByMember(member)
                 .stream()
@@ -95,5 +88,11 @@ public class FriendShipService {
                 .map(MemberResponse::from)
                 .findFirst()
                 .orElseThrow(() -> FRIEND_NOT_FOUND);
+    }
+
+    private Member getCurrentMember() {
+        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        return memberRepository.findByEmail(currentUserEmail)
+                .orElseThrow(() -> MEMBER_NOT_FOUND);
     }
 }

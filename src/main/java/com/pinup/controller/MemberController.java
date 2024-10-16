@@ -27,8 +27,8 @@ public class MemberController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<ApiSuccessResponse<MemberResponse>> getCurrentMember() {
-        MemberResponse currentMember = memberService.getCurrentMember();
+    public ResponseEntity<ApiSuccessResponse<MemberResponse>> getCurrentMemberInfo() {
+        MemberResponse currentMember = memberService.getCurrentMemberInfo();
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiSuccessResponse.from(currentMember));
