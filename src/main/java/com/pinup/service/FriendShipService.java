@@ -10,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,10 +51,7 @@ public class FriendShipService {
 
     @Transactional
     public void removeFriend(Long friendId) {
-        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        Member currentUser = memberRepository.findByEmail(currentUserEmail)
-                .orElseThrow(() -> MEMBER_NOT_FOUND);
+        Member currentUser = getCurrentMember();
         Member friend = memberRepository.findById(friendId)
                 .orElseThrow(() -> MEMBER_NOT_FOUND);
 
@@ -64,5 +62,37 @@ public class FriendShipService {
         FriendShip friendship2 = friendShipRepository.findByMemberAndFriend(friend, currentUser)
                 .orElseThrow(() -> FRIENDSHIP_NOT_FOUND);
         friendShipRepository.delete(friendship2);
+    }
+
+    @Transactional(readOnly = true)
+    public List<MemberResponse> getAllFriends() {
+        Member currentUser = getCurrentMember();
+
+        List<MemberResponse> friendList = friendShipRepository.findAllByMember(currentUser)
+                .stream()
+                .map(friendShip -> MemberResponse.from(friendShip.getFriend()))
+                .collect(Collectors.toList());
+        friendList.sort(Comparator.comparing(MemberResponse::getNickname));
+
+        return friendList;
+    }
+
+    @Transactional(readOnly = true)
+    public MemberResponse searchMyFriendInfoByNickname(String query) {
+        Member member = getCurrentMember();
+
+        return friendShipRepository.findAllByMember(member)
+                .stream()
+                .filter(friendShip -> friendShip.getFriend().getNickname().equals(query))
+                .map(FriendShip::getFriend)
+                .map(MemberResponse::from)
+                .findFirst()
+                .orElseThrow(() -> FRIEND_NOT_FOUND);
+    }
+
+    private Member getCurrentMember() {
+        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        return memberRepository.findByEmail(currentUserEmail)
+                .orElseThrow(() -> MEMBER_NOT_FOUND);
     }
 }
