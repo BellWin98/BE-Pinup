@@ -31,7 +31,6 @@ public class Place extends BaseTimeEntity {
     private String longitude; // 경도(X)
     private String latitude; // 위도(Y)
 
-    private Double averageRating = 0.0; // 평균별점
     private String status; // 상태
 
     @Enumerated(EnumType.STRING)
@@ -56,21 +55,5 @@ public class Place extends BaseTimeEntity {
     public void updateDefaultImgUrl(String defaultImgUrl) {
         this.defaultImgUrl = defaultImgUrl;
     }
-
-    // 평균 평점 업데이트 (전체 유저)
-    public void updateAverageRating() {
-
-        double totalRating = reviews.stream()
-                .mapToDouble(Review::getRating)
-                .sum();
-
-        double calculatedAverage = totalRating / reviews.size();
-
-        // 소수점 둘째 자리까지 반올림
-        this.averageRating = Math.round(calculatedAverage * 100) / 100.0;
-    }
-
-    // TODO: 내 친구들이 해당 가게에 부여한 평점의 평균 계산 로직 구현예정.
-
 
 }

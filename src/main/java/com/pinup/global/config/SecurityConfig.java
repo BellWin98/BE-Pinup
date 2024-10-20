@@ -34,8 +34,6 @@ public class SecurityConfig {
             "/api/auth",
             "/api/auth/**",
             "/chats",
-            "/api/places",
-            "/api/places/**"
     };
 
     @Bean

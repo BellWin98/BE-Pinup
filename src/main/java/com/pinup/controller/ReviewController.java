@@ -46,9 +46,4 @@ public class ReviewController {
                 .status(HttpStatus.CREATED)
                 .body(ApiSuccessResponse.from(result));
     }
-
-    /**
-     * 리뷰 조회 API
-     * 가게에 내 친구들이 쓴 리뷰와 내가 쓴 리뷰만 조회
-     */
 }
