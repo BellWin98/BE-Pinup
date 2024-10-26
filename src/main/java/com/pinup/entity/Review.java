@@ -41,7 +41,6 @@ public class Review extends BaseTimeEntity {
     public Review(String comment, Double rating) {
         this.comment = comment;
         this.rating = rating;
-
     }
 
     public void attachPlace(Place place){
