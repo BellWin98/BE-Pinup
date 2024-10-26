@@ -27,10 +27,8 @@ public class Place extends BaseTimeEntity {
     private String address; // 주소
     private String roadAddress; // 도로명 주소
     private String defaultImgUrl; // 기본 이미지
-
     private String longitude; // 경도(X)
     private String latitude; // 위도(Y)
-
     private String status; // 상태
 
     @Enumerated(EnumType.STRING)
@@ -55,5 +53,4 @@ public class Place extends BaseTimeEntity {
     public void updateDefaultImgUrl(String defaultImgUrl) {
         this.defaultImgUrl = defaultImgUrl;
     }
-
 }
