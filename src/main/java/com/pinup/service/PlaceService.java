@@ -23,7 +23,7 @@ public class PlaceService {
     private final KakaoMapModule kakaoMapModule;
 
     public List<PlaceResponse> searchPlaces(String category, String query, String longitude,
-                                            String latitude, int radius) {
+                                            String latitude, int radius, String sort) {
 
         List<Map<String, Object>> placeInfoList = new ArrayList<>();
         Member currentMember = findMember();
@@ -34,16 +34,17 @@ public class PlaceService {
             for (PlaceCategory placeCategory : PlaceCategory.values()) {
                 String placeType = placeCategory.name();
                 if (placeType.equalsIgnoreCase(category)) {
-                    placeInfoList = kakaoMapModule.searchPlaces(
-                            currentMember, "category_group_code", placeCategory.getCode(), longitude, latitude, radius
-                    );
+                    placeInfoList = kakaoMapModule
+                            .searchPlaces(currentMember, "category_group_code", placeCategory.getCode(),
+                                    longitude, latitude, radius, sort);
                     break;
                 }
             }
         }
 
         if (query != null && !query.isEmpty()) {
-            placeInfoList = kakaoMapModule.searchPlaces(currentMember, "query", query, longitude, latitude, radius);
+            placeInfoList = kakaoMapModule
+                    .searchPlaces(currentMember, "query", query, longitude, latitude, radius, sort);
         }
 
         return placeInfoList.stream()
