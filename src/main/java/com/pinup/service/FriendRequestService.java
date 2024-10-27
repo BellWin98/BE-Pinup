@@ -1,11 +1,8 @@
 package com.pinup.service;
 
-import com.pinup.PinupApplication;
 import com.pinup.dto.response.FriendRequestResponse;
 import com.pinup.entity.FriendRequest;
 import com.pinup.entity.Member;
-import com.pinup.global.enums.FriendRequestStatus;
-import com.pinup.global.exception.PinUpException;
 import com.pinup.global.kafka.KafkaProduceService;
 import com.pinup.repository.FriendRequestRepository;
 import com.pinup.repository.MemberRepository;
@@ -23,6 +20,7 @@ import static com.pinup.global.exception.PinUpException.*;
 @RequiredArgsConstructor
 @Service
 public class FriendRequestService {
+
     private final FriendRequestRepository friendRequestRepository;
     private final MemberRepository memberRepository;
     private final FriendShipService friendShipService;
