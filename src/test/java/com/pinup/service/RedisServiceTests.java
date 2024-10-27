@@ -32,18 +32,18 @@ public class RedisServiceTests {
     void testSetValues() {
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
-        redisService.setValues(TEST_EMAIL, TEST_REFRESH_TOKEN);
+        redisService.setValues(TEST_MEMBER_EMAIL, TEST_REFRESH_TOKEN);
 
-        verify(valueOperations, times(1)).set(eq(TEST_EMAIL), eq(TEST_REFRESH_TOKEN), any());
+        verify(valueOperations, times(1)).set(eq(TEST_MEMBER_EMAIL), eq(TEST_REFRESH_TOKEN), any());
     }
 
     @Test
     @DisplayName("Redis에서 값을 조회해야 함")
     void testGetValues() {
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
-        when(valueOperations.get(TEST_EMAIL)).thenReturn(TEST_REFRESH_TOKEN);
+        when(valueOperations.get(TEST_MEMBER_EMAIL)).thenReturn(TEST_REFRESH_TOKEN);
 
-        String actualValue = redisService.getValues(TEST_EMAIL);
+        String actualValue = redisService.getValues(TEST_MEMBER_EMAIL);
 
         assertEquals(TEST_REFRESH_TOKEN, actualValue);
     }
@@ -51,10 +51,10 @@ public class RedisServiceTests {
     @Test
     @DisplayName("Redis에서 값을 삭제해야 함")
     void testDeleteValues() {
-        when(redisTemplate.delete(TEST_EMAIL)).thenReturn(true);
+        when(redisTemplate.delete(TEST_MEMBER_EMAIL)).thenReturn(true);
 
-        redisService.deleteValues(TEST_EMAIL);
+        redisService.deleteValues(TEST_MEMBER_EMAIL);
 
-        verify(redisTemplate, times(1)).delete(TEST_EMAIL);
+        verify(redisTemplate, times(1)).delete(TEST_MEMBER_EMAIL);
     }
 }

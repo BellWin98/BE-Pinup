@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
 
-import static com.pinup.constants.TestConstants.TEST_EMAIL;
+import static com.pinup.constants.TestConstants.TEST_MEMBER_EMAIL;
 import static com.pinup.constants.TestConstants.TEST_INVALID_TOKEN;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -27,7 +27,7 @@ public class JwtTokenFilterTests {
     @Test
     @DisplayName("유효한 토큰으로 접근 시 성공해야 함")
     void testValidToken() throws Exception {
-        String token = jwtTokenProvider.createToken(TEST_EMAIL, Role.ROLE_USER);
+        String token = jwtTokenProvider.createAccessToken(TEST_MEMBER_EMAIL, Role.ROLE_USER);
 
         mockMvc.perform(get("/")
                         .header("Authorization", "Bearer " + token))

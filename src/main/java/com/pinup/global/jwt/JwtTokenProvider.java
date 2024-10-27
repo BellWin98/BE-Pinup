@@ -44,7 +44,7 @@ public class JwtTokenProvider {
         this.objectMapper = objectMapper;
     }
 
-    public String createToken(String email, Role role) {
+    public String createAccessToken(String email, Role role) {
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("role", role);
 

@@ -8,6 +8,7 @@ import com.pinup.enums.LoginType;
 import com.pinup.global.exception.PinUpException;
 import com.pinup.global.jwt.JwtTokenProvider;
 import com.pinup.repository.MemberRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -64,23 +65,37 @@ public class AuthService {
         String socialId = (String) userInfo.get("sub");
         String email = (String) userInfo.get("email");
         String name = (String) userInfo.get("name");
-        String picture = (String) userInfo.get("picture");
+        String profilePictureUrl = (String) userInfo.get("picture");
 
         Member member = memberRepository.findByEmail(email)
                 .orElseGet(() -> memberRepository.save(Member.builder()
                         .email(email)
                         .name(name)
-                        .profileImage(picture)
+                        .profileImageUrl(profilePictureUrl)
                         .loginType(LoginType.GOOGLE)
                         .socialId(socialId)
                         .build()));
 
-        String jwtToken = jwtTokenProvider.createToken(member.getEmail(), member.getRole());
+        String jwtToken = jwtTokenProvider.createAccessToken(member.getEmail(), member.getRole());
         String refreshToken = jwtTokenProvider.createRefreshToken(email);
 
         redisService.setValues(member.getEmail(), refreshToken);
 
         return new TokenResponse(jwtToken, refreshToken);
+    }
+
+    @Transactional
+    public TokenResponse getTokens(HttpServletRequest request) {
+
+        String token = request.getHeader("Authorization");
+        Map<String, Object> userInfo = getUserInfo(token);
+        Member createdMember = createMember(userInfo);
+        String accessToken = jwtTokenProvider.createAccessToken(createdMember.getEmail(), createdMember.getRole());
+        String refreshToken = jwtTokenProvider.createRefreshToken(createdMember.getEmail());
+
+        redisService.setValues(createdMember.getEmail(), refreshToken);
+
+        return new TokenResponse(accessToken, refreshToken);
     }
 
     public TokenResponse refresh(String refreshToken) {
@@ -97,7 +112,7 @@ public class AuthService {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> PinUpException.MEMBER_NOT_FOUND);
 
-        String newAccessToken = jwtTokenProvider.createToken(email, member.getRole());
+        String newAccessToken = jwtTokenProvider.createAccessToken(email, member.getRole());
         String newRefreshToken = jwtTokenProvider.createRefreshToken(email);
 
         redisService.setValues(email, newRefreshToken);
@@ -151,4 +166,20 @@ public class AuthService {
         return response.getBody();
     }
 
+    private Member createMember(Map<String, Object> userInfo) {
+
+        String socialId = (String) userInfo.get("sub");
+        String email = (String) userInfo.get("email");
+        String name = (String) userInfo.get("name");
+        String profilePictureUrl = (String) userInfo.get("picture");
+
+        return memberRepository.findByEmail(email)
+                .orElseGet(() -> memberRepository.save(Member.builder()
+                        .email(email)
+                        .name(name)
+                        .profileImageUrl(profilePictureUrl)
+                        .loginType(LoginType.GOOGLE)
+                        .socialId(socialId)
+                        .build()));
+    }
 }

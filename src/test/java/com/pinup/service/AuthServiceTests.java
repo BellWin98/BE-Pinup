@@ -37,10 +37,10 @@ public class AuthServiceTests {
     @DisplayName("토큰 갱신 시 새로운 토큰을 반환해야 함")
     void testRefresh() {
         when(jwtTokenProvider.validateToken(TEST_REFRESH_TOKEN)).thenReturn(true);
-        when(jwtTokenProvider.getEmail(TEST_REFRESH_TOKEN)).thenReturn(TEST_EMAIL);
+        when(jwtTokenProvider.getEmail(TEST_REFRESH_TOKEN)).thenReturn(TEST_MEMBER_EMAIL);
         when(redisService.getValues(any())).thenReturn(TEST_REFRESH_TOKEN);
         when(memberRepository.findByEmail(any())).thenReturn(Optional.of(Member.builder().build()));
-        when(jwtTokenProvider.createToken(any(), any())).thenReturn(TEST_NEW_ACCESS_TOKEN);
+        when(jwtTokenProvider.createAccessToken(any(), any())).thenReturn(TEST_NEW_ACCESS_TOKEN);
         when(jwtTokenProvider.createRefreshToken(any())).thenReturn(TEST_NEW_REFRESH_TOKEN);
 
         TokenResponse response = authService.refresh(TEST_REFRESH_TOKEN);
@@ -55,10 +55,10 @@ public class AuthServiceTests {
     @DisplayName("로그아웃 시 리프레시 토큰을 삭제해야 함")
     void testLogout() {
         when(jwtTokenProvider.validateToken(TEST_ACCESS_TOKEN)).thenReturn(true);
-        when(jwtTokenProvider.getEmail(TEST_ACCESS_TOKEN)).thenReturn(TEST_EMAIL);
+        when(jwtTokenProvider.getEmail(TEST_ACCESS_TOKEN)).thenReturn(TEST_MEMBER_EMAIL);
 
         authService.logout(TEST_ACCESS_TOKEN);
 
-        verify(redisService, times(1)).deleteValues(TEST_EMAIL);
+        verify(redisService, times(1)).deleteValues(TEST_MEMBER_EMAIL);
     }
 }

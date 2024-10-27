@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,35 +22,33 @@ public class PlaceService {
     private final MemberRepository memberRepository;
     private final KakaoMapModule kakaoMapModule;
 
+    public List<PlaceResponse> searchPlaces(String category, String query, String longitude,
+                                            String latitude, int radius) {
 
-    public List<PlaceResponse> searchPlacesByCategory(String category, String longitude, String latitude) {
-
+        List<Map<String, Object>> placeInfoList = new ArrayList<>();
         Member currentMember = findMember();
 
-        List<Map<String, Object>> kakaoMapPlaceInfoList = new ArrayList<>();
-        // Enum에서 category와 일치하는 장소의 code 찾기
-        for (PlaceCategory placeCategory : PlaceCategory.values()) {
-            String placeType = placeCategory.name();
-            if (placeType.equalsIgnoreCase(category)) {
-                 kakaoMapPlaceInfoList = kakaoMapModule.searchPlacesByCategory(
-                         currentMember,
-                         placeCategory,
-                         longitude,
-                         latitude
-                 );
+        if (category != null && !category.isEmpty()) {
+
+            // Enum 에서 category 와 일치하는 장소의 code 찾기
+            for (PlaceCategory placeCategory : PlaceCategory.values()) {
+                String placeType = placeCategory.name();
+                if (placeType.equalsIgnoreCase(category)) {
+                    placeInfoList = kakaoMapModule.searchPlaces(
+                            currentMember, "category_group_code", placeCategory.getCode(), longitude, latitude, radius
+                    );
+                    break;
+                }
             }
         }
 
-        List<PlaceResponse> placeResponseList = new ArrayList<>();
-
-        if (!kakaoMapPlaceInfoList.isEmpty()) {
-            for (Map<String, Object> placeInfo : kakaoMapPlaceInfoList) {
-                PlaceResponse placeResponse = PlaceResponse.from(placeInfo);
-                placeResponseList.add(placeResponse);
-            }
+        if (query != null && !query.isEmpty()) {
+            placeInfoList = kakaoMapModule.searchPlaces(currentMember, "query", query, longitude, latitude, radius);
         }
 
-        return placeResponseList;
+        return placeInfoList.stream()
+                .map(PlaceResponse::from)
+                .collect(Collectors.toList());
     }
 
     private Member findMember() {

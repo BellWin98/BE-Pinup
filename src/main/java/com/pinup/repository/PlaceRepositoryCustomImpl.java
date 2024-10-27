@@ -3,7 +3,6 @@ package com.pinup.repository;
 import com.pinup.dto.response.PlaceReviewInfoDto;
 import com.pinup.dto.response.PlaceReviewInfoDto.ReviewInfoForUserDto;
 import com.pinup.entity.Member;
-import com.pinup.enums.PlaceCategory;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +29,9 @@ public class PlaceRepositoryCustomImpl implements PlaceRepositoryCustom{
     }
 
     @Override
-    public PlaceReviewInfoDto findPlaceReviewInfo(String kakaoMapId, PlaceCategory placeCategory, Member currentMember) {
+    public PlaceReviewInfoDto findPlaceReviewInfo(String kakaoMapId, Member currentMember) {
 
-        List<Tuple> result = fetchPlaceReviewInfoFromDB(kakaoMapId, placeCategory, currentMember);
+        List<Tuple> result = fetchPlaceReviewInfoFromDB(kakaoMapId, currentMember);
 
         List<ReviewInfoForUserDto> reviewInfoForUserDtoList = result.stream().map(
                 tuple -> ReviewInfoForUserDto.builder()
@@ -54,9 +53,7 @@ public class PlaceRepositoryCustomImpl implements PlaceRepositoryCustom{
                 .build();
     }
 
-    private List<Tuple> fetchPlaceReviewInfoFromDB(String kakaoMapId,
-                                                   PlaceCategory placeCategory,
-                                                   Member currentMember) {
+    private List<Tuple> fetchPlaceReviewInfoFromDB(String kakaoMapId, Member currentMember) {
         return queryFactory
                 .select(review.id,
                         member.name,
@@ -70,7 +67,6 @@ public class PlaceRepositoryCustomImpl implements PlaceRepositoryCustom{
                 .join(review.place, place)
                 .leftJoin(friendShip).on(friendShip.friend.eq(member))
                 .where(place.kakaoMapId.eq(kakaoMapId)
-                        .and(place.placeCategory.eq(placeCategory))
                         .and(friendShip.member.eq(currentMember) // 내 친구들이 쓴 리뷰
                                 .or(review.member.eq(currentMember)))) // 내가 쓴 리뷰
                 .orderBy(review.createdAt.asc())

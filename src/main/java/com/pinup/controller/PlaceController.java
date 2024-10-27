@@ -21,20 +21,18 @@ public class PlaceController {
         this.placeService = placeService;
     }
 
-    /**
-     * 카카오맵 API - 카테고리로 장소 리스트 조회
-     */
     @GetMapping("/search")
-    ResponseEntity<ApiSuccessResponse<List<PlaceResponse>>> searchPlacesByCategory(
-            @RequestParam("category") String category,
-            @RequestParam("longitude") String longitude,
-            @RequestParam("latitude") String latitude
-            ) {
+    public ResponseEntity<ApiSuccessResponse<List<PlaceResponse>>> searchPlaces(
+            @RequestParam(value = "category", required = false) String category,
+            @RequestParam(value = "query", required = false) String query,
+            @RequestParam(value = "longitude") String longitude,
+            @RequestParam(value = "latitude") String latitude,
+            @RequestParam(value = "radius", defaultValue = "20000") int radius
+    ) {
+       List<PlaceResponse> result = placeService.searchPlaces(category, query, longitude, latitude, radius);
 
-        List<PlaceResponse> result = placeService.searchPlacesByCategory(category, longitude, latitude);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiSuccessResponse.from(result));
+       return ResponseEntity
+               .status(HttpStatus.OK)
+               .body(ApiSuccessResponse.from(result));
     }
 }

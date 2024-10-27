@@ -4,8 +4,11 @@ package com.pinup.controller;
 import com.pinup.global.response.ApiSuccessResponse;
 import com.pinup.global.response.TokenResponse;
 import com.pinup.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -33,6 +36,15 @@ public class AuthController {
     public ApiSuccessResponse<TokenResponse> googleCallback(@RequestParam("code") String code) {
         TokenResponse tokenResponse = authService.googleLogin(code);
         return ApiSuccessResponse.from(tokenResponse);
+    }
+
+    @GetMapping("/tokens")
+    public ResponseEntity<ApiSuccessResponse<TokenResponse>> getTokens(HttpServletRequest request) {
+        TokenResponse tokenResponse = authService.getTokens(request);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiSuccessResponse.from(tokenResponse));
     }
 
     @PostMapping("/refresh")
