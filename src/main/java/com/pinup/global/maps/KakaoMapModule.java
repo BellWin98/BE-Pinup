@@ -39,7 +39,7 @@ public class KakaoMapModule {
     private String apiKey;
 
     public List<Map<String, Object>> searchPlaces(Member currentMember, String key, String value,
-                                                  String longitude, String latitude, int radius) {
+                                                  String longitude, String latitude, int radius, String sort) {
 
         String path;
         if (key.equals("category_group_code")) {
@@ -48,7 +48,7 @@ public class KakaoMapModule {
             path = KEYWORD_PATH;
         }
 
-        URI uri = buildPlaceSearchUri(path, key, value, longitude, latitude, radius);
+        URI uri = buildPlaceSearchUri(path, key, value, longitude, latitude, radius, sort);
 
         return executeSearchRequest(uri, currentMember);
 
@@ -103,7 +103,7 @@ public class KakaoMapModule {
     }
 
     private URI buildPlaceSearchUri(String path, String key, String value,
-                                    String longitude, String latitude, int radius) {
+                                    String longitude, String latitude, int radius, String sort) {
 
         UriComponentsBuilder uriBuilder = UriComponentsBuilder
                 .fromUriString(KAKAO_URI)
@@ -111,7 +111,8 @@ public class KakaoMapModule {
                 .queryParam(key, value)
                 .queryParam("x", longitude)
                 .queryParam("y", latitude)
-                .queryParam("radius", radius);
+                .queryParam("radius", radius)
+                .queryParam("sort", sort);
 
         return uriBuilder.encode().build().toUri();
     }
