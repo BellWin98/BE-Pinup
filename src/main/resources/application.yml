@@ -33,6 +33,10 @@ spring:
         default_batch_fetch_size: 500 # 1:N 컬렉션 조회 시 성능 최적화
         highlight_sql: true
     open-in-view: false # 영속성 컨텍스트의 생존 범위를 트랜잭션 범위로 한정
+  data:
+    redis:
+      host: redis
+      port: 6379
 
 logging:
   level:
