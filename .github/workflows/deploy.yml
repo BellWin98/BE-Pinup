@@ -54,13 +54,12 @@ jobs:
         # docker image prune -f: 사용되지 않는 도커 이미지 강제 삭제하여 디스크 공간 확보
         uses: appleboy/ssh-action@master
         env:
-          COMPOSE: /home/ubuntu/docker-compose.yml
+          COMPOSE: "/home/ubuntu/docker-compose.yml"
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            sudo docker-compose -f $COMPOSE down
+            sudo docker-compose -f $COMPOSE down --rmi all
             sudo docker pull ${{ secrets.DOCKER_REPO }}/pinup
-            docker-compose -f $COMPOSE up -d
-            docker image prune -f
+            sudo docker-compose -f $COMPOSE up -d
