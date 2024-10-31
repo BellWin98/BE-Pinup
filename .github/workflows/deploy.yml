@@ -44,8 +44,9 @@ jobs:
         # -f Dockerfile: 사용할 Dockerfile 명시
         # -t: 빌드된 이미지에 태그 지정하는 옵션
         run: |
+          ls -la
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -t ${{ secrets.DOCKER_REPO }}/pinup .
+          docker build --no-cache -t ${{ secrets.DOCKER_REPO }}/pinup .
           docker push ${{ secrets.DOCKER_REPO }}/pinup
 
       - name: Deploy to Server
