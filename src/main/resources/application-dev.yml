@@ -6,8 +6,7 @@ spring:
     url: jdbc:mariadb://${DB_HOST}:3306/pinup?useSSL=false&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
-  kafka:
-    bootstrap-servers: localhost:29092, localhost:39092, localhost:49092
+
 
 kakao:
   key: ${MAP_KAKAO_KEY}
