@@ -126,8 +126,7 @@ services:
       - pinup_net
 
 networks:
-  pinup_net:
-    external: true
+  pinup_net: {}
 
 volumes:
   mariadb_data:
