@@ -16,7 +16,7 @@ WORKDIR /app
 COPY --from=builder /app/build/libs/*.jar pinup.jar
 
 # .jar 실행 시 환경변수(프로퍼티) 설정
-ENV SPRING_PROFILE local
+ENV SPRING_PROFILE dev
 
 VOLUME /tmp
 
