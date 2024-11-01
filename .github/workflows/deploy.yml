@@ -47,8 +47,8 @@ jobs:
         run: |
           ls -la
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -t ${{ secrets.DOCKER_REPO }}/pinup:v1.0.0 .
-          docker push ${{ secrets.DOCKER_REPO }}/pinup:v1.0.0
+          docker build -t ${{ secrets.DOCKER_REPO }}/pinup:latest .
+          docker push ${{ secrets.DOCKER_REPO }}/pinup:latest
 
       - name: Deploy to Server
         # 지정한 서버에 ssh 로 접속하고, script 실행
