@@ -34,9 +34,10 @@ jobs:
         working-directory: .
         # 실행 가능한 jar파일만 생성 (plain jar 미생성)
         # ./gradlew bootJar
+        # --no-daemon: querydsl 사용하므로 이전 build 시 캐시 삭제
         run: |
           chmod +x ./gradlew 
-          ./gradlew clean build -x test
+          ./gradlew clean build -x test --no-daemon
 
       # Dockerfile 을 통해 이미지 빌드 및 docker repo 에 push
       - name: Docker build & Push to Docker Repo
@@ -46,8 +47,8 @@ jobs:
         run: |
           ls -la
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build --no-cache -t ${{ secrets.DOCKER_REPO }}/pinup .
-          docker push ${{ secrets.DOCKER_REPO }}/pinup
+          docker build -t ${{ secrets.DOCKER_REPO }}/pinup:v1.0.0 .
+          docker push ${{ secrets.DOCKER_REPO }}/pinup:v1.0.0
 
       - name: Deploy to Server
         # 지정한 서버에 ssh 로 접속하고, script 실행
@@ -62,8 +63,6 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           envs: COMPOSE
           script: |
-            ls -la
-            pwd
             sudo docker-compose -f $COMPOSE down --rmi all
             sudo docker pull ${{ secrets.DOCKER_REPO }}/pinup
             sudo docker-compose -f $COMPOSE up -d
