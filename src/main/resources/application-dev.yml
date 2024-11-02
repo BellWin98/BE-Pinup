@@ -9,7 +9,7 @@ spring:
 #    username: ${DB_USERNAME}
 #    password: ${DB_PASSWORD}
   kafka:
-    bootstrap-servers: 43.200.161.96:29092, 43.200.161.96:39092, 43.200.161.96:49092
+    bootstrap-servers: kafka1:9092, kafka2:9092, kafka3:9092
 
 kakao:
   key: ${MAP_KAKAO_KEY}
