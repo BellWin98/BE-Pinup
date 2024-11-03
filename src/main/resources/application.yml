@@ -64,10 +64,3 @@ jwt:
     header: Authorization
   refresh:
     header: Authorization-Refresh
-
-kafka:
-  topic:
-    notifications:
-      name: pinup.user.notifications
-      partitions: 3
-      replicas: 3
