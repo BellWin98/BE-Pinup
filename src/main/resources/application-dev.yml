@@ -8,14 +8,7 @@ spring:
 #    url: jdbc:mariadb://${DB_HOST}:3306/pinup?useSSL=false&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
 #    username: ${DB_USERNAME}
 #    password: ${DB_PASSWORD}
-  kafka:
-    bootstrap-servers: 43.200.161.96:29092, 43.200.161.96:39092, 43.200.161.96:49092
-    producer:
-      bootstrap-servers: 43.200.161.96:29092, 43.200.161.96:39092, 43.200.161.96:49092
-    consumer:
-      bootstrap-servers: 43.200.161.96:29092, 43.200.161.96:39092, 43.200.161.96:49092
-      group-id: pinup-group
-      auto-offset-reset: earliest
+
 
 kakao:
   key: ${MAP_KAKAO_KEY}
