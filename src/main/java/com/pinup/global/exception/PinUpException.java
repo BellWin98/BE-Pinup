@@ -33,6 +33,7 @@ public class PinUpException extends RuntimeException {
     public static final PinUpException SELF_FRIEND_REQUEST = new PinUpException(ErrorCode.SELF_FRIEND_REQUEST);
     public static final PinUpException ALREADY_PROCESSED_FRIEND_REQUEST = new PinUpException(ErrorCode.ALREADY_PROCESSED_FRIEND_REQUEST);
     public static final PinUpException FRIEND_NOT_FOUND = new PinUpException(ErrorCode.FRIEND_NOT_FOUND);
+    public static final PinUpException ALREADY_FRIEND = new PinUpException(ErrorCode.ALREADY_FRIEND);
 
     private final ErrorCode errorCode;
 
