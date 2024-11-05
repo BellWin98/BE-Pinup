@@ -43,12 +43,15 @@ public class Member extends BaseTimeEntity {
 
     private String socialId; // 로그인 한 소셜 타입의 식별자 값
 
+    private String password;
+
     @OneToMany(mappedBy = "member", fetch = FetchType.EAGER)
     private List<Review> reviews = new ArrayList<>();
 
     @Builder
     public Member(String email, String name, String nickname,
-                  String profileImageUrl, LoginType loginType, String socialId) {
+                  String profileImageUrl, LoginType loginType, String socialId,
+                  String password) {
         this.email = email;
         this.name = name;
         this.nickname = nickname;
@@ -57,5 +60,8 @@ public class Member extends BaseTimeEntity {
         this.socialId = socialId;
         this.role = Role.ROLE_USER;
         this.status = "Y";
+        this.password = password;
     }
 }
+
+

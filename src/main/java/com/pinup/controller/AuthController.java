@@ -1,6 +1,7 @@
 package com.pinup.controller;
 
 
+import com.pinup.dto.request.MemberJoinRequest;
 import com.pinup.global.response.ApiSuccessResponse;
 import com.pinup.global.response.TokenResponse;
 import com.pinup.service.AuthService;
@@ -52,9 +53,17 @@ public class AuthController {
         TokenResponse tokenResponse = authService.refresh(refreshToken);
         return ApiSuccessResponse.from(tokenResponse);
     }
+
     @PostMapping("/logout")
     public ApiSuccessResponse<?> logout(@RequestHeader("Authorization") String accessToken) {
         authService.logout(accessToken);
         return ApiSuccessResponse.NO_DATA_RESPONSE;
+    }
+
+    @PostMapping("/join")
+    public ResponseEntity<ApiSuccessResponse<?>> memberJoin(@RequestBody MemberJoinRequest request) {
+        authService.join(request);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiSuccessResponse.NO_DATA_RESPONSE);
     }
 }

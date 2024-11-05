@@ -1,6 +1,7 @@
 package com.pinup.service;
 
 
+import com.pinup.dto.request.MemberJoinRequest;
 import com.pinup.entity.Member;
 
 import com.pinup.global.response.TokenResponse;
@@ -12,6 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
@@ -21,6 +23,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Map;
 
+import static com.pinup.global.exception.PinUpException.ALREADY_EXIST_EMAIL;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -29,6 +33,7 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisService redisService;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${oauth2.google.client-id}")
     private String googleClientId;
@@ -181,5 +186,27 @@ public class AuthService {
                         .loginType(LoginType.GOOGLE)
                         .socialId(socialId)
                         .build()));
+    }
+
+    @Transactional
+    public void join(MemberJoinRequest request) {
+        validateExistEmail(request.getEmail());
+
+        Member newMember = Member.builder()
+                .email(request.getEmail())
+                .nickname(request.getNickname())
+                .name(request.getName())
+                .loginType(LoginType.NORMAL)
+                .profileImageUrl(request.getProfileImageUrl())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .build();
+        memberRepository.save(newMember);
+    }
+
+    private void validateExistEmail(String email) {
+        memberRepository.findByEmail(email)
+                .ifPresent(member -> {
+                    throw ALREADY_EXIST_EMAIL;
+                });
     }
 }
