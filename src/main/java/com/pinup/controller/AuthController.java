@@ -1,6 +1,7 @@
 package com.pinup.controller;
 
 
+import com.pinup.dto.NormalLoginRequest;
 import com.pinup.dto.request.MemberJoinRequest;
 import com.pinup.global.response.ApiSuccessResponse;
 import com.pinup.global.response.TokenResponse;
@@ -66,4 +67,12 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiSuccessResponse.NO_DATA_RESPONSE);
     }
+
+    @PostMapping("/login/normal")
+    public ResponseEntity<ApiSuccessResponse<TokenResponse>> normalLogin(@RequestBody NormalLoginRequest request) {
+        TokenResponse tokenResponse = authService.normalLogin(request);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiSuccessResponse.from(tokenResponse));
+    }
+
 }

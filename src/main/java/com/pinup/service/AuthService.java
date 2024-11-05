@@ -1,6 +1,7 @@
 package com.pinup.service;
 
 
+import com.pinup.dto.NormalLoginRequest;
 import com.pinup.dto.request.MemberJoinRequest;
 import com.pinup.entity.Member;
 
@@ -23,6 +24,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Map;
 
+import static com.pinup.global.exception.PinUpException.*;
 import static com.pinup.global.exception.PinUpException.ALREADY_EXIST_EMAIL;
 
 @Service
@@ -105,17 +107,17 @@ public class AuthService {
 
     public TokenResponse refresh(String refreshToken) {
         if (!jwtTokenProvider.validateToken(refreshToken)) {
-            throw PinUpException.INVALID_TOKEN;
+            throw INVALID_TOKEN;
         }
 
         String email = jwtTokenProvider.getEmail(refreshToken);
         String storedRefreshToken = redisService.getValues(email);
         if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
-            throw PinUpException.INVALID_TOKEN;
+            throw INVALID_TOKEN;
         }
 
         Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> PinUpException.MEMBER_NOT_FOUND);
+                .orElseThrow(() -> MEMBER_NOT_FOUND);
 
         String newAccessToken = jwtTokenProvider.createAccessToken(email, member.getRole());
         String newRefreshToken = jwtTokenProvider.createRefreshToken(email);
@@ -127,7 +129,7 @@ public class AuthService {
 
     public void logout(String accessToken) {
         if (!jwtTokenProvider.validateToken(accessToken)) {
-            throw PinUpException.INVALID_TOKEN;
+            throw INVALID_TOKEN;
         }
 
         String email = jwtTokenProvider.getEmail(accessToken);
@@ -150,7 +152,7 @@ public class AuthService {
         ResponseEntity<Map> response = restTemplate.exchange(googleTokenUri, HttpMethod.POST, request, Map.class);
 
         if (response.getBody() == null) {
-            throw PinUpException.INTERNAL_SERVER_ERROR;
+            throw INTERNAL_SERVER_ERROR;
         }
 
         return (String) response.getBody().get("access_token");
@@ -165,7 +167,7 @@ public class AuthService {
         ResponseEntity<Map> response = restTemplate.exchange(googleResourceUri, HttpMethod.GET, entity, Map.class);
 
         if (response.getBody() == null) {
-            throw PinUpException.INTERNAL_SERVER_ERROR;
+            throw INTERNAL_SERVER_ERROR;
         }
 
         return response.getBody();
@@ -208,5 +210,25 @@ public class AuthService {
                 .ifPresent(member -> {
                     throw ALREADY_EXIST_EMAIL;
                 });
+    }
+
+    @Transactional
+    public TokenResponse normalLogin(NormalLoginRequest request) {
+        Member member = memberRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> MEMBER_NOT_FOUND);
+        validatePassword(request.getPassword(), member.getPassword());
+
+        String accessToken = jwtTokenProvider.createAccessToken(member.getEmail(), member.getRole());
+        String refreshToken = jwtTokenProvider.createRefreshToken(member.getEmail());
+
+        redisService.setValues(member.getEmail(), refreshToken);
+
+        return new TokenResponse(accessToken, refreshToken);
+    }
+
+    private void validatePassword(String requestPassword, String memberPassword) {
+        if (!passwordEncoder.matches(requestPassword, memberPassword)) {
+            throw PASSWORD_MISMATCH;
+        }
     }
 }
