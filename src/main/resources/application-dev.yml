@@ -9,7 +9,6 @@ spring:
 #    username: ${DB_USERNAME}
 #    password: ${DB_PASSWORD}
 
-
 kakao:
   key: ${MAP_KAKAO_KEY}
 

@@ -2,12 +2,12 @@
 
 version: '3'
 services:
-  pinup_db:
+  pinup:
     container_name: pinup_db
     image: mariadb:latest
     environment:
       MARIADB_DATABASE: pinup
-      MARIADB_ROOT_PASSWORD: QGWGPnEGBW8Ss1Dm3I7o
+      MARIADB_ROOT_PASSWORD: 1234
     ports:
       - "3306:3306"
     volumes:
@@ -30,7 +30,7 @@ services:
       dockerfile: Dockerfile
     container_name: pinup
     depends_on:
-      - pinup_db
+      - pinup
       - redis
     ports:
       - "8080:8080"
