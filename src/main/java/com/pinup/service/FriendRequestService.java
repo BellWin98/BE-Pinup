@@ -36,6 +36,7 @@ public class FriendRequestService {
 
         validateSelfFriendRequest(sender, receiver);
         validateDuplicateFriendRequest(sender, receiver);
+        validateAlreadyFriend(sender, receiver);
 
         FriendRequest friendRequest = FriendRequest.builder()
                 .sender(sender)
@@ -60,6 +61,12 @@ public class FriendRequestService {
                 .ifPresent(request -> {
                     throw ALREADY_EXIST_FRIEND_REQUEST;
                 });
+    }
+
+    private void validateAlreadyFriend(Member sender, Member receiver) {
+        if (friendShipService.existsFriendship(sender, receiver)) {
+            throw ALREADY_FRIEND;
+        }
     }
 
     @Transactional

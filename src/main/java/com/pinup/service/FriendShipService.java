@@ -95,4 +95,9 @@ public class FriendShipService {
         return memberRepository.findByEmail(currentUserEmail)
                 .orElseThrow(() -> MEMBER_NOT_FOUND);
     }
+
+    public boolean existsFriendship(Member sender, Member receiver) {
+        return friendShipRepository.findByMemberAndFriend(sender, receiver)
+                .isPresent();
+    }
 }
