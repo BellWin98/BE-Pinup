@@ -35,7 +35,7 @@ public class PinUpException extends RuntimeException {
     public static final PinUpException FRIEND_NOT_FOUND = new PinUpException(ErrorCode.FRIEND_NOT_FOUND);
     public static final PinUpException ALREADY_FRIEND = new PinUpException(ErrorCode.ALREADY_FRIEND);
     public static final PinUpException PASSWORD_MISMATCH = new PinUpException(ErrorCode.PASSWORD_MISMATCH);
-
+  
     private final ErrorCode errorCode;
 
     public HttpStatus getHttpStatus() {
