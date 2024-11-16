@@ -8,6 +8,7 @@ import com.pinup.service.ArticleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,6 +22,7 @@ public class ArticleController {
     private final ArticleService articleService;
 
     @PostMapping("/create")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<ApiSuccessResponse<ArticleResponse>> createArticle(
             ArticleCreateRequest articleCreateRequest,
             @RequestParam(value = "multipartFiles") MultipartFile multipartFile
