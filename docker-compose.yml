@@ -37,7 +37,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:mariadb://pinup_db:3306/pinup?useSSL=false&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: 1234
+      SPRING_DATASOURCE_PASSWORD: QGWGPnEGBW8Ss1Dm3I7o
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
     networks:

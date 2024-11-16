@@ -34,7 +34,7 @@ public class PinUpException extends RuntimeException {
     public static final PinUpException ALREADY_PROCESSED_FRIEND_REQUEST = new PinUpException(ErrorCode.ALREADY_PROCESSED_FRIEND_REQUEST);
     public static final PinUpException FRIEND_NOT_FOUND = new PinUpException(ErrorCode.FRIEND_NOT_FOUND);
     public static final PinUpException ALREADY_FRIEND = new PinUpException(ErrorCode.ALREADY_FRIEND);
-
+    public static final PinUpException ARTICLE_NOT_FOUND = new PinUpException(ErrorCode.ARTICLE_NOT_FOUND);
     private final ErrorCode errorCode;
 
     public HttpStatus getHttpStatus() {

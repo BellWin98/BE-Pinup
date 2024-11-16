@@ -46,6 +46,9 @@ public class Member extends BaseTimeEntity {
     @OneToMany(mappedBy = "member", fetch = FetchType.EAGER)
     private List<Review> reviews = new ArrayList<>();
 
+    @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
+    private List<Article> editorArticles = new ArrayList<>();
+
     @Builder
     public Member(String email, String name, String nickname,
                   String profileImageUrl, LoginType loginType, String socialId) {
