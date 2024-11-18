@@ -7,7 +7,7 @@ services:
     image: mariadb:latest
     environment:
       MARIADB_DATABASE: pinup
-      MARIADB_ROOT_PASSWORD: 1234
+      MARIADB_ROOT_PASSWORD: QGWGPnEGBW8Ss1Dm3I7o
     ports:
       - "3306:3306"
     volumes:

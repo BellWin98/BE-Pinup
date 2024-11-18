@@ -1,6 +1,8 @@
 package com.pinup.global.s3;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.pinup.global.exception.PinUpException;
@@ -14,6 +16,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+import static com.pinup.global.exception.PinUpException.*;
 
 @Service
 @Slf4j
@@ -95,7 +99,7 @@ public class S3Service {
         fileValidate.add("PNG");
 
         if (!fileValidate.contains(extension)) {
-            throw PinUpException.FILE_EXTENSION_INVALID;
+            throw FILE_EXTENSION_INVALID;
         }
     }
 
@@ -109,5 +113,45 @@ public class S3Service {
         String str = sdf.format(date);
 
         return str.replace("-", "/");
+    }
+
+    public void deleteFile(String fileUrl) {
+        if (fileUrl == null || fileUrl.isEmpty() || fileUrl.startsWith("https://lh3.googleusercontent.com")) {
+            return;
+        }
+
+        try {
+            String key = extractKeyFromUrl(fileUrl);
+            System.out.println(key);
+            DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(bucket, key);
+            amazonS3Client.deleteObject(deleteObjectRequest);
+
+        } catch (AmazonServiceException e) {
+            log.error("파일 삭제 실패: Amazon S3 서비스 에러", e);
+            throw FILE_DELETE_ERROR;
+        } catch (Exception e) {
+            log.error("파일 삭제 실패", e);
+            throw FILE_DELETE_ERROR;
+        }
+    }
+
+    private String extractKeyFromUrl(String fileUrl) {
+        try {
+            int startIndex = fileUrl.indexOf("amazonaws.com/") + "amazonaws.com/".length();
+            String path = fileUrl.substring(startIndex);
+
+            if (path.startsWith(bucket + "/")) {
+                path = path.substring(bucket.length() + 1);
+            }
+
+            log.info("Original URL: {}", fileUrl);
+            log.info("Extracted key: {}", path);
+
+            return path;
+
+        } catch (StringIndexOutOfBoundsException e) {
+            log.error("잘못된 파일 URL 형식: {}", fileUrl, e);
+            throw INVALID_FILE_URL;
+        }
     }
 }

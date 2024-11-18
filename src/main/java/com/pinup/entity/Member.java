@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +39,11 @@ public class Member extends BaseTimeEntity {
     @Column(columnDefinition = "VARCHAR(1)")
     private String status;
 
+    @Column(columnDefinition = "VARCHAR(100)")
+    private String bio;
+
+    private LocalDateTime lastNicknameUpdateDate;
+
     @Enumerated(EnumType.STRING)
     private LoginType loginType;
 
@@ -61,6 +67,23 @@ public class Member extends BaseTimeEntity {
         this.role = Role.ROLE_USER;
         this.status = "Y";
         this.password = password;
+    }
+
+    public void updateBio(String bio) {
+        this.bio = bio;
+    }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+        this.lastNicknameUpdateDate = LocalDateTime.now();
+    }
+
+    public void updateProfileImage(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
+    public boolean canUpdateNickname() {
+        return this.lastNicknameUpdateDate == null || LocalDateTime.now().isAfter(this.lastNicknameUpdateDate.plusDays(30));
     }
 }
 

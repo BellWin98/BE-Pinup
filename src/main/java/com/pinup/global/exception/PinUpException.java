@@ -35,7 +35,10 @@ public class PinUpException extends RuntimeException {
     public static final PinUpException FRIEND_NOT_FOUND = new PinUpException(ErrorCode.FRIEND_NOT_FOUND);
     public static final PinUpException ALREADY_FRIEND = new PinUpException(ErrorCode.ALREADY_FRIEND);
     public static final PinUpException PASSWORD_MISMATCH = new PinUpException(ErrorCode.PASSWORD_MISMATCH);
-  
+    public static final PinUpException NICKNAME_UPDATE_TIME_LIMIT = new PinUpException(ErrorCode.NICKNAME_UPDATE_TIME_LIMIT);
+    public static final PinUpException FILE_DELETE_ERROR = new PinUpException(ErrorCode.FILE_DELETE_ERROR);
+    public static final PinUpException INVALID_FILE_URL = new PinUpException(ErrorCode.INVALID_FILE_URL);
+
     private final ErrorCode errorCode;
 
     public HttpStatus getHttpStatus() {
