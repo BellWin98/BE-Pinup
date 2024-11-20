@@ -47,12 +47,15 @@ public class Member extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private LoginType loginType;
 
-    private String socialId; // 로그인 한 소셜 타입의 식별자 값
+    private String socialId;
 
     private String password;
 
     @OneToMany(mappedBy = "member", fetch = FetchType.EAGER)
     private List<Review> reviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY)
+    private List<FriendShip> friendships = new ArrayList<>();
 
     @Builder
     public Member(String email, String name, String nickname,

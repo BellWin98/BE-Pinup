@@ -38,6 +38,10 @@ public class PinUpException extends RuntimeException {
     public static final PinUpException NICKNAME_UPDATE_TIME_LIMIT = new PinUpException(ErrorCode.NICKNAME_UPDATE_TIME_LIMIT);
     public static final PinUpException FILE_DELETE_ERROR = new PinUpException(ErrorCode.FILE_DELETE_ERROR);
     public static final PinUpException INVALID_FILE_URL = new PinUpException(ErrorCode.INVALID_FILE_URL);
+    public static final PinUpException CACHE_KEY_NULL = new PinUpException(ErrorCode.CACHE_KEY_NULL);
+    public static final PinUpException CACHE_SERIALIZATION_ERROR = new PinUpException(ErrorCode.CACHE_SERIALIZATION_ERROR);
+    public static final PinUpException CACHE_DESERIALIZATION_ERROR = new PinUpException(ErrorCode.CACHE_DESERIALIZATION_ERROR);
+    public static final PinUpException CACHE_OPERATION_ERROR = new PinUpException(ErrorCode.CACHE_OPERATION_ERROR);
 
     private final ErrorCode errorCode;
 

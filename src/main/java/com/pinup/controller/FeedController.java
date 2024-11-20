@@ -2,10 +2,10 @@ package com.pinup.controller;
 
 import com.pinup.dto.request.BioUpdateRequest;
 import com.pinup.dto.request.NicknameUpdateRequest;
+import com.pinup.dto.response.FeedResponse;
 import com.pinup.dto.response.MemberResponse;
 import com.pinup.global.response.ApiSuccessResponse;
 import com.pinup.service.FeedService;
-import com.pinup.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,5 +49,17 @@ public class FeedController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiSuccessResponse.from(response));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<ApiSuccessResponse<FeedResponse>> getMyFeed() {
+        FeedResponse response = feedService.getMyFeed();
+        return ResponseEntity.ok(ApiSuccessResponse.from(response));
+    }
+
+    @GetMapping("/{memberId}")
+    public ResponseEntity<ApiSuccessResponse<FeedResponse>> getFeed(@PathVariable Long memberId) {
+        FeedResponse response = feedService.getFeed(memberId);
+        return ResponseEntity.ok(ApiSuccessResponse.from(response));
     }
 }

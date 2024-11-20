@@ -25,6 +25,7 @@ public enum ErrorCode {
     PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "PASSWORD_MISMATCH", "비밀번호가 일치하지 않습니다."),
     NICKNAME_UPDATE_TIME_LIMIT(HttpStatus.BAD_REQUEST, "NICKNAME_UPDATE_TIME_LIMIT", "닉네임은 30일에 한 번만 변경할 수 있습니다."),
     INVALID_FILE_URL(HttpStatus.BAD_REQUEST, "INVALID_FILE_URL", "잘못된 파일 URL 형식입니다."),
+    CACHE_KEY_NULL(HttpStatus.BAD_REQUEST, "CACHE_KEY_NULL", "캐시 키는 null일 수 없습니다."),
 
     /* 401 */
     ACCESS_DENIED(HttpStatus.UNAUTHORIZED, "ACCESS_DENIED", "유효한 인증 정보가 아닙니다."),
@@ -46,7 +47,10 @@ public enum ErrorCode {
     /* 500 */
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR", "예상치 못한 서버 에러가 발생했습니다."),
     SSE_CONNECTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SSE_CONNECTION_ERROR", "SSE 연결 중 오류가 발생했습니다."),
-    FILE_DELETE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "FILE_DELETE_ERROR", "파일 삭제 중 오류가 발생했습니다.");
+    FILE_DELETE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "FILE_DELETE_ERROR", "파일 삭제 중 오류가 발생했습니다."),
+    CACHE_SERIALIZATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "CACHE_SERIALIZATION_ERROR", "캐시 데이터 직렬화 중 오류가 발생했습니다."),
+    CACHE_DESERIALIZATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "CACHE_DESERIALIZATION_ERROR", "캐시 데이터 역직렬화 중 오류가 발생했습니다."),
+    CACHE_OPERATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "CACHE_OPERATION_ERROR", "캐시 작업 중 오류가 발생했습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;
