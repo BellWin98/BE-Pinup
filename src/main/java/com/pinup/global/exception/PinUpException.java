@@ -42,6 +42,8 @@ public class PinUpException extends RuntimeException {
     public static final PinUpException CACHE_SERIALIZATION_ERROR = new PinUpException(ErrorCode.CACHE_SERIALIZATION_ERROR);
     public static final PinUpException CACHE_DESERIALIZATION_ERROR = new PinUpException(ErrorCode.CACHE_DESERIALIZATION_ERROR);
     public static final PinUpException CACHE_OPERATION_ERROR = new PinUpException(ErrorCode.CACHE_OPERATION_ERROR);
+    public static final PinUpException ALARM_NOT_FOUND = new PinUpException(ErrorCode.ALARM_NOT_FOUND);
+    public static final PinUpException UNAUTHORIZED_ALARM_ACCESS = new PinUpException(ErrorCode.UNAUTHORIZED_ALARM_ACCESS);
 
     private final ErrorCode errorCode;
 
