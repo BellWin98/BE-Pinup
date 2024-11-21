@@ -1,6 +1,5 @@
 package com.pinup.service;
 
-import com.pinup.cache.RedisFeedCache;
 import com.pinup.dto.request.BioUpdateRequest;
 import com.pinup.dto.request.NicknameUpdateRequest;
 import com.pinup.dto.response.FeedResponse;
@@ -30,12 +29,10 @@ public class FeedService {
 
     private final MemberRepository memberRepository;
     private final S3Service s3Service;
-    private final MemberCacheService memberCacheService;
-    private final RedisFeedCache redisFeedCache;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public boolean checkNicknameDuplicate(String nickname) {
-        return memberCacheService.isNicknameDuplicate(nickname);
+        return memberRepository.findByNickname(nickname).isPresent();
     }
 
     @Transactional
@@ -43,7 +40,6 @@ public class FeedService {
         Member member = getCurrentMember();
         member.updateBio(request.getBio());
         memberRepository.save(member);
-        redisFeedCache.invalidateCache(member.getId());
         return MemberResponse.from(member);
     }
 
@@ -53,8 +49,7 @@ public class FeedService {
         validateNicknameUpdate(member, request.getNickname());
 
         member.updateNickname(request.getNickname());
-        memberCacheService.cacheNickname(member.getEmail(), request.getNickname());
-        redisFeedCache.invalidateCache(member.getId());
+        memberRepository.save(member);
 
         return MemberResponse.from(member);
     }
@@ -71,7 +66,7 @@ public class FeedService {
     }
 
     private void validateNicknameDuplicate(String nickname) {
-        if (memberCacheService.isNicknameDuplicate(nickname)) {
+        if (checkNicknameDuplicate(nickname)) {
             throw ALREADY_EXIST_NICKNAME;
         }
     }
@@ -87,14 +82,13 @@ public class FeedService {
         String imageUrl = s3Service.uploadFile(PROFILE_IMAGE_DIRECTORY, image);
         member.updateProfileImage(imageUrl);
         memberRepository.save(member);
-        redisFeedCache.invalidateCache(member.getId());
 
         return MemberResponse.from(member);
     }
 
     @Transactional(readOnly = true)
     public FeedResponse getFeed(Long memberId) {
-        return redisFeedCache.getOrCreateFeed(memberId, this::buildFeedResponse);
+        return buildFeedResponse(memberId);
     }
 
     @Transactional(readOnly = true)
@@ -102,7 +96,7 @@ public class FeedService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> MEMBER_NOT_FOUND);
-        return redisFeedCache.getOrCreateFeed(member.getId(), this::buildFeedResponse);
+        return buildFeedResponse(member.getId());
     }
 
     private Member getCurrentMember() {
