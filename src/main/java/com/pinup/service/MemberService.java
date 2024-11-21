@@ -36,4 +36,11 @@ public class MemberService {
         return memberRepository.findByEmail(currentMemberEmail)
                 .orElseThrow(() -> PinUpException.MEMBER_NOT_FOUND);
     }
+
+    @Transactional
+    public void deleteMember(){
+        Member currentMember = getCurrentMember();
+
+        memberRepository.delete(currentMember);
+    }
 }

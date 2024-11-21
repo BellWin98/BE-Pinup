@@ -30,4 +30,11 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiSuccessResponse.from(currentMember));
     }
+
+    @DeleteMapping
+    public  ResponseEntity<ApiSuccessResponse<Void>> deleteMember() {
+        memberService.deleteMember();
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }
