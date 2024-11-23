@@ -8,13 +8,13 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Getter
-@NoArgsConstructor  // 이 부분이 필요합니다!
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FeedResponse {
+public class ProfileResponse {
     private MemberResponse member;
     private Integer reviewCount;
-    private Double reviewRateAverage;
+    private ReviewCountsResponse reviewCounts;
     private Integer friendCount;
     private List<ReviewResponse> reviews;
 }
