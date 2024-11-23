@@ -67,17 +67,14 @@ public class MemberService {
         memberRepository.delete(currentMember);
     }
 
-    public MemberResponse getMemberInfo(Long friendId) {
-        return memberCacheManager.getMemberCache(friendId)
-                .orElseGet(() -> {
-                    Member member = memberRepository.findById(friendId)
-                            .orElseThrow(() -> PinUpException.MEMBER_NOT_FOUND);
-                    MemberResponse response = MemberResponse.from(member);
-                    memberCacheManager.putMemberCache(friendId, response);
-                    return response;
-                });
+    @Transactional(readOnly = true)
+    public MemberResponse getMemberInfo(Long memberId) {
+        return memberCacheManager.getMemberWithCache(memberId, () -> {
+            Member member = memberRepository.findById(memberId)
+                    .orElseThrow(() -> PinUpException.MEMBER_NOT_FOUND);
+            return MemberResponse.from(member);
+        });
     }
-
 
     @Transactional(readOnly = true)
     public boolean checkNicknameDuplicate(String nickname) {
@@ -147,14 +144,11 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public ProfileResponse getProfile(Long memberId) {
-        return memberCacheManager.getProfileCache(memberId)
-                .orElseGet(() -> {
-                    Member member = memberRepository.findById(memberId)
-                            .orElseThrow(() -> PinUpException.MEMBER_NOT_FOUND);
-                    ProfileResponse response = getProfileForMember(member);
-                    memberCacheManager.putProfileCache(memberId, response);
-                    return response;
-                });
+        return memberCacheManager.getProfileWithCache(memberId, () -> {
+            Member member = memberRepository.findById(memberId)
+                    .orElseThrow(() -> PinUpException.MEMBER_NOT_FOUND);
+            return getProfileForMember(member);
+        });
     }
 
     private ProfileResponse getProfileForMember(Member member) {
