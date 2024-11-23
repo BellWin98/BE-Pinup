@@ -1,5 +1,6 @@
 package com.pinup.service;
 
+import com.pinup.cache.MemberCacheManager;
 import com.pinup.dto.request.BioUpdateRequest;
 import com.pinup.dto.request.NicknameUpdateRequest;
 import com.pinup.dto.response.ProfileResponse;
@@ -36,6 +37,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final ReviewRepository reviewRepository;
     private final S3Service s3Service;
+    private final MemberCacheManager memberCacheManager;
 
     @Transactional(readOnly = true)
     public MemberResponse searchUsers(String query) {
@@ -46,7 +48,7 @@ public class MemberService {
     }
 
     @Transactional(readOnly = true)
-    public MemberResponse getCurrentMemberInfo(){
+    public MemberResponse getCurrentMemberInfo() {
         Member currentMember = getCurrentMember();
 
         return MemberResponse.from(currentMember);
@@ -59,18 +61,23 @@ public class MemberService {
     }
 
     @Transactional
-    public void deleteMember(){
+    public void deleteMember() {
         Member currentMember = getCurrentMember();
-
+        memberCacheManager.evictAllCaches(currentMember.getId());
         memberRepository.delete(currentMember);
     }
 
     public MemberResponse getMemberInfo(Long friendId) {
-        Member member = memberRepository.findById(friendId)
-                .orElseThrow(() -> PinUpException.MEMBER_NOT_FOUND);
-
-        return MemberResponse.from(member);
+        return memberCacheManager.getMemberCache(friendId)
+                .orElseGet(() -> {
+                    Member member = memberRepository.findById(friendId)
+                            .orElseThrow(() -> PinUpException.MEMBER_NOT_FOUND);
+                    MemberResponse response = MemberResponse.from(member);
+                    memberCacheManager.putMemberCache(friendId, response);
+                    return response;
+                });
     }
+
 
     @Transactional(readOnly = true)
     public boolean checkNicknameDuplicate(String nickname) {
@@ -82,6 +89,8 @@ public class MemberService {
         Member member = getCurrentMember();
         member.updateBio(request.getBio());
         memberRepository.save(member);
+
+        memberCacheManager.evictAllCaches(member.getId());
         return MemberResponse.from(member);
     }
 
@@ -93,6 +102,7 @@ public class MemberService {
         member.updateNickname(request.getNickname());
         memberRepository.save(member);
 
+        memberCacheManager.evictAllCaches(member.getId());
         return MemberResponse.from(member);
     }
 
@@ -125,20 +135,26 @@ public class MemberService {
         member.updateProfileImage(imageUrl);
         memberRepository.save(member);
 
+        memberCacheManager.evictAllCaches(member.getId());
         return MemberResponse.from(member);
     }
 
     @Transactional(readOnly = true)
     public ProfileResponse getMyProfile() {
         Member currentMember = getCurrentMember();
-        return getProfileForMember(currentMember);
+        return getProfile(currentMember.getId());
     }
 
     @Transactional(readOnly = true)
     public ProfileResponse getProfile(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> PinUpException.MEMBER_NOT_FOUND);
-        return getProfileForMember(member);
+        return memberCacheManager.getProfileCache(memberId)
+                .orElseGet(() -> {
+                    Member member = memberRepository.findById(memberId)
+                            .orElseThrow(() -> PinUpException.MEMBER_NOT_FOUND);
+                    ProfileResponse response = getProfileForMember(member);
+                    memberCacheManager.putProfileCache(memberId, response);
+                    return response;
+                });
     }
 
     private ProfileResponse getProfileForMember(Member member) {
