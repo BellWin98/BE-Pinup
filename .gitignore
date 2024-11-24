@@ -38,3 +38,4 @@ out/
 
 ### Pin Up ###
 application-local.yml
+application-dev.yml

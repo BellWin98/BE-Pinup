@@ -33,9 +33,7 @@ public class SecurityConfig {
     private static final String[] PERMITTED_API_URL = {
             "/api/auth",
             "/api/auth/**",
-            "/chats",
-            "/api/places",
-            "/api/places/**"
+            "/chats"
     };
 
     @Bean
