@@ -31,6 +31,8 @@ import static com.pinup.global.exception.PinUpException.ALREADY_EXIST_EMAIL;
 @RequiredArgsConstructor
 public class AuthService {
 
+    private final String REFRESH_TOKEN_PREFIX = "refresh:";
+
     private final RestTemplate restTemplate;
     private final MemberRepository memberRepository;
     private final JwtTokenProvider jwtTokenProvider;
@@ -86,7 +88,7 @@ public class AuthService {
         String jwtToken = jwtTokenProvider.createAccessToken(member.getEmail(), member.getRole());
         String refreshToken = jwtTokenProvider.createRefreshToken(email);
 
-        redisService.setValues(member.getEmail(), refreshToken);
+        redisService.setValues(REFRESH_TOKEN_PREFIX+member.getId(), refreshToken);
 
         return new TokenResponse(jwtToken, refreshToken);
     }
@@ -100,7 +102,7 @@ public class AuthService {
         String accessToken = jwtTokenProvider.createAccessToken(createdMember.getEmail(), createdMember.getRole());
         String refreshToken = jwtTokenProvider.createRefreshToken(createdMember.getEmail());
 
-        redisService.setValues(createdMember.getEmail(), refreshToken);
+        redisService.setValues(REFRESH_TOKEN_PREFIX+createdMember.getId(), refreshToken);
 
         return new TokenResponse(accessToken, refreshToken);
     }
@@ -111,18 +113,18 @@ public class AuthService {
         }
 
         String email = jwtTokenProvider.getEmail(refreshToken);
-        String storedRefreshToken = redisService.getValues(email);
+        Member member = getMemberByEmail(email);
+
+        String storedRefreshToken = redisService.getValues(REFRESH_TOKEN_PREFIX+member.getId());
         if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
             throw INVALID_TOKEN;
         }
 
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> MEMBER_NOT_FOUND);
 
         String newAccessToken = jwtTokenProvider.createAccessToken(email, member.getRole());
         String newRefreshToken = jwtTokenProvider.createRefreshToken(email);
 
-        redisService.setValues(email, newRefreshToken);
+        redisService.setValues(REFRESH_TOKEN_PREFIX+member.getId(), newRefreshToken);
 
         return new TokenResponse(newAccessToken, newRefreshToken);
     }
@@ -133,7 +135,8 @@ public class AuthService {
         }
 
         String email = jwtTokenProvider.getEmail(accessToken);
-        redisService.deleteValues(email);
+        Member member = getMemberByEmail(email);
+        redisService.deleteValues(REFRESH_TOKEN_PREFIX+member.getId());
     }
 
     private String getAccessToken(String authorizationCode) {
@@ -214,16 +217,21 @@ public class AuthService {
 
     @Transactional
     public TokenResponse normalLogin(NormalLoginRequest request) {
-        Member member = memberRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> MEMBER_NOT_FOUND);
+        String email = request.getEmail();
+        Member member = getMemberByEmail(email);
         validatePassword(request.getPassword(), member.getPassword());
 
         String accessToken = jwtTokenProvider.createAccessToken(member.getEmail(), member.getRole());
         String refreshToken = jwtTokenProvider.createRefreshToken(member.getEmail());
 
-        redisService.setValues(member.getEmail(), refreshToken);
+        redisService.setValues(REFRESH_TOKEN_PREFIX+member.getId(), refreshToken);
 
         return new TokenResponse(accessToken, refreshToken);
+    }
+
+    private Member getMemberByEmail(String email) {
+        return memberRepository.findByEmail(email)
+                .orElseThrow(() -> MEMBER_NOT_FOUND);
     }
 
     private void validatePassword(String requestPassword, String memberPassword) {

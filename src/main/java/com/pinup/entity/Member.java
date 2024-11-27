@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,15 +39,26 @@ public class Member extends BaseTimeEntity {
     @Column(columnDefinition = "VARCHAR(1)")
     private String status;
 
+    @Column(columnDefinition = "VARCHAR(100)")
+    private String bio;
+
+    private LocalDateTime lastNicknameUpdateDate;
+
     @Enumerated(EnumType.STRING)
     private LoginType loginType;
 
-    private String socialId; // 로그인 한 소셜 타입의 식별자 값
+    private String socialId;
 
     private String password;
 
     @OneToMany(mappedBy = "member", fetch = FetchType.EAGER)
     private List<Review> reviews = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member")
+    private List<FriendShip> friendships = new ArrayList<>();
+
+    @OneToMany(mappedBy = "receiver")
+    private List<Alarm> alarms = new ArrayList<>();
 
     @OneToMany(mappedBy = "author")
     private List<Article> editorArticles = new ArrayList<>();
@@ -54,7 +66,7 @@ public class Member extends BaseTimeEntity {
     @Builder
     public Member(String email, String name, String nickname,
                   String profileImageUrl, LoginType loginType, String socialId,
-                  String password) {
+                  String password, String bio) {
         this.email = email;
         this.name = name;
         this.nickname = nickname;
@@ -64,6 +76,23 @@ public class Member extends BaseTimeEntity {
         this.role = Role.ROLE_USER;
         this.status = "Y";
         this.password = password;
+    }
+
+    public void updateBio(String bio) {
+        this.bio = bio;
+    }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+        this.lastNicknameUpdateDate = LocalDateTime.now();
+    }
+
+    public void updateProfileImage(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
+    public boolean canUpdateNickname() {
+        return this.lastNicknameUpdateDate == null || LocalDateTime.now().isAfter(this.lastNicknameUpdateDate.plusDays(30));
     }
 }
 

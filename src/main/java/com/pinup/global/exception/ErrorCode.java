@@ -23,6 +23,9 @@ public enum ErrorCode {
     ALREADY_PROCESSED_FRIEND_REQUEST(HttpStatus.BAD_REQUEST, "ALREADY_PROCESSED_FRIEND_REQUEST", "이미 처리된 친구 요청입니다."),
     ALREADY_FRIEND(HttpStatus.BAD_REQUEST, "ALREADY_FRIEND", "이미 친구 관계입니다."),
     PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "PASSWORD_MISMATCH", "비밀번호가 일치하지 않습니다."),
+    NICKNAME_UPDATE_TIME_LIMIT(HttpStatus.BAD_REQUEST, "NICKNAME_UPDATE_TIME_LIMIT", "닉네임은 30일에 한 번만 변경할 수 있습니다."),
+    INVALID_FILE_URL(HttpStatus.BAD_REQUEST, "INVALID_FILE_URL", "잘못된 파일 URL 형식입니다."),
+    CACHE_KEY_NULL(HttpStatus.BAD_REQUEST, "CACHE_KEY_NULL", "캐시 키는 null일 수 없습니다."),
 
     /* 401 */
     ACCESS_DENIED(HttpStatus.UNAUTHORIZED, "ACCESS_DENIED", "유효한 인증 정보가 아닙니다."),
@@ -32,6 +35,7 @@ public enum ErrorCode {
     FORBIDDEN(HttpStatus.FORBIDDEN, "FORBIDDEN", "접근할 수 있는 권한이 없습니다."),
     EXPIRED_OR_PREVIOUS_REFRESH_TOKEN(HttpStatus.FORBIDDEN, "EXPIRED_OR_PREVIOUS_REFRESH_TOKEN", "만료되었거나 이전에 발급된 Refresh Token입니다."),
     FRIEND_REQUEST_RECEIVER_MISMATCH(HttpStatus.FORBIDDEN, "FRIEND_REQUEST_RECEIVER_MISMATCH", "현재 사용자가 친구 요청의 수신자가 아닙니다."),
+    UNAUTHORIZED_ALARM_ACCESS(HttpStatus.FORBIDDEN, "UNAUTHORIZED_ALARM_ACCESS", "해당 알람에 접근할 권한이 없습니다."),
 
     /* 404 */
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER_NOT_FOUND", "존재하지 않는 유저입니다."),
@@ -40,11 +44,16 @@ public enum ErrorCode {
     PLACE_NOT_FOUND(HttpStatus.NOT_FOUND, "PLACE_NOT_FOUND", "존재하지 않는 업체입니다."),
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "REVIEW_NOT_FOUND", "존재하지 않는 리뷰입니다."),
     FRIEND_NOT_FOUND(HttpStatus.NOT_FOUND, "FRIEND_NOT_FOUND", "해당 이름을 가진 친구를 찾을 수 없습니다."),
+    ALARM_NOT_FOUND(HttpStatus.NOT_FOUND, "ALARM_NOT_FOUND", "존재하지 않는 알람입니다."),
     ARTICLE_NOT_FOUND(HttpStatus.NOT_FOUND, "ARTICLE_NOT_FOUND", "존재하지 않는 아티클입니다."),
 
     /* 500 */
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_SERVER_ERROR", "예상치 못한 서버 에러가 발생했습니다."),
-    SSE_CONNECTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SSE_CONNECTION_ERROR", "SSE 연결 중 오류가 발생했습니다.");
+    SSE_CONNECTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SSE_CONNECTION_ERROR", "SSE 연결 중 오류가 발생했습니다."),
+    FILE_DELETE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "FILE_DELETE_ERROR", "파일 삭제 중 오류가 발생했습니다."),
+    CACHE_SERIALIZATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "CACHE_SERIALIZATION_ERROR", "캐시 데이터 직렬화 중 오류가 발생했습니다."),
+    CACHE_DESERIALIZATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "CACHE_DESERIALIZATION_ERROR", "캐시 데이터 역직렬화 중 오류가 발생했습니다."),
+    CACHE_OPERATION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "CACHE_OPERATION_ERROR", "캐시 작업 중 오류가 발생했습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

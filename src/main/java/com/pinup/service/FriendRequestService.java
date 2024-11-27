@@ -1,8 +1,10 @@
 package com.pinup.service;
 
 import com.pinup.dto.response.FriendRequestResponse;
+import com.pinup.entity.Alarm;
 import com.pinup.entity.FriendRequest;
 import com.pinup.entity.Member;
+import com.pinup.repository.AlarmRepository;
 import com.pinup.repository.FriendRequestRepository;
 import com.pinup.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ public class FriendRequestService {
     private final MemberRepository memberRepository;
     private final FriendShipService friendShipService;
     private final NotificationService notificationService;
+    private final AlarmRepository alarmRepository;
 
     @Transactional
     public FriendRequestResponse sendFriendRequest(Long receiverId) {
@@ -44,8 +47,10 @@ public class FriendRequestService {
                 .build();
         friendRequestRepository.save(friendRequest);
 
+        String message = sender.getName() + "님이 친구 요청을 보냈습니다.";
         notificationService.sendNotification(receiver.getEmail(),
-                sender.getName() + "님이 친구 요청을 보냈습니다.");
+                message);
+        createAlarmFrom(receiver, message);
 
         return FriendRequestResponse.from(friendRequest);
     }
@@ -80,8 +85,10 @@ public class FriendRequestService {
         friendRequestRepository.save(friendRequest);
         friendShipService.createFriendShip(friendRequest.getSender(), friendRequest.getReceiver());
 
+        String message = friendRequest.getReceiver().getName() + "님이 친구 요청을 수락했습니다.";
         notificationService.sendNotification(friendRequest.getSender().getEmail(),
-                friendRequest.getReceiver().getName() + "님이 친구 요청을 수락했습니다.");
+                message);
+        createAlarmFrom(friendRequest.getReceiver(), message);
 
         return FriendRequestResponse.from(friendRequest);
     }
@@ -96,8 +103,10 @@ public class FriendRequestService {
         friendRequest.reject();
         friendRequestRepository.save(friendRequest);
 
+        String message = friendRequest.getReceiver().getName() + "님이 친구 요청을 거절했습니다.";
         notificationService.sendNotification(friendRequest.getSender().getEmail(),
-                friendRequest.getReceiver().getName() + "님이 친구 요청을 거절했습니다.");
+                message);
+        createAlarmFrom(friendRequest.getReceiver(), message);
 
         return FriendRequestResponse.from(friendRequest);
     }
@@ -130,4 +139,13 @@ public class FriendRequestService {
                 .map(FriendRequestResponse::from)
                 .collect(Collectors.toList());
     }
+
+    private void createAlarmFrom(Member receiver, String message) {
+        Alarm alarm = Alarm.builder()
+                .message(message)
+                .receiver(receiver)
+                .build();
+        alarmRepository.save(alarm);
+    }
+
 }
