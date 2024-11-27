@@ -36,8 +36,8 @@ public class ArticleService {
 
     @Transactional
     public ArticleResponse create(ArticleCreateRequest articleCreateRequest, MultipartFile multipartFile) {
-        String uploadedFileUrl = s3Service.uploadFile(FILE_TYPE, multipartFile);
         Member currentMember = getCurrentMember();
+        String uploadedFileUrl = s3Service.uploadFile(FILE_TYPE, multipartFile);
 
         Article newArticle = Article.builder()
                 .imageUrl(uploadedFileUrl)
