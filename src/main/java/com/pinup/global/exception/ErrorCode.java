@@ -22,6 +22,7 @@ public enum ErrorCode {
     SELF_FRIEND_REQUEST(HttpStatus.BAD_REQUEST, "SELF_FRIEND_REQUEST", "자기 자신에게 친구 요청을 보낼 수 없습니다."),
     ALREADY_PROCESSED_FRIEND_REQUEST(HttpStatus.BAD_REQUEST, "ALREADY_PROCESSED_FRIEND_REQUEST", "이미 처리된 친구 요청입니다."),
     ALREADY_FRIEND(HttpStatus.BAD_REQUEST, "ALREADY_FRIEND", "이미 친구 관계입니다."),
+    PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "PASSWORD_MISMATCH", "비밀번호가 일치하지 않습니다."),
 
     /* 401 */
     ACCESS_DENIED(HttpStatus.UNAUTHORIZED, "ACCESS_DENIED", "유효한 인증 정보가 아닙니다."),

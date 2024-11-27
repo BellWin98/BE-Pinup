@@ -2,12 +2,12 @@
 
 version: '3'
 services:
-  pinup_db:
+  pinup:
     container_name: pinup_db
     image: mariadb:latest
     environment:
       MARIADB_DATABASE: pinup
-      MARIADB_ROOT_PASSWORD: QGWGPnEGBW8Ss1Dm3I7o
+      MARIADB_ROOT_PASSWORD: 1234
     ports:
       - "3306:3306"
     volumes:
@@ -30,12 +30,12 @@ services:
       dockerfile: Dockerfile
     container_name: pinup
     depends_on:
-      - pinup_db
+      - pinup
       - redis
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mariadb://pinup_db:3306/pinup?useSSL=false&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_URL: jdbc:mariadb://pinup_db:3306/pinup?createDatabaseIfNotExist=true&useSSL=false&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: QGWGPnEGBW8Ss1Dm3I7o
       SPRING_REDIS_HOST: redis
