@@ -37,4 +37,4 @@ out/
 .vscode/
 
 ### Pin Up ###
-application-local.yml
+*.yml
