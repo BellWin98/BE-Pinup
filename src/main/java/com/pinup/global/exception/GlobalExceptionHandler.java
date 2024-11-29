@@ -5,8 +5,8 @@ import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -58,5 +58,12 @@ public class GlobalExceptionHandler {
     protected ApiErrorResponse handleJwtException(JwtException e) {
         log.error(e.getMessage());
         return ApiErrorResponse.from(ErrorCode.INVALID_TOKEN);
+    }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    protected ApiErrorResponse handleAuthorizationDeniedException(AuthorizationDeniedException e) {
+        log.error(e.getMessage());
+        return ApiErrorResponse.from(ErrorCode.ACCESS_DENIED);
     }
 }
