@@ -1,14 +1,22 @@
 package com.pinup.controller;
 
+import com.pinup.dto.response.PlaceDetailDto;
+import com.pinup.dto.response.PlaceSimpleDto;
 import com.pinup.dto.response.PlaceResponse;
+import com.pinup.global.response.ResultResponse;
 import com.pinup.service.PlaceService;
 import com.pinup.global.response.ApiSuccessResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static com.pinup.global.response.ResultCode.*;
 
 @RestController
 @RequestMapping("/api/places")
@@ -36,4 +44,24 @@ public class PlaceController {
                .status(HttpStatus.OK)
                .body(ApiSuccessResponse.from(result));
     }
+
+    @GetMapping
+    public ResponseEntity<ResultResponse> getPlacePage(@RequestParam(value = "latitude") double latitude,
+                                                       @RequestParam(value = "longitude") double longitude,
+                                                       @PageableDefault Pageable pageable) {
+
+        Page<PlaceSimpleDto> result = placeService.getPlacePage(latitude, longitude, pageable);
+
+        return ResponseEntity.ok(ResultResponse.of(GET_PLACES_SUCCESS, result));
+    }
+
+    @GetMapping("/{placeId}")
+    public ResponseEntity<ResultResponse> getPlaceDetail(@PathVariable("placeId") Long placeId) {
+
+        PlaceDetailDto result = placeService.getPlaceDetail(placeId);
+
+        return null;
+    }
+
+
 }

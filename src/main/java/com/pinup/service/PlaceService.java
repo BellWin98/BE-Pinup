@@ -1,18 +1,32 @@
 package com.pinup.service;
 
+import com.pinup.dto.response.PlaceDetailDto;
+import com.pinup.dto.response.PlaceSimpleDto;
 import com.pinup.dto.response.PlaceResponse;
+import com.pinup.entity.FriendShip;
 import com.pinup.entity.Member;
+import com.pinup.entity.Place;
 import com.pinup.enums.PlaceCategory;
+import com.pinup.exception.PlaceNotFoundException;
 import com.pinup.global.exception.PinUpException;
 import com.pinup.global.maps.KakaoMapModule;
+import com.pinup.global.util.AuthUtil;
+import com.pinup.repository.FriendShipRepository;
 import com.pinup.repository.MemberRepository;
+import com.pinup.repository.PlaceRepository;
+import com.pinup.repository.ReviewRepository;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,7 +34,11 @@ import java.util.stream.Collectors;
 public class PlaceService {
 
     private final MemberRepository memberRepository;
+    private final AuthUtil authUtil;
     private final KakaoMapModule kakaoMapModule;
+    private final PlaceRepository placeRepository;
+    private final ReviewRepository reviewRepository;
+    private final FriendShipRepository friendShipRepository;
 
     public List<PlaceResponse> searchPlaces(String category, String query, String longitude,
                                             String latitude, int radius, String sort) {
@@ -55,5 +73,37 @@ public class PlaceService {
     private Member findMember() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return memberRepository.findByEmail(email).orElseThrow(() -> PinUpException.MEMBER_NOT_FOUND);
+    }
+
+    @Transactional
+    public Page<PlaceSimpleDto> getPlacePage(double latitude, double longitude, Pageable pageable) {
+
+        Member loginMember = authUtil.getLoginMember();
+//        double convertedLatitude = Double.parseDouble(latitude);
+//        double convertedLongitude = Double.parseDouble(longitude);
+
+        return placeRepository.findPlaceDtoPageOfFriendReviewByMember(
+                loginMember,
+                latitude,
+                longitude,
+                pageable
+        );
+    }
+
+    @Transactional
+    public PlaceDetailDto getPlaceDetail(Long placeId) {
+
+        Member loginMember = authUtil.getLoginMember();
+        Place findPlace = placeRepository.findById(placeId).orElseThrow(PlaceNotFoundException::new);
+        List<FriendShip> friendsOfMember = friendShipRepository.findAllByMember(loginMember);
+
+
+
+
+
+
+
+
+        return null;
     }
 }
