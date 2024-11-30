@@ -4,8 +4,12 @@ import com.pinup.dto.request.PlaceRequest;
 import com.pinup.dto.request.ReviewRequest;
 import com.pinup.dto.response.ReviewResponse;
 import com.pinup.entity.*;
+import com.pinup.exception.ImagesLimitExceededException;
+import com.pinup.global.exception.BusinessException;
+import com.pinup.global.exception.NewErrorCode;
 import com.pinup.global.exception.PinUpException;
 import com.pinup.global.s3.S3Service;
+import com.pinup.global.util.AuthUtil;
 import com.pinup.repository.MemberRepository;
 import com.pinup.repository.PlaceRepository;
 import com.pinup.repository.ReviewRepository;
@@ -32,11 +36,12 @@ public class ReviewService {
     private static final int KEYWORDS_LENGTH_LIMIT = 10;
 
     private final MemberRepository memberRepository;
+    private final AuthUtil authUtil;
     private final PlaceRepository placeRepository;
     private final ReviewRepository reviewRepository;
     private final S3Service s3Service;
 
-    @Transactional
+/*    @Transactional
     public ReviewResponse register(ReviewRequest reviewRequest,
                                    PlaceRequest placeRequest,
                                    List<MultipartFile> images) {
@@ -49,6 +54,19 @@ public class ReviewService {
         Review savedReview = reviewRepository.save(newReview);
 
         return ReviewResponse.of(savedReview, uploadedFileUrls, inputKeywords);
+    }*/
+
+    @Transactional
+    public Long register(ReviewRequest reviewRequest, PlaceRequest placeRequest, List<MultipartFile> images) {
+
+        Member loginMember = authUtil.getLoginMember();
+        Place place = findOrCreatePlace(placeRequest);
+        List<String> uploadedFileUrls = uploadImages(images);
+        List<String> inputKeywords = saveKeywords(reviewRequest);
+        Review newReview = createReview(reviewRequest, loginMember, place, uploadedFileUrls, inputKeywords);
+        Review savedReview = reviewRepository.save(newReview);
+
+        return savedReview.getId();
     }
 
     /**
@@ -83,7 +101,7 @@ public class ReviewService {
         }
 
         if (images.size() > IMAGES_LIMIT) {
-            throw PinUpException.IMAGES_LIMIT_EXCEEDED;
+            throw new ImagesLimitExceededException();
         }
 
         List<String> uploadedFileUrls = new ArrayList<>();

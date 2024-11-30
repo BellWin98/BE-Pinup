@@ -43,7 +43,7 @@ public class Member extends BaseTimeEntity {
 
     private String socialId; // 로그인 한 소셜 타입의 식별자 값
 
-    @OneToMany(mappedBy = "member", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "member")
     private List<Review> reviews = new ArrayList<>();
 
     @Builder
