@@ -27,25 +27,6 @@ public class ReviewController {
         this.reviewService = reviewService;
     }
 
-    /**
-     * 리뷰 등록 API
-     * 내용, 평점, 사진 최대 3장, 키워드 최대 10개 등록 가능
-     * 업체 첫 리뷰 등록 시, DB에 업체 사전 등록 필요
-     */
-/*    @PostMapping("/reviews")
-    public ResponseEntity<ApiSuccessResponse<ReviewResponse>> register(
-            @Valid ReviewRequest reviewRequest,
-            @Valid PlaceRequest placeRequest,
-            @RequestParam(value = "multipartFiles", required = false)
-            List<MultipartFile> multipartFiles) {
-
-        ReviewResponse result = reviewService.register(reviewRequest, placeRequest, multipartFiles);
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(ApiSuccessResponse.from(result));
-    }*/
-
     @PostMapping("/reviews")
     public ResponseEntity<ResultResponse> register(
             @Valid ReviewRequest reviewRequest,

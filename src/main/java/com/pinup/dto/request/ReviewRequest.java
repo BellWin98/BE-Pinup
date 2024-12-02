@@ -21,9 +21,6 @@ public class ReviewRequest {
     @NotBlank(message = "방문 날짜를 입력해주세요.")
     private String visitedDate;
 
-    @Size(max = 10, message = "등록 가능한 키워드 갯수를 초과했습니다. - 최대 10개")
-    private List<String> keywords;
-
     public Review toEntity() {
         return Review.builder()
                 .content(content)

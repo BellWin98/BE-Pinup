@@ -39,9 +39,6 @@ public class Review extends BaseTimeEntity {
     @OneToMany(mappedBy = "review", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     private List<ReviewImage> reviewImages = new ArrayList<>();
 
-    @OneToMany(mappedBy = "review", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
-    private List<Keyword> keywords = new ArrayList<>();
-
     @Builder
     public Review(String content, Double starRating, String visitedDate) {
         this.content = content;
