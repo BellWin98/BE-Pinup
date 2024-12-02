@@ -24,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -50,6 +51,64 @@ public class ReviewService {
 
         return savedReview.getId();
     }
+
+    @Transactional(readOnly = true)
+    public List<ReviewResponse> getCurrentUserReviews() {
+        Member findMember = findMember();
+        return getReviews(findMember.getId());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReviewResponse> getReviews(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> PinUpException.MEMBER_NOT_FOUND);
+
+        return reviewRepository.findAllByMember(member).stream()
+                .map(review -> ReviewResponse.of(
+                        review,
+                        review.getReviewImages().stream()
+                                .map(ReviewImage::getUrl)
+                                .collect(Collectors.toList()),
+                        review.getKeywords().stream()
+                                .map(Keyword::getKeyword)
+                                .collect(Collectors.toList())
+                ))
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public Double getCurrentUserAverageRating() {
+        Member findMember = findMember();
+
+        return getMemberAverageRating(findMember().getId());
+    }
+
+    @Transactional(readOnly = true)
+    public Integer getCurrentUserReviewsCount() {
+        Member findMember = findMember();
+
+        return getReviews(findMember.getId()).size();
+    }
+
+    @Transactional(readOnly = true)
+    public Integer getUserReviewsCount(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> PinUpException.MEMBER_NOT_FOUND);
+
+        return getReviews(member.getId()).size();
+    }
+
+    @Transactional(readOnly = true)
+    public Double getMemberAverageRating(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> PinUpException.MEMBER_NOT_FOUND);
+
+        return reviewRepository.findAllByMember(member).stream()
+                .mapToDouble(Review::getRating)
+                .average()
+                .orElse(0.0);
+    }
+
 
     /**
      * SecurityContextHolder 에서 현재 로그인 한 사용자 이메일 Get 후 회원 정보 탐색
