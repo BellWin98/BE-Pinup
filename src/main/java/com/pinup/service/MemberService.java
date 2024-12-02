@@ -3,11 +3,10 @@ package com.pinup.service;
 import com.pinup.cache.MemberCacheManager;
 import com.pinup.dto.request.BioUpdateRequest;
 import com.pinup.dto.request.NicknameUpdateRequest;
-import com.pinup.dto.response.ProfileResponse;
 import com.pinup.dto.response.MemberResponse;
+import com.pinup.dto.response.ProfileResponse;
 import com.pinup.dto.response.ReviewCountsResponse;
 import com.pinup.dto.response.ReviewResponse;
-import com.pinup.entity.Keyword;
 import com.pinup.entity.Member;
 import com.pinup.entity.Review;
 import com.pinup.entity.ReviewImage;
@@ -176,9 +175,6 @@ public class MemberService {
                                 review,
                                 review.getReviewImages().stream()
                                         .map(ReviewImage::getUrl)
-                                        .collect(Collectors.toList()),
-                                review.getKeywords().stream()
-                                        .map(Keyword::getKeyword)
                                         .collect(Collectors.toList())
                         ))
                         .collect(Collectors.toList()))
@@ -187,7 +183,7 @@ public class MemberService {
 
     private long getReviewCountForRating(List<Review> reviews, double rating) {
         return reviews.stream()
-                .filter(review -> review.getRating() == rating)
+                .filter(review -> review.getStarRating() == rating)
                 .count();
     }
 }

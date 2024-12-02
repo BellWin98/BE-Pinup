@@ -2,12 +2,14 @@ package com.pinup.service;
 
 import com.pinup.dto.request.PlaceRequest;
 import com.pinup.dto.request.ReviewRequest;
+import com.pinup.dto.response.ReviewResponse;
 import com.pinup.entity.Member;
 import com.pinup.entity.Place;
 import com.pinup.entity.Review;
 import com.pinup.entity.ReviewImage;
 import com.pinup.exception.ImagesLimitExceededException;
 import com.pinup.exception.MemberNotFoundException;
+import com.pinup.global.exception.PinUpException;
 import com.pinup.global.s3.S3Service;
 import com.pinup.global.util.AuthUtil;
 import com.pinup.repository.MemberRepository;
@@ -68,9 +70,6 @@ public class ReviewService {
                         review,
                         review.getReviewImages().stream()
                                 .map(ReviewImage::getUrl)
-                                .collect(Collectors.toList()),
-                        review.getKeywords().stream()
-                                .map(Keyword::getKeyword)
                                 .collect(Collectors.toList())
                 ))
                 .collect(Collectors.toList());
@@ -104,7 +103,7 @@ public class ReviewService {
                 .orElseThrow(() -> PinUpException.MEMBER_NOT_FOUND);
 
         return reviewRepository.findAllByMember(member).stream()
-                .mapToDouble(Review::getRating)
+                .mapToDouble(Review::getStarRating)
                 .average()
                 .orElse(0.0);
     }

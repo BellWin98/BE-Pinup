@@ -17,13 +17,11 @@ public class ReviewResponse {
     private String content;
     private double starRating;
     private List<String> reviewImageUrls;
-    private List<String> reviewKeywords;
     private String createdAt;
     private String updatedAt;
 
     public static ReviewResponse of(Review review,
-                                    List<String> reviewImageUrls,
-                                    List<String> reviewKeywords) {
+                                    List<String> reviewImageUrls) {
 
         return ReviewResponse.builder()
                 .reviewId(review.getId())
@@ -32,7 +30,6 @@ public class ReviewResponse {
                 .content(review.getContent())
                 .starRating(review.getStarRating())
                 .reviewImageUrls(reviewImageUrls)
-                .reviewKeywords(reviewKeywords)
                 .createdAt(review.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .updatedAt(review.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .build();
