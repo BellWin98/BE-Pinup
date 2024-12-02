@@ -51,7 +51,7 @@ public class Member extends BaseTimeEntity {
 
     private String password;
 
-    @OneToMany(mappedBy = "member", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "member")
     private List<Review> reviews = new ArrayList<>();
 
     @OneToMany(mappedBy = "member")

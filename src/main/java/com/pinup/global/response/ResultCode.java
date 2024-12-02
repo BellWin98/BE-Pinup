@@ -9,6 +9,7 @@ public enum ResultCode {
 
     // Place
     GET_PLACES_SUCCESS(200, "P001", "장소 목록 조회에 성공하였습니다."),
+    GET_PLACE_DETAIL_SUCCESS(200, "P002", "장소 상세 조회에 성공하였습니다."),
 
     // Review
     CREATE_REVIEW_SUCCESS(200, "R001", "리뷰 등록에 성공하였습니다."),

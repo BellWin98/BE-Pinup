@@ -3,6 +3,7 @@ package com.pinup.entity;
 import com.pinup.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -19,10 +20,13 @@ public class Review extends BaseTimeEntity {
     private Long id;
 
     @Column(columnDefinition = "TEXT", nullable = false)
-    private String comment;
+    private String content;
 
     @Column(nullable = false)
-    private Double rating;
+    private Double starRating;
+
+    @Column
+    private String visitedDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
@@ -35,12 +39,11 @@ public class Review extends BaseTimeEntity {
     @OneToMany(mappedBy = "review", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     private List<ReviewImage> reviewImages = new ArrayList<>();
 
-    @OneToMany(mappedBy = "review", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
-    private List<Keyword> keywords = new ArrayList<>();
-
-    public Review(String comment, Double rating) {
-        this.comment = comment;
-        this.rating = rating;
+    @Builder
+    public Review(String content, Double starRating, String visitedDate) {
+        this.content = content;
+        this.starRating = starRating;
+        this.visitedDate = visitedDate;
     }
 
     public void attachPlace(Place place){

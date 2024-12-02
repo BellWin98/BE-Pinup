@@ -19,8 +19,8 @@ public class PlaceRequest {
     private String category; // 장소 카테고리
     private String address; // 주소
     private String roadAddress; // 도로명 주소
-    private String longitude; // 경도(X)
     private String latitude; // 위도(Y)
+    private String longitude; // 경도(X)
 
     public Place toEntity() {
 
@@ -39,8 +39,8 @@ public class PlaceRequest {
                 .placeCategory(newPlaceCategory)
                 .address(address)
                 .roadAddress(roadAddress)
-                .longitude(longitude)
                 .latitude(latitude)
+                .longitude(longitude)
                 .build();
     }
 }

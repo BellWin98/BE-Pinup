@@ -2,10 +2,14 @@ package com.pinup.service;
 
 import com.pinup.dto.request.PlaceRequest;
 import com.pinup.dto.request.ReviewRequest;
-import com.pinup.dto.response.ReviewResponse;
-import com.pinup.entity.*;
-import com.pinup.global.exception.PinUpException;
+import com.pinup.entity.Member;
+import com.pinup.entity.Place;
+import com.pinup.entity.Review;
+import com.pinup.entity.ReviewImage;
+import com.pinup.exception.ImagesLimitExceededException;
+import com.pinup.exception.MemberNotFoundException;
 import com.pinup.global.s3.S3Service;
+import com.pinup.global.util.AuthUtil;
 import com.pinup.repository.MemberRepository;
 import com.pinup.repository.PlaceRepository;
 import com.pinup.repository.ReviewRepository;
@@ -29,27 +33,23 @@ public class ReviewService {
 
     private static final String FILE_TYPE = "reviews";
     private static final int IMAGES_LIMIT = 3;
-    private static final int KEYWORDS_LIMIT = 10;
-    private static final int KEYWORDS_LENGTH_LIMIT = 10;
 
     private final MemberRepository memberRepository;
+    private final AuthUtil authUtil;
     private final PlaceRepository placeRepository;
     private final ReviewRepository reviewRepository;
     private final S3Service s3Service;
 
     @Transactional
-    public ReviewResponse register(ReviewRequest reviewRequest,
-                                   PlaceRequest placeRequest,
-                                   List<MultipartFile> images) {
+    public Long register(ReviewRequest reviewRequest, PlaceRequest placeRequest, List<MultipartFile> images) {
 
-        Member findMember = findMember();
+        Member loginMember = authUtil.getLoginMember();
         Place place = findOrCreatePlace(placeRequest);
         List<String> uploadedFileUrls = uploadImages(images);
-        List<String> inputKeywords = saveKeywords(reviewRequest);
-        Review newReview = createReview(reviewRequest, findMember, place, uploadedFileUrls, inputKeywords);
+        Review newReview = createReview(reviewRequest, loginMember, place, uploadedFileUrls);
         Review savedReview = reviewRepository.save(newReview);
 
-        return ReviewResponse.of(savedReview, uploadedFileUrls, inputKeywords);
+        return savedReview.getId();
     }
 
     @Transactional(readOnly = true)
@@ -116,8 +116,7 @@ public class ReviewService {
     private Member findMember() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        return memberRepository.findByEmail(authentication.getName())
-                .orElseThrow(() -> PinUpException.MEMBER_NOT_FOUND);
+        return memberRepository.findByEmail(authentication.getName()).orElseThrow(MemberNotFoundException::new);
     }
 
     /**
@@ -142,7 +141,7 @@ public class ReviewService {
         }
 
         if (images.size() > IMAGES_LIMIT) {
-            throw PinUpException.IMAGES_LIMIT_EXCEEDED;
+            throw new ImagesLimitExceededException();
         }
 
         List<String> uploadedFileUrls = new ArrayList<>();
@@ -156,34 +155,14 @@ public class ReviewService {
     }
 
     /**
-     * 키워드 저장
-     * 키워드 최대 10개 등록 가능
-     * 각 키워드 글자 수는 최대 10자
-     */
-    private List<String> saveKeywords(ReviewRequest reviewRequest) {
-        List<String> inputKeywords = new ArrayList<>();
-
-        if (reviewRequest.getKeywords() != null && !reviewRequest.getKeywords().isEmpty()) {
-            if (reviewRequest.getKeywords().size() > KEYWORDS_LIMIT) {
-                throw PinUpException.KEYWORDS_LIMIT_EXCEEDED;
-            }
-
-            for (String inputKeyword : reviewRequest.getKeywords()) {
-                if (inputKeyword.length() > KEYWORDS_LENGTH_LIMIT) {
-                    throw PinUpException.KEYWORDS_LENGTH_LIMIT_EXCEEDED;
-                }
-                inputKeywords.add(inputKeyword);
-            }
-        }
-
-        return inputKeywords;
-    }
-
-    /**
      * 생성된 리뷰 엔티티에 작성자, 업체, 리뷰 이미지, 키워드 연결
      */
-    private Review createReview(ReviewRequest reviewRequest, Member writer, Place place,
-                                List<String> uploadedFileUrls, List<String> inputKeywords) {
+    private Review createReview(
+            ReviewRequest reviewRequest,
+            Member writer,
+            Place place,
+            List<String> uploadedFileUrls
+    ) {
 
         Review newReview = reviewRequest.toEntity();
         newReview.attachMember(writer);
@@ -193,11 +172,6 @@ public class ReviewService {
         for (String fileUrl : uploadedFileUrls) {
             ReviewImage reviewImage = new ReviewImage(fileUrl);
             reviewImage.attachReview(newReview);
-        }
-
-        for (String inputKeyword : inputKeywords) {
-            Keyword keyword = new Keyword(inputKeyword);
-            keyword.attachReview(newReview);
         }
 
         return newReview;

@@ -36,9 +36,9 @@ public class PlaceRepositoryCustomImpl implements PlaceRepositoryCustom{
         List<ReviewInfoForUserDto> reviewInfoForUserDtoList = result.stream().map(
                 tuple -> ReviewInfoForUserDto.builder()
                         .nickname(tuple.get(member.name))
-                        .content(tuple.get(review.comment))
-                        .rating(tuple.get(review.rating))
-                        .registerDate(tuple.get(review.createdAt).format(formatter))
+                        .content(tuple.get(review.content))
+                        .starRating(tuple.get(review.starRating))
+                        .visitedDate(tuple.get(review.visitedDate))
                         .profileImageUrl(tuple.get(member.profileImageUrl))
                         .reviewImageUrls(fetchReviewImageUrls(tuple.get(review.id)))
                         .build()).toList();
@@ -48,7 +48,7 @@ public class PlaceRepositoryCustomImpl implements PlaceRepositoryCustom{
 
         return PlaceReviewInfoDto.builder()
                 .reviewDataForMember(reviewInfoForUserDtoList)
-                .averageReviewRating(averageReviewRating)
+                .averageStarRating(averageReviewRating)
                 .reviewCount(reviewCount)
                 .build();
     }
@@ -57,9 +57,9 @@ public class PlaceRepositoryCustomImpl implements PlaceRepositoryCustom{
         return queryFactory
                 .select(review.id,
                         member.name,
-                        review.comment,
-                        review.rating,
-                        review.createdAt,
+                        review.content,
+                        review.starRating,
+                        review.visitedDate,
                         member.profileImageUrl
                 )
                 .from(review)
@@ -84,7 +84,7 @@ public class PlaceRepositoryCustomImpl implements PlaceRepositoryCustom{
 
     private double calculateAverageRating(List<Tuple> result) {
         return result.stream()
-                .mapToDouble(tuple -> tuple.get(review.rating))
+                .mapToDouble(tuple -> tuple.get(review.starRating))
                 .average()
                 .orElse(0.0);
     }

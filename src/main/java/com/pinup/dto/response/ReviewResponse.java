@@ -14,8 +14,8 @@ public class ReviewResponse {
     private Long reviewId;
     private Long writerId;
     private Long placeId;
-    private String reviewComment;
-    private double reviewRating;
+    private String content;
+    private double starRating;
     private List<String> reviewImageUrls;
     private List<String> reviewKeywords;
     private String createdAt;
@@ -29,8 +29,8 @@ public class ReviewResponse {
                 .reviewId(review.getId())
                 .writerId(review.getMember().getId())
                 .placeId(review.getPlace().getId())
-                .reviewComment(review.getComment())
-                .reviewRating(review.getRating())
+                .content(review.getContent())
+                .starRating(review.getStarRating())
                 .reviewImageUrls(reviewImageUrls)
                 .reviewKeywords(reviewKeywords)
                 .createdAt(review.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
