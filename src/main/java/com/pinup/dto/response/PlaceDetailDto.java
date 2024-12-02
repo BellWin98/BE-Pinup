@@ -1,47 +1,47 @@
 package com.pinup.dto.response;
 
-import com.pinup.entity.Member;
-import com.pinup.entity.Place;
-import com.pinup.entity.Review;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 
 import java.util.List;
 import java.util.Map;
 
-@Getter
-@Builder
+@Data
 public class PlaceDetailDto {
 
-    private int reviewCount;
+    private String placeName;
+    private Long reviewCount;
     private Double averageStarRating;
-    private Map<String, Integer> ratingGraph;
+    private Map<Integer, Integer> ratingGraph;
     private List<ReviewDto> reviews;
 
-    public static PlaceDetailDto from(Place place, Double averageStarRating) {
-        return PlaceDetailDto.builder()
-                .reviewCount(place.getReviews().size())
-                .build();
+    public PlaceDetailDto(String placeName, Long reviewCount, Double averageStarRating) {
+        this.placeName = placeName;
+        this.reviewCount = reviewCount;
+        this.averageStarRating = averageStarRating;
     }
 
-    @Getter
-    @Builder
-    static class ReviewDto {
+    @Data
+    public static class ReviewDto {
 
+        private Long reviewId;
         private String writerName; // 작성자 이름(또는 닉네임)
         private int writerTotalReviewCount; // 작성자의 총 리뷰 수
         private Double starRating; // 해당 가게에 부여한 별점
         private String visitedDate; // 방문날짜
         private String content; // 리뷰내용
+        private String writerProfileImageUrl; // 작성자 프로필 사진
+        private List<String> reviewImageUrls; // 리뷰 이미지 목록
 
-        public static ReviewDto from(Review review) {
-            return ReviewDto.builder()
-                    .writerName(review.getMember().getName())
-                    .writerTotalReviewCount(review.getMember().getReviews().size())
-                    .starRating(review.getStarRating())
-                    .visitedDate(review.getVisitedDate())
-                    .content(review.getContent())
-                    .build();
+        public ReviewDto(Long reviewId, String writerName, int writerTotalReviewCount,
+                         Double starRating, String visitedDate, String content, String writerProfileImageUrl) {
+
+            this.reviewId = reviewId;
+            this.writerName = writerName;
+            this.writerTotalReviewCount = writerTotalReviewCount;
+            this.starRating = starRating;
+            this.visitedDate = visitedDate;
+            this.content = content;
+            this.writerProfileImageUrl = writerProfileImageUrl;
         }
     }
 }

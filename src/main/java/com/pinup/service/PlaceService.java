@@ -3,11 +3,8 @@ package com.pinup.service;
 import com.pinup.dto.response.PlaceDetailDto;
 import com.pinup.dto.response.PlaceSimpleDto;
 import com.pinup.dto.response.PlaceResponse;
-import com.pinup.entity.FriendShip;
 import com.pinup.entity.Member;
-import com.pinup.entity.Place;
 import com.pinup.enums.PlaceCategory;
-import com.pinup.exception.PlaceNotFoundException;
 import com.pinup.global.exception.PinUpException;
 import com.pinup.global.maps.KakaoMapModule;
 import com.pinup.global.util.AuthUtil;
@@ -15,7 +12,6 @@ import com.pinup.repository.FriendShipRepository;
 import com.pinup.repository.MemberRepository;
 import com.pinup.repository.PlaceRepository;
 import com.pinup.repository.ReviewRepository;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,9 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -79,10 +75,8 @@ public class PlaceService {
     public Page<PlaceSimpleDto> getPlacePage(double latitude, double longitude, Pageable pageable) {
 
         Member loginMember = authUtil.getLoginMember();
-//        double convertedLatitude = Double.parseDouble(latitude);
-//        double convertedLongitude = Double.parseDouble(longitude);
 
-        return placeRepository.findPlaceDtoPageOfFriendReviewByMember(
+        return placeRepository.findPlaceListByMemberAndCoordinate(
                 loginMember,
                 latitude,
                 longitude,
@@ -94,16 +88,22 @@ public class PlaceService {
     public PlaceDetailDto getPlaceDetail(Long placeId) {
 
         Member loginMember = authUtil.getLoginMember();
-        Place findPlace = placeRepository.findById(placeId).orElseThrow(PlaceNotFoundException::new);
-        List<FriendShip> friendsOfMember = friendShipRepository.findAllByMember(loginMember);
 
+        PlaceDetailDto placeDetailDto = placeRepository.findPlaceDetailByPlaceIdAndMember(loginMember, placeId);
 
+        List<PlaceDetailDto.ReviewDto> reviewDtoList = placeDetailDto.getReviews();
 
+        Map<Integer, Integer> ratingGraph = new HashMap<>();
 
+        for (PlaceDetailDto.ReviewDto reviewDto : reviewDtoList) {
 
+            int range = (int) Math.floor(reviewDto.getStarRating());
+            ratingGraph.put(range, ratingGraph.getOrDefault(range, 0) + 1);
 
+        }
 
+        placeDetailDto.setRatingGraph(ratingGraph);
 
-        return null;
+        return placeDetailDto;
     }
 }

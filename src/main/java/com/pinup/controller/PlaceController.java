@@ -60,8 +60,6 @@ public class PlaceController {
 
         PlaceDetailDto result = placeService.getPlaceDetail(placeId);
 
-        return null;
+        return ResponseEntity.ok(ResultResponse.of(GET_PLACE_DETAIL_SUCCESS, result));
     }
-
-
 }

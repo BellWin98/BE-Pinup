@@ -3,7 +3,7 @@ package com.pinup.repository.querydsl;
 import com.pinup.dto.response.PlaceDetailDto;
 import com.pinup.dto.response.PlaceSimpleDto;
 import com.pinup.entity.Member;
-import com.pinup.entity.Place;
+import com.pinup.exception.PlaceNotFoundException;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberTemplate;
@@ -12,12 +12,12 @@ import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.pinup.entity.QFriendShip.friendShip;
 import static com.pinup.entity.QMember.member;
@@ -26,22 +26,18 @@ import static com.pinup.entity.QReview.review;
 import static com.pinup.entity.QReviewImage.reviewImage;
 
 @RequiredArgsConstructor
+@Slf4j
 public class PlaceRepositoryQueryDslImpl implements PlaceRepositoryQueryDsl{
 
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<PlaceSimpleDto> findPlaceDtoPageOfFriendReviewByMember(
+    public Page<PlaceSimpleDto> findPlaceListByMemberAndCoordinate(
             Member loginMember,
             Double latitude,
             Double longitude,
             Pageable pageable
     ) {
-
-        JPQLQuery<Long> friendMemberIds = JPAExpressions
-                .select(friendShip.friend.id)
-                .from(friendShip)
-                .where(friendShip.member.id.eq(loginMember.getId()));
 
         List<PlaceSimpleDto> result = queryFactory
                 .select(Projections.constructor(
@@ -54,15 +50,9 @@ public class PlaceRepositoryQueryDslImpl implements PlaceRepositoryQueryDsl{
                 ))
                 .from(place)
                 .join(review).on(place.eq(review.place))
-                .join(member).on(review.member.eq(member))
-                .where(
-                        place.status.eq("Y"),
-                        review.member.id.in(
-                                JPAExpressions
-                                        .select(member.id)
-                                        .from(member)
-                                        .where(member.id.eq(loginMember.getId())
-                                                .or(member.id.in(friendMemberIds)))
+                .where(place.status.eq("Y")
+                        .and(review.member.id.eq(loginMember.getId())
+                                .or(review.member.id.in(getFriendMemberIds(loginMember.getId())))
                         )
                 )
                 .groupBy(place)
@@ -72,6 +62,7 @@ public class PlaceRepositoryQueryDslImpl implements PlaceRepositoryQueryDsl{
                 .fetch();
 
         for (PlaceSimpleDto placeSimpleDto : result) {
+
             Long placeId = placeSimpleDto.getPlaceId();
 
             // 리뷰 이미지 URL 리스트 조회 (최대 3개, 먼저 등록된 순서로)
@@ -81,7 +72,7 @@ public class PlaceRepositoryQueryDslImpl implements PlaceRepositoryQueryDsl{
                     .join(review).on(reviewImage.review.eq(review))
                     .where(review.place.id.eq(placeId)
                             .and(review.member.id.eq(loginMember.getId())
-                                    .or(review.member.id.in(friendMemberIds)))
+                                    .or(review.member.id.in(getFriendMemberIds(loginMember.getId()))))
                             .and(reviewImage.url.isNotNull()))
                     .orderBy(reviewImage.createdAt.asc())
                     .limit(3)
@@ -94,8 +85,8 @@ public class PlaceRepositoryQueryDslImpl implements PlaceRepositoryQueryDsl{
                     .join(review).on(member.eq(review.member))
                     .where(review.place.id.eq(placeId)
                             .and(review.member.id.eq(loginMember.getId())
-                                    .or(review.member.id.in(friendMemberIds)))
-                            .and(member.profileImageUrl.isNotNull()))
+                                    .or(review.member.id.in(getFriendMemberIds(loginMember.getId())))
+                            ))
                     .orderBy(review.updatedAt.desc())
                     .limit(3)
                     .fetch();
@@ -108,14 +99,9 @@ public class PlaceRepositoryQueryDslImpl implements PlaceRepositoryQueryDsl{
                 .select(place.id.count())
                 .from(place)
                 .join(review).on(place.eq(review.place))
-                .where(
-                        place.status.eq("Y"),
-                        review.member.id.in(
-                                JPAExpressions
-                                        .select(member.id)
-                                        .from(member)
-                                        .where(member.id.eq(loginMember.getId())
-                                                .or(member.id.in(friendMemberIds)))
+                .where(place.status.eq("Y")
+                        .and(review.member.id.eq(loginMember.getId())
+                                .or(review.member.id.in(getFriendMemberIds(loginMember.getId())))
                         )
                 )
                 .fetchOne();
@@ -123,16 +109,70 @@ public class PlaceRepositoryQueryDslImpl implements PlaceRepositoryQueryDsl{
         return new PageImpl<>(result, pageable, total != null ? total : 0L);
     }
 
-//    @Override
-//    public Optional<PlaceDetailDto> findPlaceDetailDtoOfFriendReviewByPlaceAndMember(Member loginMember, Place place) {
-//
-//        JPQLQuery<Long> friendMemberIds = JPAExpressions
-//                .select(friendShip.friend.id)
-//                .from(friendShip)
-//                .where(friendShip.member.id.eq(loginMember.getId()));
-//
-//        queryFactory.select()
-//    }
+    @Override
+    public PlaceDetailDto findPlaceDetailByPlaceIdAndMember(
+            Member loginMember,
+            Long placeId
+    ) {
+
+        List<PlaceDetailDto.ReviewDto> reviewDetailList = queryFactory
+                .select(Projections.constructor(
+                        PlaceDetailDto.ReviewDto.class,
+                        review.id.as("reviewId"),
+                        review.member.name.as("writerName"),
+                        review.member.reviews.size().as("writerTotalReviewCount"),
+                        review.starRating.as("starRating"),
+                        review.visitedDate.as("visitedDate"),
+                        review.content.as("content"),
+                        review.member.profileImageUrl.as("writerProfileImageUrl")
+                ))
+                .from(review)
+                .where(review.place.id.eq(placeId)
+                        .and(review.member.id.eq(loginMember.getId())
+                                .or(review.member.id.in(getFriendMemberIds(loginMember.getId())))
+                        )
+                )
+                .orderBy(review.createdAt.desc())
+                .fetch();
+
+        for (PlaceDetailDto.ReviewDto reviewDto : reviewDetailList) {
+
+            Long reviewId = reviewDto.getReviewId();
+
+            List<String> reviewImageUrls = queryFactory
+                    .select(reviewImage.url)
+                    .from(reviewImage)
+                    .where(reviewImage.review.id.eq(reviewId))
+                    .fetch();
+
+            reviewDto.setReviewImageUrls(reviewImageUrls);
+        }
+
+        PlaceDetailDto placeDetailDto = queryFactory
+                .select(Projections.constructor(
+                            PlaceDetailDto.class,
+                            place.name.as("placeName"),
+                            review.countDistinct().as("reviewCount"),
+                            review.starRating.avg().as("averageStarRating")
+                        )
+                )
+                .from(place)
+                .join(review).on(place.eq(review.place))
+                .where(place.id.eq(placeId)
+                        .and(review.member.id.eq(loginMember.getId())
+                                .or(review.member.id.in(getFriendMemberIds(loginMember.getId())))
+                        )
+                )
+                .fetchOne();
+
+        if (placeDetailDto != null) {
+            placeDetailDto.setReviews(reviewDetailList);
+        } else {
+            throw new PlaceNotFoundException();
+        }
+
+        return placeDetailDto;
+    }
 
     private NumberTemplate<Double> calculateDistance(double latitude1, double longitude1, StringPath latitude2, StringPath longitude2) {
         return Expressions.numberTemplate(Double.class,
@@ -145,4 +185,12 @@ public class PlaceRepositoryQueryDslImpl implements PlaceRepositoryQueryDsl{
                 Expressions.numberTemplate(Double.class, "CAST({0} AS DOUBLE)", latitude2)
         );
     }
+
+    private JPQLQuery<Long> getFriendMemberIds(Long loginMemberId) {
+        return JPAExpressions
+                .select(friendShip.friend.id)
+                .from(friendShip)
+                .where(friendShip.member.id.eq(loginMemberId));
+    }
+
 }
