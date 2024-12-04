@@ -73,7 +73,7 @@ public class PlaceController {
             @RequestParam(value = "keyword") String keyword,
             @RequestParam(value = "latitude") String latitude,
             @RequestParam(value = "longitude") String longitude,
-            @RequestParam(value = "radius", defaultValue = "1000") int radius,
+            @RequestParam(value = "radius", defaultValue = "20000") int radius,
             @RequestParam(value = "sort", defaultValue = "distance") String sort,
             @PageableDefault Pageable pageable
     ) {
