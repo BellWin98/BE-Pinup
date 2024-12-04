@@ -1,8 +1,8 @@
 package com.pinup.service;
 
 import com.pinup.dto.response.PlaceDetailDto;
-import com.pinup.dto.response.PlaceSimpleDto;
 import com.pinup.dto.response.PlaceResponse;
+import com.pinup.dto.response.PlaceSimpleDto;
 import com.pinup.entity.Member;
 import com.pinup.enums.PlaceCategory;
 import com.pinup.global.exception.PinUpException;
@@ -14,6 +14,7 @@ import com.pinup.repository.PlaceRepository;
 import com.pinup.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -66,22 +67,12 @@ public class PlaceService {
                 .collect(Collectors.toList());
     }
 
-    private Member findMember() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return memberRepository.findByEmail(email).orElseThrow(() -> PinUpException.MEMBER_NOT_FOUND);
-    }
-
     @Transactional
     public Page<PlaceSimpleDto> getPlacePage(double latitude, double longitude, Pageable pageable) {
 
         Member loginMember = authUtil.getLoginMember();
 
-        return placeRepository.findPlaceListByMemberAndCoordinate(
-                loginMember,
-                latitude,
-                longitude,
-                pageable
-        );
+        return placeRepository.findPlaceListByMemberAndCoordinate(loginMember, latitude, longitude, pageable);
     }
 
     @Transactional
@@ -105,5 +96,21 @@ public class PlaceService {
         placeDetailDto.setRatingGraph(ratingGraph);
 
         return placeDetailDto;
+    }
+
+    public Page<Map<String, Object>> getPlacePageByKeyword(String keyword, String latitude, String longitude,
+                                                           int radius, String sort, Pageable pageable) {
+
+        Member loginMember = authUtil.getLoginMember();
+
+        List<Map<String, Object>> placeInfoList =
+                kakaoMapModule.search(loginMember, keyword, latitude, longitude, radius, sort);
+
+        return new PageImpl<>(placeInfoList, pageable, placeInfoList.size());
+    }
+
+    private Member findMember() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return memberRepository.findByEmail(email).orElseThrow(() -> PinUpException.MEMBER_NOT_FOUND);
     }
 }

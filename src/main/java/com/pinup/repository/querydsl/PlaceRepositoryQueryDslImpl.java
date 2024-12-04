@@ -174,6 +174,19 @@ public class PlaceRepositoryQueryDslImpl implements PlaceRepositoryQueryDsl{
         return placeDetailDto;
     }
 
+    @Override
+    public Long getReviewCount(Member loginMember, String kakaoMapId) {
+        return queryFactory
+                .select(review.count())
+                .from(review)
+                .where(review.place.kakaoMapId.eq(kakaoMapId)
+                        .and(review.member.id.eq(loginMember.getId())
+                                .or(review.member.id.in(getFriendMemberIds(loginMember.getId())))
+                        )
+                )
+                .fetchOne();
+    }
+
     private NumberTemplate<Double> calculateDistance(double latitude1, double longitude1, StringPath latitude2, StringPath longitude2) {
         return Expressions.numberTemplate(Double.class,
                 "6371 * acos(cos(radians({0})) * cos(radians({1})) * cos(radians({2}) - radians({3})) + sin(radians({4})) * sin(radians({5})))",

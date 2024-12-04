@@ -19,4 +19,6 @@ public interface PlaceRepositoryQueryDsl {
             Member loginMember,
             Long placeId
     );
+
+    Long getReviewCount(Member loginMember, String kakaoMapId);
 }
