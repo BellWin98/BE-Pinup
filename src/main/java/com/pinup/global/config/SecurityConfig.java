@@ -35,8 +35,8 @@ public class SecurityConfig {
     private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
 
     private static final String[] PERMITTED_API_URL = {
-            "/api/auth",
             "/api/auth/**",
+            "/swagger", "/swagger-ui.html", "/swagger-ui/**", "/api-docs", "/api-docs/**", "/v3/api-docs/**",
             "/chats"
     };
 
