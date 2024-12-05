@@ -1,6 +1,8 @@
 package com.pinup.controller;
 
 import com.pinup.dto.response.AlarmResponse;
+import com.pinup.global.response.ResultCode;
+import com.pinup.global.response.ResultResponse;
 import com.pinup.service.AlarmService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,13 +23,19 @@ public class AlarmController {
     private final AlarmService alarmService;
 
     @GetMapping
-    public ResponseEntity<Page<AlarmResponse>> getMyAlarms(
+    public ResponseEntity<ResultResponse> getMyAlarms(
             @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok(alarmService.getMyAlarms(pageable));
+
+        Page<AlarmResponse> result = alarmService.getMyAlarms(pageable);
+
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_ALARMS_SUCCESS, result));
     }
 
     @GetMapping("/{alarmId}")
-    public ResponseEntity<AlarmResponse> getAlarm(@PathVariable Long alarmId) {
-        return ResponseEntity.ok(alarmService.getAlarm(alarmId));
+    public ResponseEntity<ResultResponse> getAlarm(@PathVariable Long alarmId) {
+
+        AlarmResponse result = alarmService.getAlarm(alarmId);
+
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_ALARM_DETAIL_SUCCESS, result));
     }
 }

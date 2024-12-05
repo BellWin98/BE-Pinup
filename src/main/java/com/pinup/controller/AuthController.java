@@ -4,6 +4,8 @@ package com.pinup.controller;
 import com.pinup.dto.NormalLoginRequest;
 import com.pinup.dto.request.MemberJoinRequest;
 import com.pinup.global.response.ApiSuccessResponse;
+import com.pinup.global.response.ResultCode;
+import com.pinup.global.response.ResultResponse;
 import com.pinup.global.response.TokenResponse;
 import com.pinup.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,9 +37,11 @@ public class AuthController {
     }
 
     @GetMapping("/login/google/callback")
-    public ApiSuccessResponse<TokenResponse> googleCallback(@RequestParam("code") String code) {
+    public ResponseEntity<ResultResponse> googleCallback(@RequestParam("code") String code) {
+
         TokenResponse tokenResponse = authService.googleLogin(code);
-        return ApiSuccessResponse.from(tokenResponse);
+
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.LOGIN_SUCCESS, tokenResponse));
     }
 
     @GetMapping("/tokens")

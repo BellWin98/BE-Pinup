@@ -5,6 +5,8 @@ import com.pinup.dto.NormalLoginRequest;
 import com.pinup.dto.request.MemberJoinRequest;
 import com.pinup.entity.Member;
 
+import com.pinup.exception.InvalidTokenException;
+import com.pinup.exception.MemberNotFoundException;
 import com.pinup.global.response.TokenResponse;
 import com.pinup.enums.LoginType;
 import com.pinup.global.exception.PinUpException;
@@ -109,7 +111,7 @@ public class AuthService {
 
     public TokenResponse refresh(String refreshToken) {
         if (!jwtTokenProvider.validateToken(refreshToken)) {
-            throw INVALID_TOKEN;
+            throw new InvalidTokenException();
         }
 
         String email = jwtTokenProvider.getEmail(refreshToken);
@@ -117,7 +119,7 @@ public class AuthService {
 
         String storedRefreshToken = redisService.getValues(REFRESH_TOKEN_PREFIX+member.getId());
         if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
-            throw INVALID_TOKEN;
+            throw new InvalidTokenException();
         }
 
 
@@ -131,7 +133,7 @@ public class AuthService {
 
     public void logout(String accessToken) {
         if (!jwtTokenProvider.validateToken(accessToken)) {
-            throw INVALID_TOKEN;
+            throw new InvalidTokenException();
         }
 
         String email = jwtTokenProvider.getEmail(accessToken);
@@ -231,7 +233,7 @@ public class AuthService {
 
     private Member getMemberByEmail(String email) {
         return memberRepository.findByEmail(email)
-                .orElseThrow(() -> MEMBER_NOT_FOUND);
+                .orElseThrow(MemberNotFoundException::new);
     }
 
     private void validatePassword(String requestPassword, String memberPassword) {
