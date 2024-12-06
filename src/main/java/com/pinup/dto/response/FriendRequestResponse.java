@@ -11,11 +11,8 @@ import lombok.Getter;
 public class FriendRequestResponse {
 
     private Long id;
-
     private String friendRequestStatus;
-
     private MemberResponse sender;
-
     private MemberResponse receiver;
 
     public static FriendRequestResponse from(FriendRequest friendRequest) {

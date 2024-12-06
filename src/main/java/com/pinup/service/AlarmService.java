@@ -3,6 +3,9 @@ package com.pinup.service;
 import com.pinup.dto.response.AlarmResponse;
 import com.pinup.entity.Alarm;
 import com.pinup.entity.Member;
+import com.pinup.exception.AlarmNotFoundException;
+import com.pinup.exception.MemberNotFoundException;
+import com.pinup.exception.UnauthorizedAlarmAccessException;
 import com.pinup.repository.AlarmRepository;
 import com.pinup.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,8 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import static com.pinup.global.exception.PinUpException.*;
 
 @Service
 @RequiredArgsConstructor
@@ -31,10 +32,10 @@ public class AlarmService {
     public AlarmResponse getAlarm(Long alarmId) {
         Member currentMember = getCurrentMember();
         Alarm alarm = alarmRepository.findById(alarmId)
-                .orElseThrow(() -> ALARM_NOT_FOUND);
+                .orElseThrow(AlarmNotFoundException::new);
 
         if (!alarm.getReceiver().equals(currentMember)) {
-            throw UNAUTHORIZED_ALARM_ACCESS;
+            throw new UnauthorizedAlarmAccessException();
         }
         alarm.read();
         alarmRepository.save(alarm);
@@ -44,6 +45,6 @@ public class AlarmService {
     private Member getCurrentMember() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return memberRepository.findByEmail(email)
-                .orElseThrow(() -> MEMBER_NOT_FOUND);
+                .orElseThrow(MemberNotFoundException::new);
     }
 }

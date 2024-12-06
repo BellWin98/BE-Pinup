@@ -3,6 +3,8 @@ package com.pinup.service;
 import com.pinup.dto.response.MemberResponse;
 import com.pinup.entity.FriendShip;
 import com.pinup.entity.Member;
+import com.pinup.exception.FriendNotFoundException;
+import com.pinup.exception.MemberNotFoundException;
 import com.pinup.repository.FriendShipRepository;
 import com.pinup.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +16,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.pinup.global.exception.PinUpException.*;
-
 @RequiredArgsConstructor
 @Service
 public class FriendShipService {
@@ -26,7 +26,7 @@ public class FriendShipService {
     @Transactional(readOnly = true)
     public List<MemberResponse> getAllFriends(Long memberId) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> MEMBER_NOT_FOUND);
+                .orElseThrow(MemberNotFoundException::new);
 
         return friendShipRepository.findAllByMember(member)
                 .stream()
@@ -53,14 +53,14 @@ public class FriendShipService {
     public void removeFriend(Long friendId) {
         Member currentUser = getCurrentMember();
         Member friend = memberRepository.findById(friendId)
-                .orElseThrow(() -> MEMBER_NOT_FOUND);
+                .orElseThrow(FriendNotFoundException::new);
 
         FriendShip friendship1 = friendShipRepository.findByMemberAndFriend(currentUser, friend)
-                .orElseThrow(() -> FRIENDSHIP_NOT_FOUND);
+                .orElseThrow(FriendNotFoundException::new);
         friendShipRepository.delete(friendship1);
 
         FriendShip friendship2 = friendShipRepository.findByMemberAndFriend(friend, currentUser)
-                .orElseThrow(() -> FRIENDSHIP_NOT_FOUND);
+                .orElseThrow(FriendNotFoundException::new);
         friendShipRepository.delete(friendship2);
     }
 
@@ -87,13 +87,13 @@ public class FriendShipService {
                 .map(FriendShip::getFriend)
                 .map(MemberResponse::from)
                 .findFirst()
-                .orElseThrow(() -> FRIEND_NOT_FOUND);
+                .orElseThrow(FriendNotFoundException::new);
     }
 
     private Member getCurrentMember() {
         String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         return memberRepository.findByEmail(currentUserEmail)
-                .orElseThrow(() -> MEMBER_NOT_FOUND);
+                .orElseThrow(MemberNotFoundException::new);
     }
 
     public boolean existsFriendship(Member sender, Member receiver) {

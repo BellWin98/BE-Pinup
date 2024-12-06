@@ -9,7 +9,6 @@ import com.pinup.entity.Review;
 import com.pinup.entity.ReviewImage;
 import com.pinup.exception.ImagesLimitExceededException;
 import com.pinup.exception.MemberNotFoundException;
-import com.pinup.global.exception.PinUpException;
 import com.pinup.global.s3.S3Service;
 import com.pinup.global.util.AuthUtil;
 import com.pinup.repository.MemberRepository;
@@ -63,7 +62,7 @@ public class ReviewService {
     @Transactional(readOnly = true)
     public List<ReviewResponse> getReviews(Long memberId) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> PinUpException.MEMBER_NOT_FOUND);
+                .orElseThrow(MemberNotFoundException::new);
 
         return reviewRepository.findAllByMember(member).stream()
                 .map(review -> ReviewResponse.of(
@@ -92,7 +91,7 @@ public class ReviewService {
     @Transactional(readOnly = true)
     public Integer getUserReviewsCount(Long memberId) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> PinUpException.MEMBER_NOT_FOUND);
+                .orElseThrow(MemberNotFoundException::new);
 
         return getReviews(member.getId()).size();
     }
@@ -100,7 +99,7 @@ public class ReviewService {
     @Transactional(readOnly = true)
     public Double getMemberAverageRating(Long memberId) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> PinUpException.MEMBER_NOT_FOUND);
+                .orElseThrow(MemberNotFoundException::new);
 
         return reviewRepository.findAllByMember(member).stream()
                 .mapToDouble(Review::getStarRating)

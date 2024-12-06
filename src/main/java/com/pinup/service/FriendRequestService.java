@@ -4,6 +4,7 @@ import com.pinup.dto.response.FriendRequestResponse;
 import com.pinup.entity.Alarm;
 import com.pinup.entity.FriendRequest;
 import com.pinup.entity.Member;
+import com.pinup.exception.*;
 import com.pinup.repository.AlarmRepository;
 import com.pinup.repository.FriendRequestRepository;
 import com.pinup.repository.MemberRepository;
@@ -16,7 +17,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.pinup.enums.FriendRequestStatus.PENDING;
-import static com.pinup.global.exception.PinUpException.*;
 
 @RequiredArgsConstructor
 @Service
@@ -33,9 +33,9 @@ public class FriendRequestService {
         String senderEmail = SecurityContextHolder.getContext().getAuthentication().getName();
 
         Member sender = memberRepository.findByEmail(senderEmail)
-                .orElseThrow(() -> MEMBER_NOT_FOUND);
+                .orElseThrow(MemberNotFoundException::new);
         Member receiver = memberRepository.findById(receiverId)
-                .orElseThrow(() -> MEMBER_NOT_FOUND);
+                .orElseThrow(MemberNotFoundException::new);
 
         validateSelfFriendRequest(sender, receiver);
         validateDuplicateFriendRequest(sender, receiver);
@@ -57,27 +57,27 @@ public class FriendRequestService {
 
     private void validateSelfFriendRequest(Member sender, Member receiver) {
         if (sender.getEmail().equals(receiver.getEmail())) {
-            throw SELF_FRIEND_REQUEST;
+            throw new SelfFriendRequestException();
         }
     }
 
     private void validateDuplicateFriendRequest(Member sender, Member receiver) {
         friendRequestRepository.findBySenderAndReceiverAndFriendRequestStatus(sender, receiver, PENDING)
                 .ifPresent(request -> {
-                    throw ALREADY_EXIST_FRIEND_REQUEST;
+                    throw new AlreadyExistFriendRequestException();
                 });
     }
 
     private void validateAlreadyFriend(Member sender, Member receiver) {
         if (friendShipService.existsFriendship(sender, receiver)) {
-            throw ALREADY_FRIEND;
+            throw new AlreadyFriendException();
         }
     }
 
     @Transactional
     public FriendRequestResponse acceptFriendRequest(Long friendRequestId) {
         FriendRequest friendRequest = friendRequestRepository.findById(friendRequestId)
-                .orElseThrow(() -> FRIEND_REQUEST_NOT_FOUND);
+                .orElseThrow(FriendRequestNotFoundException::new);
         validateRequestReceiverIsCurrentUser(friendRequest);
         validateFriendRequestStatus(friendRequest);
 
@@ -96,7 +96,7 @@ public class FriendRequestService {
     @Transactional
     public FriendRequestResponse rejectFriendRequest(Long friendRequestId) {
         FriendRequest friendRequest = friendRequestRepository.findById(friendRequestId)
-                .orElseThrow(() -> FRIEND_REQUEST_NOT_FOUND);
+                .orElseThrow(FriendRequestNotFoundException::new);
         validateRequestReceiverIsCurrentUser(friendRequest);
         validateFriendRequestStatus(friendRequest);
 
@@ -113,7 +113,7 @@ public class FriendRequestService {
 
     private void validateFriendRequestStatus(FriendRequest friendRequest) {
         if (friendRequest.getFriendRequestStatus() != PENDING) {
-            throw ALREADY_PROCESSED_FRIEND_REQUEST;
+            throw new AlreadyProcessedFriendRequestException();
         }
     }
 
@@ -122,7 +122,7 @@ public class FriendRequestService {
         String friendRequestReceiverEmail = friendRequest.getReceiver().getEmail();
 
         if (!currentUserEmail.equals(friendRequestReceiverEmail)) {
-            throw FRIEND_REQUEST_RECEIVER_MISMATCH;
+            throw new FriendRequestReceiverMismatchException();
         }
     }
 
@@ -131,7 +131,7 @@ public class FriendRequestService {
         String receiverEmail = SecurityContextHolder.getContext().getAuthentication().getName();
 
         Member receiver = memberRepository.findByEmail(receiverEmail)
-                .orElseThrow(() -> MEMBER_NOT_FOUND);
+                .orElseThrow(MemberNotFoundException::new);
 
         return friendRequestRepository.findByReceiver(receiver)
                 .stream()

@@ -1,6 +1,6 @@
 package com.pinup.global.response;
 
-import com.pinup.global.exception.NewErrorCode;
+import com.pinup.global.exception.ErrorCode;
 import jakarta.validation.ConstraintViolation;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -23,37 +23,37 @@ public class ErrorResponse {
     private String message;
     private List<CustomFieldError> errors;
 
-    private ErrorResponse(final NewErrorCode code, final List<CustomFieldError> errors) {
+    private ErrorResponse(final ErrorCode code, final List<CustomFieldError> errors) {
         this.status = code.getStatus();
         this.code = code.getCode();
         this.message = code.getMessage();
         this.errors = errors;
     }
 
-    private ErrorResponse(final NewErrorCode code) {
+    private ErrorResponse(final ErrorCode code) {
         this.status = code.getStatus();
         this.code = code.getCode();
         this.message = code.getMessage();
         this.errors = new ArrayList<>();
     }
 
-    public static ErrorResponse of(final NewErrorCode code, final BindingResult bindingResult) {
+    public static ErrorResponse of(final ErrorCode code, final BindingResult bindingResult) {
         return new ErrorResponse(code, CustomFieldError.of(bindingResult));
     }
 
-    public static ErrorResponse of(final NewErrorCode code, final Set<ConstraintViolation<?>> constraintViolations) {
+    public static ErrorResponse of(final ErrorCode code, final Set<ConstraintViolation<?>> constraintViolations) {
         return new ErrorResponse(code, CustomFieldError.of(constraintViolations));
     }
 
-    public static ErrorResponse of(final NewErrorCode code, final String missingParameterName) {
+    public static ErrorResponse of(final ErrorCode code, final String missingParameterName) {
         return new ErrorResponse(code, CustomFieldError.of(missingParameterName, "", "파라미터가 필요합니다."));
     }
 
-    public static ErrorResponse of(final NewErrorCode code) {
+    public static ErrorResponse of(final ErrorCode code) {
         return new ErrorResponse(code);
     }
 
-    public static ErrorResponse of(final NewErrorCode code, final List<CustomFieldError> errors) {
+    public static ErrorResponse of(final ErrorCode code, final List<CustomFieldError> errors) {
         return new ErrorResponse(code, errors);
     }
 
@@ -62,7 +62,7 @@ public class ErrorResponse {
         final String value = e.getValue() == null ? "" : e.getValue().toString();
         final List<CustomFieldError> errors = CustomFieldError.of(e.getName(), value, e.getErrorCode());
 
-        return new ErrorResponse(NewErrorCode.INPUT_TYPE_INVALID, errors);
+        return new ErrorResponse(ErrorCode.INPUT_TYPE_INVALID, errors);
     }
 
     @Getter

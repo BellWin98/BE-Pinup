@@ -2,7 +2,7 @@ package com.pinup.global.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pinup.enums.Role;
-import com.pinup.global.exception.PinUpException;
+import com.pinup.exception.InvalidTokenException;
 import com.pinup.global.response.TokenResponse;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -92,7 +92,7 @@ public class JwtTokenProvider {
             Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return !claims.getBody().getExpiration().before(new Date());
         } catch (JwtException | IllegalArgumentException e) {
-            throw PinUpException.INVALID_TOKEN;
+            throw new InvalidTokenException();
         }
     }
 
@@ -100,7 +100,7 @@ public class JwtTokenProvider {
         try {
             return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
         } catch (JwtException | IllegalArgumentException e) {
-            throw PinUpException.INVALID_TOKEN;
+            throw new InvalidTokenException();
         }
     }
 

@@ -4,6 +4,8 @@ import com.pinup.dto.request.ArticleCreateRequest;
 import com.pinup.dto.response.ArticleResponse;
 import com.pinup.entity.Article;
 import com.pinup.entity.Member;
+import com.pinup.exception.ArticleNotFoundException;
+import com.pinup.exception.MemberNotFoundException;
 import com.pinup.global.s3.S3Service;
 import com.pinup.repository.ArticleRepository;
 import com.pinup.repository.MemberRepository;
@@ -19,9 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.pinup.global.exception.PinUpException.ARTICLE_NOT_FOUND;
-import static com.pinup.global.exception.PinUpException.MEMBER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +51,7 @@ public class ArticleService {
     @Transactional(readOnly = true)
     public ArticleResponse findById(Long articleId) {
         Article article = articleRepository.findById(articleId)
-                .orElseThrow(() -> ARTICLE_NOT_FOUND);
+                .orElseThrow(ArticleNotFoundException::new);
 
         return ArticleResponse.from(article);
     }
@@ -60,7 +59,7 @@ public class ArticleService {
     private Member getCurrentMember() {
         String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         return memberRepository.findByEmail(currentUserEmail)
-                .orElseThrow(() -> MEMBER_NOT_FOUND);
+                .orElseThrow(MemberNotFoundException::new);
     }
 
     @Transactional(readOnly = true)
