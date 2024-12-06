@@ -8,7 +8,22 @@ import lombok.RequiredArgsConstructor;
 public enum ResultCode {
 
     // Auth
-    LOGIN_SUCCESS(200, "AU001", "로그인에 성공하였습니다."),
+    SOCIAL_LOGIN_SUCCESS(200, "AU001", "소셜 로그인에 성공하였습니다."),
+    TOKEN_ISSUED_SUCCESS(200, "AU002", "토큰 발급에 성공하였습니다."),
+    TOKEN_REISSUED_SUCCESS(200, "AU003", "토큰 재발급에 성공하였습니다."),
+    LOGOUT_SUCCESS(200, "AU004", "로그아웃에 성공하였습니다."),
+    NORMAL_LOGIN_SUCCESS(200, "AU005", "일반 로그인에 성공하였습니다."),
+    SIGN_UP_SUCCESS(200, "AU006", "회원가입에 성공하였습니다."),
+
+    // Member
+    GET_MEMBERS_SUCCESS(200, "M001", "유저 목록 조회에 성공하였습니다."),
+    GET_LOGIN_USER_INFO_SUCCESS(200, "M002", "현재 로그인한 유저 정보 조회에 성공하였습니다."),
+    GET_USER_INFO_SUCCESS(200, "M003", "유저 정보 조회에 성공하였습니다."),
+    DELETE_USER_SUCCESS(200, "M004", "유저 삭제에 성공하였습니다."),
+    GET_NICKNAME_DUPLICATE_SUCCESS(200, "M005", "닉네임 중복 여부 확인에 성공하였습니다."),
+    UPDATE_MEMBER_INFO_SUCCESS(200, "M006", "유저 정보 수정에 성공하였습니다."),
+    GET_MY_FEED_SUCCESS(200, "M007", "내 피드 조회에 성공하였습니다."),
+    GET_USER_FEED_SUCCESS(200, "M008", "유저 피드 조회에 성공하였습니다."),
 
     // Place
     GET_PLACES_SUCCESS(200, "P001", "장소 목록 조회에 성공하였습니다."),

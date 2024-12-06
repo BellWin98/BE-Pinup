@@ -3,7 +3,6 @@ package com.pinup.global.jwt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pinup.enums.Role;
 import com.pinup.exception.InvalidTokenException;
-import com.pinup.global.exception.PinUpException;
 import com.pinup.global.response.TokenResponse;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

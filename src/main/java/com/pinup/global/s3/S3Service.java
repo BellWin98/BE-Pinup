@@ -5,7 +5,9 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.pinup.global.exception.PinUpException;
+import com.pinup.exception.FileDeleteErrorException;
+import com.pinup.exception.FileExtensionInvalidException;
+import com.pinup.exception.InvalidFileUrlException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,8 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
-import static com.pinup.global.exception.PinUpException.*;
 
 @Service
 @Slf4j
@@ -99,7 +99,7 @@ public class S3Service {
         fileValidate.add("PNG");
 
         if (!fileValidate.contains(extension)) {
-            throw FILE_EXTENSION_INVALID;
+            throw new FileExtensionInvalidException();
         }
     }
 
@@ -128,10 +128,10 @@ public class S3Service {
 
         } catch (AmazonServiceException e) {
             log.error("파일 삭제 실패: Amazon S3 서비스 에러", e);
-            throw FILE_DELETE_ERROR;
+            throw new FileDeleteErrorException();
         } catch (Exception e) {
             log.error("파일 삭제 실패", e);
-            throw FILE_DELETE_ERROR;
+            throw new FileDeleteErrorException();
         }
     }
 
@@ -151,7 +151,7 @@ public class S3Service {
 
         } catch (StringIndexOutOfBoundsException e) {
             log.error("잘못된 파일 URL 형식: {}", fileUrl, e);
-            throw INVALID_FILE_URL;
+            throw new InvalidFileUrlException();
         }
     }
 }

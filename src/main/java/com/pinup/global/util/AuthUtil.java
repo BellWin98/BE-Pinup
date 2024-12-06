@@ -19,7 +19,6 @@ public class AuthUtil {
 
     public Member getLoginMember() {
         String memberEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-
         return memberRepository.findByEmail(memberEmail).orElseThrow(MemberNotFoundException::new);
     }
 }

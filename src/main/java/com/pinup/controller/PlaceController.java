@@ -3,14 +3,12 @@ package com.pinup.controller;
 import com.pinup.dto.response.PlaceDetailDto;
 import com.pinup.dto.response.PlaceResponse;
 import com.pinup.dto.response.PlaceSimpleDto;
-import com.pinup.global.response.ApiSuccessResponse;
 import com.pinup.global.response.ResultResponse;
 import com.pinup.service.PlaceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,22 +27,6 @@ public class PlaceController {
     @Autowired
     public PlaceController(PlaceService placeService) {
         this.placeService = placeService;
-    }
-
-    @GetMapping("/search")
-    public ResponseEntity<ApiSuccessResponse<List<PlaceResponse>>> searchPlaces(
-            @RequestParam(value = "category", required = false) String category,
-            @RequestParam(value = "query", required = false) String query,
-            @RequestParam(value = "longitude") String longitude,
-            @RequestParam(value = "latitude") String latitude,
-            @RequestParam(value = "radius", defaultValue = "1000") int radius,
-            @RequestParam(value = "sort", defaultValue = "distance") String sort
-    ) {
-        List<PlaceResponse> result = placeService.searchPlaces(category, query, longitude, latitude, radius, sort);
-
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(ApiSuccessResponse.from(result));
     }
 
     /**
@@ -82,6 +64,19 @@ public class PlaceController {
                 placeService.getPlacePageByKeyword(keyword, latitude, longitude, radius, sort, pageable);
 
         return ResponseEntity.ok(ResultResponse.of(GET_PLACES_SUCCESS, result));
+    }
 
+    @GetMapping("/search")
+    public ResponseEntity<ResultResponse> searchPlaces(
+            @RequestParam(value = "category", required = false) String category,
+            @RequestParam(value = "query", required = false) String query,
+            @RequestParam(value = "longitude") String longitude,
+            @RequestParam(value = "latitude") String latitude,
+            @RequestParam(value = "radius", defaultValue = "1000") int radius,
+            @RequestParam(value = "sort", defaultValue = "distance") String sort
+    ) {
+        List<PlaceResponse> result = placeService.searchPlaces(category, query, longitude, latitude, radius, sort);
+
+        return ResponseEntity.ok(ResultResponse.of(GET_PLACES_SUCCESS, result));
     }
 }

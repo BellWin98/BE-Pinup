@@ -4,13 +4,10 @@ package com.pinup.service;
 import com.pinup.dto.NormalLoginRequest;
 import com.pinup.dto.request.MemberJoinRequest;
 import com.pinup.entity.Member;
-
-import com.pinup.exception.InvalidTokenException;
-import com.pinup.exception.MemberNotFoundException;
-import com.pinup.global.response.TokenResponse;
 import com.pinup.enums.LoginType;
-import com.pinup.global.exception.PinUpException;
+import com.pinup.exception.*;
 import com.pinup.global.jwt.JwtTokenProvider;
+import com.pinup.global.response.TokenResponse;
 import com.pinup.repository.MemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +22,6 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Map;
-
-import static com.pinup.global.exception.PinUpException.*;
-import static com.pinup.global.exception.PinUpException.ALREADY_EXIST_EMAIL;
 
 @Service
 @RequiredArgsConstructor
@@ -157,7 +151,7 @@ public class AuthService {
         ResponseEntity<Map> response = restTemplate.exchange(googleTokenUri, HttpMethod.POST, request, Map.class);
 
         if (response.getBody() == null) {
-            throw INTERNAL_SERVER_ERROR;
+            throw new SocialLoginTokenNotFoundException();
         }
 
         return (String) response.getBody().get("access_token");
@@ -172,7 +166,7 @@ public class AuthService {
         ResponseEntity<Map> response = restTemplate.exchange(googleResourceUri, HttpMethod.GET, entity, Map.class);
 
         if (response.getBody() == null) {
-            throw INTERNAL_SERVER_ERROR;
+            throw new SocialLoginUserInfoNotFoundException();
         }
 
         return response.getBody();
@@ -213,7 +207,7 @@ public class AuthService {
     private void validateExistEmail(String email) {
         memberRepository.findByEmail(email)
                 .ifPresent(member -> {
-                    throw ALREADY_EXIST_EMAIL;
+                    throw new AlreadyExistEmailException();
                 });
     }
 
@@ -238,7 +232,7 @@ public class AuthService {
 
     private void validatePassword(String requestPassword, String memberPassword) {
         if (!passwordEncoder.matches(requestPassword, memberPassword)) {
-            throw PASSWORD_MISMATCH;
+            throw new PasswordMismatchException();
         }
     }
 }

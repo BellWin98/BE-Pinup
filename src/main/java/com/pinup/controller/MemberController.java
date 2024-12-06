@@ -1,13 +1,13 @@
 package com.pinup.controller;
 
-import com.pinup.dto.request.BioUpdateRequest;
-import com.pinup.dto.request.NicknameUpdateRequest;
-import com.pinup.dto.response.ProfileResponse;
+import com.pinup.dto.request.MemberInfoUpdateRequest;
 import com.pinup.dto.response.MemberResponse;
-import com.pinup.global.response.ApiSuccessResponse;
+import com.pinup.dto.response.ProfileResponse;
+import com.pinup.global.response.ResultCode;
+import com.pinup.global.response.ResultResponse;
 import com.pinup.service.MemberService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,77 +20,52 @@ public class MemberController {
     private final MemberService memberService;
 
     @GetMapping("/search")
-    public ResponseEntity<ApiSuccessResponse<MemberResponse>> searchMembers(@RequestParam("query") String query) {
+    public ResponseEntity<ResultResponse> searchMembers(@RequestParam("query") String query) {
         MemberResponse searchResult = memberService.searchUsers(query);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiSuccessResponse.from(searchResult));
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_MEMBERS_SUCCESS, searchResult));
     }
 
     @GetMapping("/me")
-    public ResponseEntity<ApiSuccessResponse<MemberResponse>> getCurrentMemberInfo() {
+    public ResponseEntity<ResultResponse> getCurrentMemberInfo() {
         MemberResponse currentMember = memberService.getCurrentMemberInfo();
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiSuccessResponse.from(currentMember));
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_LOGIN_USER_INFO_SUCCESS, currentMember));
     }
 
     @GetMapping("/{friendId}")
-    public ResponseEntity<ApiSuccessResponse<MemberResponse>> getMemberInfo(@PathVariable("friendId") Long friendId) {
+    public ResponseEntity<ResultResponse> getMemberInfo(@PathVariable("friendId") Long friendId) {
         MemberResponse currentMember = memberService.getMemberInfo(friendId);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiSuccessResponse.from(currentMember));
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_USER_INFO_SUCCESS, currentMember));
     }
 
     @DeleteMapping
-    public  ResponseEntity<ApiSuccessResponse<Void>> deleteMember() {
+    public ResponseEntity<ResultResponse> deleteMember() {
         memberService.deleteMember();
-
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.DELETE_USER_SUCCESS));
     }
 
     @GetMapping("/nickname/check")
-    public ResponseEntity<ApiSuccessResponse<Boolean>> checkNicknameDuplicate(@RequestParam(value = "nickname") String nickname) {
+    public ResponseEntity<ResultResponse> checkNicknameDuplicate(@RequestParam(value = "nickname") String nickname) {
         boolean isDuplicate = memberService.checkNicknameDuplicate(nickname);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiSuccessResponse.from(isDuplicate));
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_NICKNAME_DUPLICATE_SUCCESS, isDuplicate));
     }
 
-    @PutMapping("/bio")
-    public ResponseEntity<ApiSuccessResponse<MemberResponse>> updateBio(@RequestBody BioUpdateRequest request) {
-        MemberResponse response = memberService.updateBio(request);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiSuccessResponse.from(response));
-    }
-
-    @PutMapping("/nickname")
-    public ResponseEntity<ApiSuccessResponse<MemberResponse>> updateNickname(@RequestBody NicknameUpdateRequest request) {
-        MemberResponse response = memberService.updateNickname(request);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiSuccessResponse.from(response));
-    }
-
-    @PutMapping("/profile-image")
-    public ResponseEntity<ApiSuccessResponse<MemberResponse>> updateProfileImage(@RequestParam(value = "multipartFiles") MultipartFile image) {
-        MemberResponse response = memberService.updateProfileImage(image);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiSuccessResponse.from(response));
+    @PutMapping
+    public ResponseEntity<ResultResponse> updateMemberInfo(@Valid MemberInfoUpdateRequest request,
+                                                           @RequestParam(value = "multipartFiles") MultipartFile image
+    ) {
+        MemberResponse response = memberService.updateMemberInfo(request, image);
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.UPDATE_MEMBER_INFO_SUCCESS, response));
     }
 
     @GetMapping("/me/profile")
-    public ResponseEntity<ApiSuccessResponse<ProfileResponse>> getMyFeed() {
+    public ResponseEntity<ResultResponse> getMyFeed() {
         ProfileResponse response = memberService.getMyProfile();
-        return ResponseEntity.ok(ApiSuccessResponse.from(response));
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_MY_FEED_SUCCESS, response));
     }
 
     @GetMapping("/{memberId}/profile")
-    public ResponseEntity<ApiSuccessResponse<ProfileResponse>> getFeed(@PathVariable Long memberId) {
+    public ResponseEntity<ResultResponse> getFeed(@PathVariable Long memberId) {
         ProfileResponse response = memberService.getProfile(memberId);
-        return ResponseEntity.ok(ApiSuccessResponse.from(response));
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_USER_FEED_SUCCESS, response));
     }
 }

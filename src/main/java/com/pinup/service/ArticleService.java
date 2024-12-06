@@ -22,9 +22,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.pinup.global.exception.PinUpException.ARTICLE_NOT_FOUND;
-import static com.pinup.global.exception.PinUpException.MEMBER_NOT_FOUND;
-
 @Service
 @RequiredArgsConstructor
 public class ArticleService {

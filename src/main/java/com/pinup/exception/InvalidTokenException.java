@@ -1,11 +1,11 @@
 package com.pinup.exception;
 
 import com.pinup.global.exception.BusinessException;
-import com.pinup.global.exception.NewErrorCode;
+import com.pinup.global.exception.ErrorCode;
 
 public class InvalidTokenException extends BusinessException {
 
     public InvalidTokenException() {
-        super(NewErrorCode.INVALID_TOKEN);
+        super(ErrorCode.INVALID_TOKEN);
     }
 }

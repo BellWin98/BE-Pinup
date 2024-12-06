@@ -1,11 +1,11 @@
 package com.pinup.exception;
 
 import com.pinup.global.exception.BusinessException;
-import com.pinup.global.exception.NewErrorCode;
+import com.pinup.global.exception.ErrorCode;
 
 public class AlarmNotFoundException extends BusinessException {
 
     public AlarmNotFoundException() {
-        super(NewErrorCode.ALARM_NOT_FOUND);
+        super(ErrorCode.ALARM_NOT_FOUND);
     }
 }

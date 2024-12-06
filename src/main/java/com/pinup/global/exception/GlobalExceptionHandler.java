@@ -1,69 +1,132 @@
 package com.pinup.global.exception;
 
-import com.pinup.global.response.ApiErrorResponse;
-import io.jsonwebtoken.JwtException;
+import com.pinup.global.response.ErrorResponse;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authorization.AuthorizationDeniedException;
-import org.springframework.validation.FieldError;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestCookieException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.pinup.global.exception.ErrorCode.*;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+
+@RestControllerAdvice
 @Slf4j
-@RestControllerAdvice(annotations = RestController.class)
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(PinUpException.class)
-    protected ResponseEntity<ApiErrorResponse> handlePinUpException(PinUpException e) {
-        return ResponseEntity
-                .status(e.getHttpStatus())
-                .body(ApiErrorResponse.from(e.getErrorCode()));
+    private static final String LOG_FORMAT = "Class: {}, Status: {}, Message: {}";
+
+    @ExceptionHandler
+    protected ResponseEntity<ErrorResponse> handleMissingServletRequestParameterException(
+            MissingServletRequestParameterException e) {
+        ErrorResponse response = ErrorResponse.of(INPUT_VALUE_INVALID, e.getParameterName());
+        logError(e, response);
+
+        return new ResponseEntity<>(response, BAD_REQUEST);
     }
 
-    // @Valid에서 binding error 발생
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    protected ApiErrorResponse handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+    @ExceptionHandler
+    protected ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException e) {
+        ErrorResponse response = ErrorResponse.of(INPUT_VALUE_INVALID, e.getConstraintViolations());
+        logError(e, response);
 
-        List<String> params = new ArrayList<>();
-
-        for (FieldError error : e.getBindingResult().getFieldErrors()) {
-            params.add(error.getField() + ": " + error.getDefaultMessage());
-        }
-
-        String errorMessage = String.join(", ", params);
-
-        ApiErrorResponse response = ApiErrorResponse.from(ErrorCode.VALIDATION_FAILED);
-        response.changeMessage(errorMessage);
-
-        return response;
+        return new ResponseEntity<>(response, BAD_REQUEST);
     }
 
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ExceptionHandler(RuntimeException.class)
-    protected ApiErrorResponse handleRuntimeException(RuntimeException e) {
-        log.error(e.getMessage());
-        return ApiErrorResponse.from(ErrorCode.INTERNAL_SERVER_ERROR);
+    @ExceptionHandler
+    protected ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        ErrorResponse response = ErrorResponse.of(INPUT_VALUE_INVALID, e.getBindingResult());
+        logError(e, response);
+
+        return new ResponseEntity<>(response, BAD_REQUEST);
     }
 
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    @ExceptionHandler(JwtException.class)
-    protected ApiErrorResponse handleJwtException(JwtException e) {
-        log.error(e.getMessage());
-        return ApiErrorResponse.from(ErrorCode.INVALID_TOKEN);
+    @ExceptionHandler
+    protected ResponseEntity<ErrorResponse> handleBindException(BindException e) {
+        ErrorResponse response = ErrorResponse.of(INPUT_VALUE_INVALID, e.getBindingResult());
+        logError(e, response);
+        return new ResponseEntity<>(response, BAD_REQUEST);
     }
 
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    @ExceptionHandler(AuthorizationDeniedException.class)
-    protected ApiErrorResponse handleAuthorizationDeniedException(AuthorizationDeniedException e) {
-        log.error(e.getMessage());
-        return ApiErrorResponse.from(ErrorCode.ACCESS_DENIED);
+    @ExceptionHandler
+    protected ResponseEntity<ErrorResponse> handleMissingServletRequestPartException(
+            MissingServletRequestPartException e) {
+        ErrorResponse response = ErrorResponse.of(INPUT_VALUE_INVALID, e.getRequestPartName());
+        logError(e, response);
+
+        return new ResponseEntity<>(response, BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    protected ResponseEntity<ErrorResponse> handleMissingRequestCookieException(
+            MissingRequestCookieException e) {
+        ErrorResponse response = ErrorResponse.of(INPUT_VALUE_INVALID, e.getCookieName());
+        logError(e, response);
+
+        return new ResponseEntity<>(response, BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    protected ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(
+            MethodArgumentTypeMismatchException e) {
+        ErrorResponse response = ErrorResponse.of(e);
+        logError(e, response);
+
+        return new ResponseEntity<>(response, BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    protected ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+        ErrorResponse response = ErrorResponse.of(HTTP_MESSAGE_NOT_READABLE);
+        logError(e, response);
+
+        return new ResponseEntity<>(response, BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    protected ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(
+            HttpRequestMethodNotSupportedException e) {
+        List<ErrorResponse.CustomFieldError> errors = new ArrayList<>();
+        errors.add(new ErrorResponse.CustomFieldError(
+                "HTTP METHOD", e.getMethod(), METHOD_NOT_ALLOWED.getMessage()));
+        ErrorResponse response = ErrorResponse.of(HTTP_HEADER_INVALID, errors);
+        logError(e, response);
+
+        return new ResponseEntity<>(response, BAD_REQUEST);
+    }
+
+    @ExceptionHandler
+    protected ResponseEntity<ErrorResponse> handleBusinessException(BusinessException e) {
+
+        ErrorCode errorCode = e.getErrorCode();
+        ErrorResponse response = ErrorResponse.of(errorCode, e.getErrors());
+        logError(e, response);
+
+        return new ResponseEntity<>(response, HttpStatus.valueOf(errorCode.getStatus()));
+    }
+
+    @ExceptionHandler
+    protected ResponseEntity<ErrorResponse> handleException(Exception e) {
+
+        ErrorResponse response = ErrorResponse.of(INTERNAL_SERVER_ERROR);
+        logError(e, response);
+
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private void logError(Exception e, ErrorResponse response) {
+        log.error(LOG_FORMAT, e.getClass().getSimpleName(), response.getStatus(), response.getMessage());
     }
 }

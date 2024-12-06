@@ -3,12 +3,10 @@ package com.pinup.controller;
 
 import com.pinup.dto.request.ArticleCreateRequest;
 import com.pinup.dto.response.ArticleResponse;
-import com.pinup.global.response.ApiSuccessResponse;
 import com.pinup.global.response.ResultCode;
 import com.pinup.global.response.ResultResponse;
 import com.pinup.service.ArticleService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;

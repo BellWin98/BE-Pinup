@@ -1,11 +1,11 @@
 package com.pinup.exception;
 
 import com.pinup.global.exception.BusinessException;
-import com.pinup.global.exception.NewErrorCode;
+import com.pinup.global.exception.ErrorCode;
 
 public class ArticleNotFoundException extends BusinessException {
 
     public ArticleNotFoundException() {
-        super(NewErrorCode.ARTICLE_NOT_FOUND);
+        super(ErrorCode.ARTICLE_NOT_FOUND);
     }
 }
