@@ -5,11 +5,11 @@ import com.pinup.entity.Alarm;
 import com.pinup.entity.FriendRequest;
 import com.pinup.entity.Member;
 import com.pinup.exception.*;
+import com.pinup.global.util.AuthUtil;
 import com.pinup.repository.AlarmRepository;
 import com.pinup.repository.FriendRequestRepository;
 import com.pinup.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,10 +27,12 @@ public class FriendRequestService {
     private final FriendShipService friendShipService;
     private final NotificationService notificationService;
     private final AlarmRepository alarmRepository;
+    private final AuthUtil authUtil;
 
     @Transactional
     public FriendRequestResponse sendFriendRequest(Long receiverId) {
-        String senderEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        String senderEmail = authUtil.getLoginMember().getEmail();
 
         Member sender = memberRepository.findByEmail(senderEmail)
                 .orElseThrow(MemberNotFoundException::new);
@@ -118,7 +120,8 @@ public class FriendRequestService {
     }
 
     private void validateRequestReceiverIsCurrentUser(FriendRequest friendRequest) {
-        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        String currentUserEmail = authUtil.getLoginMember().getEmail();
         String friendRequestReceiverEmail = friendRequest.getReceiver().getEmail();
 
         if (!currentUserEmail.equals(friendRequestReceiverEmail)) {
@@ -128,7 +131,8 @@ public class FriendRequestService {
 
     @Transactional(readOnly = true)
     public List<FriendRequestResponse> getReceivedFriendRequests() {
-        String receiverEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        String receiverEmail = authUtil.getLoginMember().getEmail();
 
         Member receiver = memberRepository.findByEmail(receiverEmail)
                 .orElseThrow(MemberNotFoundException::new);
