@@ -2,7 +2,7 @@ package com.pinup.service;
 
 import com.pinup.dto.request.PlaceRequest;
 import com.pinup.dto.request.ReviewRequest;
-import com.pinup.dto.response.ReviewResponse;
+import com.pinup.dto.response.ReviewTempResponse;
 import com.pinup.entity.Member;
 import com.pinup.entity.Place;
 import com.pinup.entity.Review;
@@ -54,18 +54,18 @@ public class ReviewService {
     }
 
     @Transactional(readOnly = true)
-    public List<ReviewResponse> getCurrentUserReviews() {
+    public List<ReviewTempResponse> getCurrentUserReviews() {
         Member findMember = findMember();
         return getReviews(findMember.getId());
     }
 
     @Transactional(readOnly = true)
-    public List<ReviewResponse> getReviews(Long memberId) {
+    public List<ReviewTempResponse> getReviews(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
 
         return reviewRepository.findAllByMember(member).stream()
-                .map(review -> ReviewResponse.of(
+                .map(review -> ReviewTempResponse.of(
                         review,
                         review.getReviewImages().stream()
                                 .map(ReviewImage::getUrl)

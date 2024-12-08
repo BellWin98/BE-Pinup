@@ -9,7 +9,7 @@ import java.util.List;
 
 @Getter
 @Builder
-public class ReviewResponse {
+public class ReviewTempResponse {
 
     private Long reviewId;
     private Long writerId;
@@ -20,10 +20,10 @@ public class ReviewResponse {
     private String createdAt;
     private String updatedAt;
 
-    public static ReviewResponse of(Review review,
-                                    List<String> reviewImageUrls) {
+    public static ReviewTempResponse of(Review review,
+                                        List<String> reviewImageUrls) {
 
-        return ReviewResponse.builder()
+        return ReviewTempResponse.builder()
                 .reviewId(review.getId())
                 .writerId(review.getMember().getId())
                 .placeId(review.getPlace().getId())

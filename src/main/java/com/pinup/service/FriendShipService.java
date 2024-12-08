@@ -5,10 +5,10 @@ import com.pinup.entity.FriendShip;
 import com.pinup.entity.Member;
 import com.pinup.exception.FriendNotFoundException;
 import com.pinup.exception.MemberNotFoundException;
+import com.pinup.global.util.AuthUtil;
 import com.pinup.repository.FriendShipRepository;
 import com.pinup.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +25,7 @@ public class FriendShipService {
     private final AuthUtil authUtil;
 
     @Transactional(readOnly = true)
-    public List<MemberResponse> getAllFriends(Long memberId) {
+    public List<MemberResponse> getUserAllFriends(Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
 
@@ -86,17 +86,11 @@ public class FriendShipService {
 
         return friendShipRepository.findAllByMember(member)
                 .stream()
-                .filter(friendShip -> friendShip.getFriend().getNickname().equals(query))
                 .map(FriendShip::getFriend)
+                .filter(friend -> friend.getNickname().equals(query.trim()))
                 .map(MemberResponse::from)
                 .findFirst()
                 .orElseThrow(FriendNotFoundException::new);
-    }
-
-    private Member getCurrentMember() {
-        String currentUserEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        return memberRepository.findByEmail(currentUserEmail)
-                .orElseThrow(MemberNotFoundException::new);
     }
 
     public boolean existsFriendship(Member sender, Member receiver) {

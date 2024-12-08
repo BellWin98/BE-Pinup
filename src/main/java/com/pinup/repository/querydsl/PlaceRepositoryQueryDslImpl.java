@@ -1,7 +1,7 @@
 package com.pinup.repository.querydsl;
 
-import com.pinup.dto.response.PlaceDetailDto;
-import com.pinup.dto.response.PlaceSimpleDto;
+import com.pinup.dto.response.PlaceDetailResponse;
+import com.pinup.dto.response.PlaceResponseWithFriendReview;
 import com.pinup.entity.Member;
 import com.pinup.exception.PlaceNotFoundException;
 import com.querydsl.core.types.Projections;
@@ -32,16 +32,16 @@ public class PlaceRepositoryQueryDslImpl implements PlaceRepositoryQueryDsl{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<PlaceSimpleDto> findPlaceListByMemberAndCoordinate(
+    public Page<PlaceResponseWithFriendReview> findPlaceListByMemberAndCoordinate(
             Member loginMember,
             Double latitude,
             Double longitude,
             Pageable pageable
     ) {
 
-        List<PlaceSimpleDto> result = queryFactory
+        List<PlaceResponseWithFriendReview> result = queryFactory
                 .select(Projections.constructor(
-                        PlaceSimpleDto.class,
+                        PlaceResponseWithFriendReview.class,
                         place.id.as("placeId"),
                         place.name.as("name"),
                         review.starRating.avg().as("averageStarRating"),
@@ -61,9 +61,9 @@ public class PlaceRepositoryQueryDslImpl implements PlaceRepositoryQueryDsl{
                 .limit(pageable.getPageSize())
                 .fetch();
 
-        for (PlaceSimpleDto placeSimpleDto : result) {
+        for (PlaceResponseWithFriendReview placeResponseWithFriendReview : result) {
 
-            Long placeId = placeSimpleDto.getPlaceId();
+            Long placeId = placeResponseWithFriendReview.getPlaceId();
 
             // 리뷰 이미지 URL 리스트 조회 (최대 3개, 먼저 등록된 순서로)
             List<String> reviewImageUrls = queryFactory
@@ -91,8 +91,8 @@ public class PlaceRepositoryQueryDslImpl implements PlaceRepositoryQueryDsl{
                     .limit(3)
                     .fetch();
 
-            placeSimpleDto.setReviewImageUrls(reviewImageUrls);
-            placeSimpleDto.setReviewerProfileImageUrls(reviewerProfileImageUrls);
+            placeResponseWithFriendReview.setReviewImageUrls(reviewImageUrls);
+            placeResponseWithFriendReview.setReviewerProfileImageUrls(reviewerProfileImageUrls);
         }
 
         Long total = queryFactory
@@ -110,14 +110,14 @@ public class PlaceRepositoryQueryDslImpl implements PlaceRepositoryQueryDsl{
     }
 
     @Override
-    public PlaceDetailDto findPlaceDetailByPlaceIdAndMember(
+    public PlaceDetailResponse findPlaceDetailByPlaceIdAndMember(
             Member loginMember,
             Long placeId
     ) {
 
-        List<PlaceDetailDto.ReviewDto> reviewDetailList = queryFactory
+        List<PlaceDetailResponse.ReviewDetailResponse> reviewDetailList = queryFactory
                 .select(Projections.constructor(
-                        PlaceDetailDto.ReviewDto.class,
+                        PlaceDetailResponse.ReviewDetailResponse.class,
                         review.id.as("reviewId"),
                         review.member.name.as("writerName"),
                         review.member.reviews.size().as("writerTotalReviewCount"),
@@ -135,9 +135,9 @@ public class PlaceRepositoryQueryDslImpl implements PlaceRepositoryQueryDsl{
                 .orderBy(review.createdAt.desc())
                 .fetch();
 
-        for (PlaceDetailDto.ReviewDto reviewDto : reviewDetailList) {
+        for (PlaceDetailResponse.ReviewDetailResponse reviewDetailResponse : reviewDetailList) {
 
-            Long reviewId = reviewDto.getReviewId();
+            Long reviewId = reviewDetailResponse.getReviewId();
 
             List<String> reviewImageUrls = queryFactory
                     .select(reviewImage.url)
@@ -145,12 +145,12 @@ public class PlaceRepositoryQueryDslImpl implements PlaceRepositoryQueryDsl{
                     .where(reviewImage.review.id.eq(reviewId))
                     .fetch();
 
-            reviewDto.setReviewImageUrls(reviewImageUrls);
+            reviewDetailResponse.setReviewImageUrls(reviewImageUrls);
         }
 
-        PlaceDetailDto placeDetailDto = queryFactory
+        PlaceDetailResponse placeDetailResponse = queryFactory
                 .select(Projections.constructor(
-                            PlaceDetailDto.class,
+                            PlaceDetailResponse.class,
                             place.name.as("placeName"),
                             review.countDistinct().as("reviewCount"),
                             review.starRating.avg().as("averageStarRating")
@@ -165,13 +165,13 @@ public class PlaceRepositoryQueryDslImpl implements PlaceRepositoryQueryDsl{
                 )
                 .fetchOne();
 
-        if (placeDetailDto != null) {
-            placeDetailDto.setReviews(reviewDetailList);
+        if (placeDetailResponse != null) {
+            placeDetailResponse.setReviews(reviewDetailList);
         } else {
             throw new PlaceNotFoundException();
         }
 
-        return placeDetailDto;
+        return placeDetailResponse;
     }
 
     @Override

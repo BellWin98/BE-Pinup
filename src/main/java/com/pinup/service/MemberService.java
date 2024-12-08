@@ -5,7 +5,7 @@ import com.pinup.dto.request.MemberInfoUpdateRequest;
 import com.pinup.dto.response.MemberResponse;
 import com.pinup.dto.response.ProfileResponse;
 import com.pinup.dto.response.ReviewCountsResponse;
-import com.pinup.dto.response.ReviewResponse;
+import com.pinup.dto.response.ReviewTempResponse;
 import com.pinup.entity.Member;
 import com.pinup.entity.Review;
 import com.pinup.entity.ReviewImage;
@@ -140,7 +140,7 @@ public class MemberService {
                 .reviewCounts(reviewCounts)
                 .friendCount(member.getFriendships().size())
                 .reviews(reviews.stream()
-                        .map(review -> ReviewResponse.of(
+                        .map(review -> ReviewTempResponse.of(
                                 review,
                                 review.getReviewImages().stream()
                                         .map(ReviewImage::getUrl)

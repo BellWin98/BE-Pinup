@@ -1,7 +1,7 @@
 package com.pinup.service;
 
 
-import com.pinup.dto.NormalLoginRequest;
+import com.pinup.dto.request.NormalLoginRequest;
 import com.pinup.dto.request.MemberJoinRequest;
 import com.pinup.entity.Member;
 import com.pinup.enums.LoginType;
@@ -126,6 +126,7 @@ public class AuthService {
     }
 
     public void logout(String accessToken) {
+
         if (!jwtTokenProvider.validateToken(accessToken)) {
             throw new InvalidTokenException();
         }

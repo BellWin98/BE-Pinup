@@ -16,5 +16,5 @@ public class ProfileResponse {
     private Integer reviewCount;
     private ReviewCountsResponse reviewCounts;
     private Integer friendCount;
-    private List<ReviewResponse> reviews;
+    private List<ReviewTempResponse> reviews;
 }

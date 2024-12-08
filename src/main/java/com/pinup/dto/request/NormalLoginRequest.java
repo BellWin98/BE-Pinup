@@ -1,4 +1,4 @@
-package com.pinup.dto;
+package com.pinup.dto.request;
 
 import lombok.Data;
 

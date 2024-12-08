@@ -1,21 +1,21 @@
 package com.pinup.repository.querydsl;
 
-import com.pinup.dto.response.PlaceDetailDto;
-import com.pinup.dto.response.PlaceSimpleDto;
+import com.pinup.dto.response.PlaceDetailResponse;
+import com.pinup.dto.response.PlaceResponseWithFriendReview;
 import com.pinup.entity.Member;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface PlaceRepositoryQueryDsl {
 
-    Page<PlaceSimpleDto> findPlaceListByMemberAndCoordinate(
+    Page<PlaceResponseWithFriendReview> findPlaceListByMemberAndCoordinate(
             Member loginMember,
             Double latitude,
             Double longitude,
             Pageable pageable
     );
 
-    PlaceDetailDto findPlaceDetailByPlaceIdAndMember(
+    PlaceDetailResponse findPlaceDetailByPlaceIdAndMember(
             Member loginMember,
             Long placeId
     );

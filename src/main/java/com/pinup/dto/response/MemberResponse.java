@@ -4,7 +4,7 @@ import com.pinup.entity.Member;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import org.springframework.util.StringUtils;
 
 @Getter
 @Builder
@@ -35,8 +35,8 @@ public class MemberResponse {
                 .email(member.getEmail())
                 .name(member.getName())
                 .profilePictureUrl(member.getProfileImageUrl())
-                .nickname(member.getNickname())
-                .bio(member.getBio())
+                .nickname(StringUtils.hasText(member.getNickname()) ? member.getNickname() : "")
+                .bio(StringUtils.hasText(member.getBio()) ? member.getBio() : "")
                 .build();
     }
 }
