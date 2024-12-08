@@ -64,12 +64,10 @@ public class Member extends BaseTimeEntity {
     private List<Article> editorArticles = new ArrayList<>();
 
     @Builder
-    public Member(String email, String name, String nickname,
-                  String profileImageUrl, LoginType loginType, String socialId,
-                  String password, String bio) {
+    public Member(String email, String name, String profileImageUrl,
+                  LoginType loginType, String socialId, String password) {
         this.email = email;
         this.name = name;
-        this.nickname = nickname;
         this.profileImageUrl = profileImageUrl;
         this.loginType = loginType;
         this.socialId = socialId;

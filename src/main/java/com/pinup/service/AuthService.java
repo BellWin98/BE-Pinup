@@ -196,7 +196,7 @@ public class AuthService {
 
         Member newMember = Member.builder()
                 .email(request.getEmail())
-                .nickname(request.getNickname())
+//                .nickname(request.getNickname())
                 .name(request.getName())
                 .loginType(LoginType.NORMAL)
                 .profileImageUrl(request.getProfileImageUrl())
