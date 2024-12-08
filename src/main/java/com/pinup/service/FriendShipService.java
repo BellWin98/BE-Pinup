@@ -22,6 +22,7 @@ public class FriendShipService {
 
     private final FriendShipRepository friendShipRepository;
     private final MemberRepository memberRepository;
+    private final AuthUtil authUtil;
 
     @Transactional(readOnly = true)
     public List<MemberResponse> getAllFriends(Long memberId) {
@@ -51,7 +52,8 @@ public class FriendShipService {
 
     @Transactional
     public void removeFriend(Long friendId) {
-        Member currentUser = getCurrentMember();
+
+        Member currentUser = authUtil.getLoginMember();
         Member friend = memberRepository.findById(friendId)
                 .orElseThrow(FriendNotFoundException::new);
 
@@ -65,8 +67,9 @@ public class FriendShipService {
     }
 
     @Transactional(readOnly = true)
-    public List<MemberResponse> getAllFriends() {
-        Member currentUser = getCurrentMember();
+    public List<MemberResponse> getMyAllFriends() {
+
+        Member currentUser = authUtil.getLoginMember();
 
         List<MemberResponse> friendList = friendShipRepository.findAllByMember(currentUser)
                 .stream()
@@ -79,7 +82,7 @@ public class FriendShipService {
 
     @Transactional(readOnly = true)
     public MemberResponse searchMyFriendInfoByNickname(String query) {
-        Member member = getCurrentMember();
+        Member member = authUtil.getLoginMember();
 
         return friendShipRepository.findAllByMember(member)
                 .stream()
