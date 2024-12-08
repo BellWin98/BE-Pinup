@@ -23,12 +23,6 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    @Value("${jwt.access.header}")
-    private String accessHeader;
-
-    @Value("${jwt.refresh.header}")
-    private String refreshHeader;
-
     private final Key key;
     private final ObjectMapper objectMapper;
     private final long tokenValidityInMilliseconds;
@@ -71,18 +65,6 @@ public class JwtTokenProvider {
                 .setExpiration(validity)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
-    }
-
-    public void sendAccessAndRefreshToken(HttpServletResponse response,
-                                          String accessToken,
-                                          String refreshToken) throws IOException {
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.setContentType("application/json");
-        response.setCharacterEncoding("utf-8");
-
-        String result = objectMapper.writeValueAsString(new TokenResponse(accessToken, refreshToken));
-
-        response.getWriter().write(result);
     }
 
     public boolean validateToken(String token) {

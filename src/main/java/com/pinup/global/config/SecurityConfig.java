@@ -2,9 +2,6 @@ package com.pinup.global.config;
 
 import com.pinup.global.jwt.JwtTokenFilter;
 import com.pinup.global.jwt.JwtTokenProvider;
-import com.pinup.global.oauth2.handler.OAuth2LoginFailureHandler;
-import com.pinup.global.oauth2.handler.OAuth2LoginSuccessHandler;
-import com.pinup.global.oauth2.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,9 +27,6 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final CustomOAuth2UserService customOAuth2UserService;
-    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
-    private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
 
     private static final String[] PERMITTED_API_URL = {
             "/api/auth/**",
@@ -78,12 +72,6 @@ public class SecurityConfig {
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-//                .oauth2Login(oauth2 -> oauth2
-//                        .userInfoEndpoint(userInfoEndpoint -> userInfoEndpoint
-//                                .userService(customOAuth2UserService))
-//                        .successHandler(oAuth2LoginSuccessHandler)
-//                        .failureHandler(oAuth2LoginFailureHandler)
-//                )
                 .addFilterBefore(new JwtTokenFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
         ;
 
