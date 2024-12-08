@@ -189,7 +189,7 @@ public class PlaceRepositoryQueryDslImpl implements PlaceRepositoryQueryDsl{
 
     private NumberTemplate<Double> calculateDistance(double latitude1, double longitude1, StringPath latitude2, StringPath longitude2) {
         return Expressions.numberTemplate(Double.class,
-                "6371 * acos(cos(radians({0})) * cos(radians({1})) * cos(radians({2}) - radians({3})) + sin(radians({4})) * sin(radians({5})))",
+                "(6371 * acos(cos(radians({0})) * cos(radians({1})) * cos(radians({2}) - radians({3})) + sin(radians({4})) * sin(radians({5})))) / 1000",
                 latitude1,
                 Expressions.numberTemplate(Double.class, "CAST({0} AS DOUBLE)", latitude2),
                 Expressions.numberTemplate(Double.class, "CAST({0} AS DOUBLE)", longitude2),
