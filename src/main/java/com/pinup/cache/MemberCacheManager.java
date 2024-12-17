@@ -173,7 +173,7 @@ public class MemberCacheManager {
         ));
     }
 
-    private boolean releaseLock(String lockKey, String lockValue) {
+    private void releaseLock(String lockKey, String lockValue) {
         DefaultRedisScript<Boolean> script = new DefaultRedisScript<>(
                 "if redis.call('get', KEYS[1]) == ARGV[1] then " +
                         "    return redis.call('del', KEYS[1]) " +
@@ -182,11 +182,11 @@ public class MemberCacheManager {
                 Boolean.class
         );
 
-        return Boolean.TRUE.equals(redisTemplate.execute(
+        redisTemplate.execute(
                 script,
                 Collections.singletonList(lockKey),
                 lockValue
-        ));
+        );
     }
 
     private <T> void putCache(String key, T value, Duration ttl) {

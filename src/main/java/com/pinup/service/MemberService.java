@@ -38,8 +38,8 @@ public class MemberService {
     private final AuthUtil authUtil;
 
     @Transactional(readOnly = true)
-    public MemberResponse searchUsers(String query) {
-        Member member = memberRepository.findByNickname(query).orElseThrow(MemberNotFoundException::new);
+    public MemberResponse searchMembers(String nickname) {
+        Member member = memberRepository.findByNickname(nickname).orElseThrow(MemberNotFoundException::new);
         return MemberResponse.from(member);
     }
 
