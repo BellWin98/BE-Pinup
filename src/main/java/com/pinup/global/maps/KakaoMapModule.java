@@ -36,41 +36,19 @@ public class KakaoMapModule {
     @Value("${kakao.key}")
     private String apiKey;
 
-    public List<PlaceResponseByKeyword> search(Member loginMember, String keyword, String latitude,
-                                            String longitude, int radius, String sort) {
-
-        URI kakaoSearchUri = buildUri(keyword, latitude, longitude, radius, sort);
+    public List<PlaceResponseByKeyword> search(Member loginMember, String keyword) {
+        URI kakaoSearchUri = buildUri(keyword);
 
         return executeSearchRequest(kakaoSearchUri, loginMember);
     }
 
-    private URI buildUri(String keyword, String latitude, String longitude, int radius, String sort) {
-
+    private URI buildUri(String keyword) {
         UriComponentsBuilder uriBuilder = UriComponentsBuilder
                 .fromUriString(KAKAO_MAP_API_URI)
                 .path(KEYWORD_FORMAT)
-                .queryParam("query", keyword)
-                .queryParam("x", longitude)
-                .queryParam("y", latitude)
-                .queryParam("radius", radius)
-                .queryParam("sort", sort);
+                .queryParam("query", keyword);
 
         return uriBuilder.encode().build().toUri();
-    }
-
-    public List<PlaceResponseByKeyword> searchPlaces(Member currentMember, String key, String value,
-                                                  String longitude, String latitude, int radius, String sort) {
-        String path;
-        if (key.equals("category_group_code")) {
-            path = CATEGORY_FORMAT;
-        } else {
-            path = KEYWORD_FORMAT;
-        }
-
-        URI uri = buildPlaceSearchUri(path, key, value, longitude, latitude, radius, sort);
-
-        return executeSearchRequest(uri, currentMember);
-
     }
 
     private List<PlaceResponseByKeyword> executeSearchRequest(URI uri, Member currentMember) {
@@ -116,6 +94,29 @@ public class KakaoMapModule {
                 .build();
     }
 
+    public List<PlaceResponseByKeyword> search(Member loginMember, String keyword, String latitude,
+                                               String longitude, int radius, String sort) {
+
+        URI kakaoSearchUri = buildUri(keyword, latitude, longitude, radius, sort);
+
+        return executeSearchRequest(kakaoSearchUri, loginMember);
+    }
+
+    public List<PlaceResponseByKeyword> searchPlaces(Member currentMember, String key, String value,
+                                                     String longitude, String latitude, int radius, String sort) {
+        String path;
+        if (key.equals("category_group_code")) {
+            path = CATEGORY_FORMAT;
+        } else {
+            path = KEYWORD_FORMAT;
+        }
+
+        URI uri = buildPlaceSearchUri(path, key, value, longitude, latitude, radius, sort);
+
+        return executeSearchRequest(uri, currentMember);
+
+    }
+
     private URI buildPlaceSearchUri(String path, String key, String value,
                                     String longitude, String latitude, int radius, String sort) {
 
@@ -123,6 +124,20 @@ public class KakaoMapModule {
                 .fromUriString(KAKAO_MAP_API_URI)
                 .path(path)
                 .queryParam(key, value)
+                .queryParam("x", longitude)
+                .queryParam("y", latitude)
+                .queryParam("radius", radius)
+                .queryParam("sort", sort);
+
+        return uriBuilder.encode().build().toUri();
+    }
+
+    private URI buildUri(String keyword, String latitude, String longitude, int radius, String sort) {
+
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder
+                .fromUriString(KAKAO_MAP_API_URI)
+                .path(KEYWORD_FORMAT)
+                .queryParam("query", keyword)
                 .queryParam("x", longitude)
                 .queryParam("y", latitude)
                 .queryParam("radius", radius)

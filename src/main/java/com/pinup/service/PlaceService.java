@@ -55,8 +55,15 @@ public class PlaceService {
         return placeDetailResponse;
     }
 
+    public Page<PlaceResponseByKeyword> getPlacePageByKeyword(String keyword, Pageable pageable) {
+        Member loginMember = authUtil.getLoginMember();
+        List<PlaceResponseByKeyword> placeInfoList = kakaoMapModule.search(loginMember, keyword);
+
+        return new PageImpl<>(placeInfoList, pageable, placeInfoList.size());
+    }
+
     public Page<PlaceResponseByKeyword> getPlacePageByKeyword(String keyword, String latitude, String longitude,
-                                                           int radius, String sort, Pageable pageable) {
+                                                              int radius, String sort, Pageable pageable) {
         Member loginMember = authUtil.getLoginMember();
         List<PlaceResponseByKeyword> placeInfoList =
                 kakaoMapModule.search(loginMember, keyword, latitude, longitude, radius, sort);
