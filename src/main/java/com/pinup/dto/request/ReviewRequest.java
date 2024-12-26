@@ -4,6 +4,9 @@ import com.pinup.entity.Review;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Data
 @Schema(title = "리뷰 등록 DTO", description = "리뷰 데이터 등록 (내용, 별점, 방문 날짜)")
@@ -21,8 +24,10 @@ public class ReviewRequest {
     private Double starRating;
 
     @NotBlank(message = "방문 날짜를 입력해주세요.")
-    @Schema(description = "방문 날짜", example = "20241208")
+//    @Schema(description = "방문 날짜", example = "20241208")
     private String visitedDate;
+
+    private List<MultipartFile> multipartFiles;
 
     public Review toEntity() {
         return Review.builder()

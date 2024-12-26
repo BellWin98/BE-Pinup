@@ -42,9 +42,10 @@ public class ReviewService {
     private final S3Service s3Service;
 
     @Transactional
-    public Long register(ReviewRequest reviewRequest, PlaceRequest placeRequest, List<MultipartFile> images) {
+    public Long register(ReviewRequest reviewRequest, PlaceRequest placeRequest) {
 
         Member loginMember = authUtil.getLoginMember();
+        List<MultipartFile> images = reviewRequest.getMultipartFiles();
         Place place = findOrCreatePlace(placeRequest);
         List<String> uploadedFileUrls = uploadImages(images);
         Review newReview = createReview(reviewRequest, loginMember, place, uploadedFileUrls);
