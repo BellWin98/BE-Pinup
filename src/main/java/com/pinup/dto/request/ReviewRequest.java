@@ -24,10 +24,8 @@ public class ReviewRequest {
     private Double starRating;
 
     @NotBlank(message = "방문 날짜를 입력해주세요.")
-//    @Schema(description = "방문 날짜", example = "20241208")
+    @Schema(description = "방문 날짜", example = "20241208")
     private String visitedDate;
-
-    private List<MultipartFile> multipartFiles;
 
     public Review toEntity() {
         return Review.builder()

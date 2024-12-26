@@ -30,7 +30,7 @@ public class ReviewController {
         this.reviewService = reviewService;
     }
 
-    @PostMapping(value = "/reviews")
+    @PostMapping(value = "/reviews", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "리뷰 등록 API", description = "리뷰 등록 성공 시 리뷰 ID 반환")
     @ApiResponses(value = {
             @ApiResponse(
@@ -39,10 +39,12 @@ public class ReviewController {
             )
     })
     public ResponseEntity<ResultResponse> register(
-            @Valid ReviewRequest reviewRequest,
-            @Valid PlaceRequest placeRequest) {
+            @Valid @RequestPart ReviewRequest reviewRequest,
+            @Valid @RequestPart PlaceRequest placeRequest,
+            @RequestPart(name = "multipartFiles", required = false) List<MultipartFile> multipartFiles
+            ) {
 
-        Long reviewId = reviewService.register(reviewRequest, placeRequest);
+        Long reviewId = reviewService.register(reviewRequest, placeRequest, multipartFiles);
 
         return ResponseEntity.ok(ResultResponse.of(ResultCode.CREATE_REVIEW_SUCCESS, reviewId));
     }
