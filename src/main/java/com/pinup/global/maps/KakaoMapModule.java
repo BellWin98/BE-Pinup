@@ -84,7 +84,7 @@ public class KakaoMapModule {
         Double averageStarRating = placeRepository.getAverageStarRating(currentMember, kakaoMapId);
 
         if (averageStarRating != null) {
-            averageStarRating = Math.round(averageStarRating * 100) / 100.0;
+            averageStarRating = Math.round(averageStarRating * 10) / 10.0;
         } else {
             averageStarRating = 0.0;
         }

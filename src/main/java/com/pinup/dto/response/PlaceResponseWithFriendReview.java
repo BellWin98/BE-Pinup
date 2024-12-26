@@ -32,6 +32,13 @@ public class PlaceResponseWithFriendReview {
 
     public PlaceResponseWithFriendReview(Long placeId, String name, Double averageStarRating,
                                          Long reviewCount, Double distance) {
+
+        if (averageStarRating != null) {
+            averageStarRating = Math.round(averageStarRating * 10) / 10.0;
+        } else {
+            averageStarRating = 0.0;
+        }
+        
         this.placeId = placeId;
         this.name = name;
         this.averageStarRating = averageStarRating;
