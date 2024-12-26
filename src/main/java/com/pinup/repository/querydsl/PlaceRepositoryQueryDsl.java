@@ -15,10 +15,11 @@ public interface PlaceRepositoryQueryDsl {
             Pageable pageable
     );
 
-    PlaceDetailResponse findPlaceDetailByPlaceIdAndMember(
+    PlaceDetailResponse findPlaceDetailByKakaoPlaceIdAndMember(
             Member loginMember,
-            Long placeId
+            String kakaoPlaceId
     );
 
     Long getReviewCount(Member loginMember, String kakaoMapId);
+    Double getAverageStarRating(Member loginMember, String kakaoMapId);
 }

@@ -39,10 +39,10 @@ public class PlaceService {
     }
 
     @Transactional
-    public PlaceDetailResponse getPlaceDetail(Long placeId) {
+    public PlaceDetailResponse getPlaceDetail(String kakaoPlaceId) {
 
         Member loginMember = authUtil.getLoginMember();
-        PlaceDetailResponse placeDetailResponse = placeRepository.findPlaceDetailByPlaceIdAndMember(loginMember, placeId);
+        PlaceDetailResponse placeDetailResponse = placeRepository.findPlaceDetailByKakaoPlaceIdAndMember(loginMember, kakaoPlaceId);
         List<PlaceDetailResponse.ReviewDetailResponse> reviewDetailResponseList = placeDetailResponse.getReviews();
         Map<Integer, Integer> ratingGraph = new HashMap<>();
 
@@ -70,4 +70,16 @@ public class PlaceService {
 
         return new PageImpl<>(placeInfoList, pageable, placeInfoList.size());
     }
+
+//    public Page<PlaceResponseWithFriendReview> getPlacePageByCategory(
+//            String category,
+//            double neLatitude,
+//            double neLongitude,
+//            double swLatitude,
+//            double swLongitude,
+//            Pageable pageable
+//    ) {
+//        Member loginMember = authUtil.getLoginMember();
+//
+//    }
 }

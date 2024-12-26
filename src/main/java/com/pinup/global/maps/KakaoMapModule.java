@@ -81,6 +81,7 @@ public class KakaoMapModule {
 
         String kakaoMapId = documentNode.path("id").asText();
         Long reviewCount = placeRepository.getReviewCount(currentMember, kakaoMapId);
+        Double averageStarRating = placeRepository.getAverageStarRating(currentMember, kakaoMapId);
 
         return PlaceResponseByKeyword.builder()
                 .kakaoMapId(kakaoMapId)
@@ -91,6 +92,7 @@ public class KakaoMapModule {
                 .latitude(documentNode.path("y").asText())
                 .longitude(documentNode.path("x").asText())
                 .reviewCount(reviewCount.intValue())
+                .averageStarRating(averageStarRating)
                 .build();
     }
 
