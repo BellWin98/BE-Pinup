@@ -112,7 +112,7 @@ public class PlaceController {
             )
     })
     public ResponseEntity<ResultResponse> getPlacePageByKeyword(
-            @Schema(description = "검색어", example = "맛집") @RequestParam(value = "keyword") String keyword,
+            @Schema(description = "검색어", example = "하루카페") @RequestParam(value = "keyword") String keyword,
             @PageableDefault Pageable pageable
     ) {
 
