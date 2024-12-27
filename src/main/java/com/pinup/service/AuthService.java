@@ -3,11 +3,12 @@ package com.pinup.service;
 
 import com.pinup.dto.request.NormalLoginRequest;
 import com.pinup.dto.request.MemberJoinRequest;
+import com.pinup.dto.response.MemberResponse;
 import com.pinup.entity.Member;
 import com.pinup.enums.LoginType;
 import com.pinup.exception.*;
 import com.pinup.global.jwt.JwtTokenProvider;
-import com.pinup.global.response.TokenResponse;
+import com.pinup.global.response.LoginResponse;
 import com.pinup.repository.MemberRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -63,7 +64,7 @@ public class AuthService {
     }
 
     @Transactional
-    public TokenResponse googleLogin(String code) {
+    public LoginResponse googleLogin(String code) {
         String accessToken = getAccessToken(code);
         Map<String, Object> userInfo = getUserInfo(accessToken);
 
@@ -86,11 +87,11 @@ public class AuthService {
 
         redisService.setValues(REFRESH_TOKEN_PREFIX+member.getId(), refreshToken);
 
-        return new TokenResponse(jwtToken, refreshToken);
+        return new LoginResponse(jwtToken, refreshToken, MemberResponse.from(member));
     }
 
     @Transactional
-    public TokenResponse getTokens(HttpServletRequest request) {
+    public LoginResponse getTokens(HttpServletRequest request) {
 
         String token = request.getHeader("Authorization");
         Map<String, Object> userInfo = getUserInfo(token);
@@ -100,10 +101,10 @@ public class AuthService {
 
         redisService.setValues(REFRESH_TOKEN_PREFIX+createdMember.getId(), refreshToken);
 
-        return new TokenResponse(accessToken, refreshToken);
+        return new LoginResponse(accessToken, refreshToken, MemberResponse.from(createdMember));
     }
 
-    public TokenResponse refresh(String refreshToken) {
+    public LoginResponse refresh(String refreshToken) {
         if (!jwtTokenProvider.validateToken(refreshToken)) {
             throw new InvalidTokenException();
         }
@@ -122,7 +123,7 @@ public class AuthService {
 
         redisService.setValues(REFRESH_TOKEN_PREFIX+member.getId(), newRefreshToken);
 
-        return new TokenResponse(newAccessToken, newRefreshToken);
+        return new LoginResponse(newAccessToken, newRefreshToken, MemberResponse.from(member));
     }
 
     public void logout(String accessToken) {
@@ -213,7 +214,7 @@ public class AuthService {
     }
 
     @Transactional
-    public TokenResponse normalLogin(NormalLoginRequest request) {
+    public LoginResponse normalLogin(NormalLoginRequest request) {
         String email = request.getEmail();
         Member member = getMemberByEmail(email);
         validatePassword(request.getPassword(), member.getPassword());
@@ -223,7 +224,7 @@ public class AuthService {
 
         redisService.setValues(REFRESH_TOKEN_PREFIX+member.getId(), refreshToken);
 
-        return new TokenResponse(accessToken, refreshToken);
+        return new LoginResponse(accessToken, refreshToken, MemberResponse.from(member));
     }
 
     private Member getMemberByEmail(String email) {

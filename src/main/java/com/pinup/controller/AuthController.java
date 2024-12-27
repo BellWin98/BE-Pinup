@@ -5,7 +5,7 @@ import com.pinup.dto.request.NormalLoginRequest;
 import com.pinup.dto.request.MemberJoinRequest;
 import com.pinup.global.response.ResultCode;
 import com.pinup.global.response.ResultResponse;
-import com.pinup.global.response.TokenResponse;
+import com.pinup.global.response.LoginResponse;
 import com.pinup.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -41,32 +41,32 @@ public class AuthController {
     }
 
     @GetMapping("/login/google/callback")
-    @Operation(summary = "소셜 로그인 API", description = "현재 구글 로그인만 가능")
+    @Operation(summary = "소셜 로그인 API", description = "토큰 및 유저 기본 정보 반환")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
                     description = "소셜 로그인에 성공하였습니다.",
                     content = {
-                            @Content(schema = @Schema(implementation = TokenResponse.class))
+                            @Content(schema = @Schema(implementation = LoginResponse.class))
                     }
             )
     })
     public ResponseEntity<ResultResponse> googleCallback(@RequestParam("code") String code) {
-        TokenResponse tokenResponse = authService.googleLogin(code);
-        return ResponseEntity.ok(ResultResponse.of(ResultCode.SOCIAL_LOGIN_SUCCESS, tokenResponse));
+        LoginResponse loginResponse = authService.googleLogin(code);
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.SOCIAL_LOGIN_SUCCESS, loginResponse));
     }
 
     @GetMapping("/tokens")
     public ResponseEntity<ResultResponse> getTokens(HttpServletRequest request) {
-        TokenResponse tokenResponse = authService.getTokens(request);
-        return ResponseEntity.ok(ResultResponse.of(ResultCode.TOKEN_ISSUED_SUCCESS, tokenResponse));
+        LoginResponse loginResponse = authService.getTokens(request);
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.TOKEN_ISSUED_SUCCESS, loginResponse));
 
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<ResultResponse> refresh(@RequestHeader("Authorization") String refreshToken) {
-        TokenResponse tokenResponse = authService.refresh(refreshToken);
-        return ResponseEntity.ok(ResultResponse.of(ResultCode.TOKEN_REISSUED_SUCCESS, tokenResponse));
+        LoginResponse loginResponse = authService.refresh(refreshToken);
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.TOKEN_REISSUED_SUCCESS, loginResponse));
     }
 
     @PostMapping("/logout")
@@ -83,7 +83,7 @@ public class AuthController {
 
     @PostMapping("/login/normal")
     public ResponseEntity<ResultResponse> normalLogin(@RequestBody NormalLoginRequest request) {
-        TokenResponse tokenResponse = authService.normalLogin(request);
-        return ResponseEntity.ok(ResultResponse.of(ResultCode.NORMAL_LOGIN_SUCCESS, tokenResponse));
+        LoginResponse loginResponse = authService.normalLogin(request);
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.NORMAL_LOGIN_SUCCESS, loginResponse));
     }
 }

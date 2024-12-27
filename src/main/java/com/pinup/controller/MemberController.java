@@ -101,7 +101,7 @@ public class MemberController {
     }
 
     @PutMapping
-    @Operation(summary = "유저 정보 업데이트 API", description = "닉네임, 소개글 함께 업데이트")
+    @Operation(summary = "유저 정보 업데이트 API", description = "닉네임, 소개글, 프로필 사진 함께 업데이트")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
