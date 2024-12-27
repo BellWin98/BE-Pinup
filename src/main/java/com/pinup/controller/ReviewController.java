@@ -42,7 +42,7 @@ public class ReviewController {
             @Valid @RequestPart ReviewRequest reviewRequest,
             @Valid @RequestPart PlaceRequest placeRequest,
             @RequestPart(name = "multipartFiles", required = false) List<MultipartFile> multipartFiles
-            ) {
+    ) {
 
         Long reviewId = reviewService.register(reviewRequest, placeRequest, multipartFiles);
 
