@@ -19,7 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/friendships")
 @RequiredArgsConstructor
-@Tag(name = "핀버디 관련 API", description = "")
+@Tag(name = "핀버디 관련 API", description = "핀버디 목록 조회, 핀버디 삭제, 내 핀버디 목록 조회")
 public class FriendShipController {
 
     private final FriendShipService friendShipService;

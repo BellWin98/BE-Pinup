@@ -4,6 +4,7 @@ import com.pinup.dto.response.PlaceDetailResponse;
 import com.pinup.dto.response.PlaceResponseByKeyword;
 import com.pinup.dto.response.PlaceResponseWithFriendReview;
 import com.pinup.entity.Member;
+import com.pinup.enums.PlaceCategory;
 import com.pinup.global.maps.KakaoMapModule;
 import com.pinup.global.util.AuthUtil;
 import com.pinup.repository.FriendShipRepository;
@@ -33,16 +34,23 @@ public class PlaceService {
     private final FriendShipRepository friendShipRepository;
 
     @Transactional
-    public Page<PlaceResponseWithFriendReview> getPlacePage(double latitude, double longitude, Pageable pageable) {
+    public List<PlaceResponseWithFriendReview> getPlaces(
+            double swLatitude, double swLongitude, double neLatitude,
+            double neLongitude,double currentLatitude, double currentLongitude
+    ) {
         Member loginMember = authUtil.getLoginMember();
-        return placeRepository.findPlaceListByMemberAndCoordinate(loginMember, latitude, longitude, pageable);
+
+        return placeRepository.findAllByMemberAndLocation(
+                loginMember, swLatitude, swLongitude,
+                neLatitude, neLongitude, currentLatitude, currentLongitude
+        );
     }
 
     @Transactional
     public PlaceDetailResponse getPlaceDetail(String kakaoPlaceId) {
 
         Member loginMember = authUtil.getLoginMember();
-        PlaceDetailResponse placeDetailResponse = placeRepository.findPlaceDetailByKakaoPlaceIdAndMember(loginMember, kakaoPlaceId);
+        PlaceDetailResponse placeDetailResponse = placeRepository.findByKakaoPlaceIdAndMember(loginMember, kakaoPlaceId);
         List<PlaceDetailResponse.ReviewDetailResponse> reviewDetailResponseList = placeDetailResponse.getReviews();
         Map<Integer, Integer> ratingGraph = new HashMap<>();
 
@@ -55,31 +63,44 @@ public class PlaceService {
         return placeDetailResponse;
     }
 
-    public Page<PlaceResponseByKeyword> getPlacePageByKeyword(String keyword, Pageable pageable) {
+    public List<PlaceResponseByKeyword> getPlacesByKeyword(String keyword) {
         Member loginMember = authUtil.getLoginMember();
-        List<PlaceResponseByKeyword> placeInfoList = kakaoMapModule.search(loginMember, keyword);
+//        List<PlaceResponseByKeyword> placeInfoList = kakaoMapModule.search(loginMember, keyword);
+
+        return kakaoMapModule.search(loginMember, keyword);
+//        return new PageImpl<>(placeInfoList, pageable, placeInfoList.size());
+    }
+
+    public Page<PlaceResponseByKeyword> getPlacesByKeyword(
+            String keyword, String latitude, String longitude,
+            int radius, String sort, Pageable pageable
+    ) {
+        Member loginMember = authUtil.getLoginMember();
+        List<PlaceResponseByKeyword> placeInfoList = kakaoMapModule.search(
+                loginMember, keyword, latitude,
+                longitude, radius, sort
+        );
 
         return new PageImpl<>(placeInfoList, pageable, placeInfoList.size());
     }
 
-    public Page<PlaceResponseByKeyword> getPlacePageByKeyword(String keyword, String latitude, String longitude,
-                                                              int radius, String sort, Pageable pageable) {
+    public List<PlaceResponseWithFriendReview> getPlacesByCategory(
+            String category, double swLatitude, double swLongitude,
+            double neLatitude, double neLongitude,double currentLatitude, double currentLongitude
+    ) {
+
+//        String qCategory = "";
         Member loginMember = authUtil.getLoginMember();
-        List<PlaceResponseByKeyword> placeInfoList =
-                kakaoMapModule.search(loginMember, keyword, latitude, longitude, radius, sort);
+        PlaceCategory placeCategory = PlaceCategory.getCategoryByDescription(category);
 
-        return new PageImpl<>(placeInfoList, pageable, placeInfoList.size());
+/*        if (placeCategory != null) {
+            qCategory = placeCategory.name();
+        }*/
+
+        return placeRepository.findAllByMemberAndCategoryAndLocation(
+                loginMember, placeCategory, swLatitude,
+                swLongitude, neLatitude, neLongitude,
+                currentLatitude, currentLongitude
+        );
     }
-
-//    public Page<PlaceResponseWithFriendReview> getPlacePageByCategory(
-//            String category,
-//            double neLatitude,
-//            double neLongitude,
-//            double swLatitude,
-//            double swLongitude,
-//            Pageable pageable
-//    ) {
-//        Member loginMember = authUtil.getLoginMember();
-//
-//    }
 }

@@ -3,19 +3,38 @@ package com.pinup.repository.querydsl;
 import com.pinup.dto.response.PlaceDetailResponse;
 import com.pinup.dto.response.PlaceResponseWithFriendReview;
 import com.pinup.entity.Member;
+import com.pinup.enums.PlaceCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface PlaceRepositoryQueryDsl {
 
-    Page<PlaceResponseWithFriendReview> findPlaceListByMemberAndCoordinate(
+    List<PlaceResponseWithFriendReview> findAllByMemberAndLocation(
             Member loginMember,
-            Double latitude,
-            Double longitude,
-            Pageable pageable
+            double swLatitude,
+            double swLongitude,
+            double neLatitude,
+            double neLongitude,
+            double currentLatitude,
+            double currentLongitude
     );
 
-    PlaceDetailResponse findPlaceDetailByKakaoPlaceIdAndMember(
+    List<PlaceResponseWithFriendReview> findAllByMemberAndCategoryAndLocation(
+            Member loginMember,
+            PlaceCategory placeCategory,
+            double swLatitude,
+            double swLongitude,
+            double neLatitude,
+            double neLongitude,
+            double currentLatitude,
+            double currentLongitude
+    );
+
+
+
+    PlaceDetailResponse findByKakaoPlaceIdAndMember(
             Member loginMember,
             String kakaoPlaceId
     );

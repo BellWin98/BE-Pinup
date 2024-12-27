@@ -3,11 +3,12 @@ package com.pinup.repository.querydsl;
 import com.pinup.dto.response.PlaceDetailResponse;
 import com.pinup.dto.response.PlaceResponseWithFriendReview;
 import com.pinup.entity.Member;
+import com.pinup.enums.PlaceCategory;
 import com.pinup.exception.PlaceNotFoundException;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.core.types.dsl.NumberTemplate;
-import com.querydsl.core.types.dsl.StringPath;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -32,89 +33,41 @@ public class PlaceRepositoryQueryDslImpl implements PlaceRepositoryQueryDsl{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<PlaceResponseWithFriendReview> findPlaceListByMemberAndCoordinate(
-            Member loginMember,
-            Double latitude,
-            Double longitude,
-            Pageable pageable
+    public List<PlaceResponseWithFriendReview> findAllByMemberAndLocation(
+            Member loginMember, double swLatitude, double swLongitude,
+            double neLatitude, double neLongitude, double currentLatitude, double currentLongitude
     ) {
+        List<PlaceResponseWithFriendReview> result = fetchPlaces(
+                loginMember, swLatitude, swLongitude,
+                neLatitude, neLongitude, currentLatitude,
+                currentLongitude, null
+        );
 
-        List<PlaceResponseWithFriendReview> result = queryFactory
-                .select(Projections.constructor(
-                        PlaceResponseWithFriendReview.class,
-                        place.id.as("placeId"),
-                        place.name.as("name"),
-                        review.starRating.avg().as("averageStarRating"),
-                        review.id.countDistinct().as("reviewCount"),
-                        calculateDistance(latitude, longitude, place.latitude, place.longitude).as("distance")
-                ))
-                .from(place)
-                .join(review).on(place.eq(review.place))
-                .where(place.status.eq("Y")
-                        .and(review.member.id.eq(loginMember.getId())
-                                .or(review.member.id.in(getFriendMemberIds(loginMember.getId())))
-                        )
-                )
-                .groupBy(place)
-                .orderBy(calculateDistance(latitude, longitude, place.latitude, place.longitude).asc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .fetch();
+        addImageInfoOnPlaceResult(result, loginMember);
 
-        for (PlaceResponseWithFriendReview placeResponseWithFriendReview : result) {
-
-            Long placeId = placeResponseWithFriendReview.getPlaceId();
-
-            // 리뷰 이미지 URL 리스트 조회 (최대 3개, 먼저 등록된 순서로)
-            List<String> reviewImageUrls = queryFactory
-                    .select(reviewImage.url)
-                    .from(reviewImage)
-                    .join(review).on(reviewImage.review.eq(review))
-                    .where(review.place.id.eq(placeId)
-                            .and(review.member.id.eq(loginMember.getId())
-                                    .or(review.member.id.in(getFriendMemberIds(loginMember.getId()))))
-                            .and(reviewImage.url.isNotNull()))
-                    .orderBy(reviewImage.createdAt.asc())
-                    .limit(3)
-                    .fetch();
-
-            // 리뷰 작성자 프로필 이미지 URL 리스트 조회 (최대 3개, 최근 등록된 순서로)
-            List<String> reviewerProfileImageUrls = queryFactory
-                    .select(member.profileImageUrl)
-                    .from(member)
-                    .join(review).on(member.eq(review.member))
-                    .where(review.place.id.eq(placeId)
-                            .and(review.member.id.eq(loginMember.getId())
-                                    .or(review.member.id.in(getFriendMemberIds(loginMember.getId())))
-                            ))
-                    .orderBy(review.updatedAt.desc())
-                    .limit(3)
-                    .fetch();
-
-            placeResponseWithFriendReview.setReviewImageUrls(reviewImageUrls);
-            placeResponseWithFriendReview.setReviewerProfileImageUrls(reviewerProfileImageUrls);
-        }
-
-        Long total = queryFactory
-                .select(place.id.count())
-                .from(place)
-                .join(review).on(place.eq(review.place))
-                .where(place.status.eq("Y")
-                        .and(review.member.id.eq(loginMember.getId())
-                                .or(review.member.id.in(getFriendMemberIds(loginMember.getId())))
-                        )
-                )
-                .fetchOne();
-
-        return new PageImpl<>(result, pageable, total != null ? total : 0L);
+        return result;
     }
 
     @Override
-    public PlaceDetailResponse findPlaceDetailByKakaoPlaceIdAndMember(
-            Member loginMember,
-            String kakaoPlaceId
+    public List<PlaceResponseWithFriendReview> findAllByMemberAndCategoryAndLocation(
+            Member loginMember, PlaceCategory placeCategory, double swLatitude,
+            double swLongitude, double neLatitude, double neLongitude,
+            double currentLatitude, double currentLongitude
     ) {
 
+        List<PlaceResponseWithFriendReview> result = fetchPlaces(
+                loginMember, swLatitude, swLongitude,
+                neLatitude, neLongitude, currentLatitude,
+                currentLongitude, placeCategory
+        );
+
+        addImageInfoOnPlaceResult(result, loginMember);
+
+        return result;
+    }
+
+    @Override
+    public PlaceDetailResponse findByKakaoPlaceIdAndMember(Member loginMember, String kakaoPlaceId) {
         List<PlaceDetailResponse.ReviewDetailResponse> reviewDetailList = queryFactory
                 .select(Projections.constructor(
                         PlaceDetailResponse.ReviewDetailResponse.class,
@@ -150,10 +103,10 @@ public class PlaceRepositoryQueryDslImpl implements PlaceRepositoryQueryDsl{
 
         PlaceDetailResponse placeDetailResponse = queryFactory
                 .select(Projections.constructor(
-                            PlaceDetailResponse.class,
-                            place.name.as("placeName"),
-                            review.countDistinct().as("reviewCount"),
-                            review.starRating.avg().as("averageStarRating")
+                                PlaceDetailResponse.class,
+                                place.name.as("placeName"),
+                                review.countDistinct().as("reviewCount"),
+                                review.starRating.avg().as("averageStarRating")
                         )
                 )
                 .from(place)
@@ -203,15 +156,82 @@ public class PlaceRepositoryQueryDslImpl implements PlaceRepositoryQueryDsl{
                 .fetchOne();
     }
 
-    private NumberTemplate<Double> calculateDistance(double latitude1, double longitude1, StringPath latitude2, StringPath longitude2) {
+    private List<PlaceResponseWithFriendReview> fetchPlaces(
+            Member loginMember, double swLatitude, double swLongitude,
+            double neLatitude, double neLongitude, double currentLatitude,
+            double currentLongitude, PlaceCategory placeCategory
+    ) {
+
+        var query = queryFactory
+                .select(Projections.constructor(
+                        PlaceResponseWithFriendReview.class,
+                        place.id.as("placeId"),
+                        place.kakaoMapId.as("kakaoPlaceId"),
+                        place.name.as("name"),
+                        review.starRating.avg().as("averageStarRating"),
+                        review.id.countDistinct().as("reviewCount"),
+                        calculateDistance(currentLatitude, currentLongitude, place.latitude, place.longitude).as("distance")
+                ))
+                .from(place)
+                .join(review).on(place.eq(review.place))
+                .where(place.status.eq("Y")
+                        .and(review.member.id.eq(loginMember.getId())
+                                .or(review.member.id.in(getFriendMemberIds(loginMember.getId()))))
+                        .and(place.latitude.between(swLatitude, neLatitude))
+                        .and(place.longitude.between(swLongitude, neLongitude)));
+
+        if (placeCategory != null) {
+            query.where(place.placeCategory.eq(placeCategory));
+        }
+
+        return query
+                .groupBy(place)
+                .orderBy(calculateDistance(currentLatitude, currentLongitude, place.latitude, place.longitude).asc())
+                .fetch();
+
+    }
+
+    private void addImageInfoOnPlaceResult(List<PlaceResponseWithFriendReview> result, Member loginMember) {
+        for (PlaceResponseWithFriendReview response : result) {
+            String kakaoPlaceId = response.getKakaoPlaceId();
+            response.setReviewImageUrls(fetchReviewImageUrls(kakaoPlaceId, loginMember.getId()));
+            response.setReviewerProfileImageUrls(fetchReviewerProfileImageUrls(kakaoPlaceId, loginMember.getId()));
+        }
+    }
+
+    private List<String> fetchReviewImageUrls(String kakaoPlaceId, Long loginMemberId) {
+        return queryFactory
+                .select(reviewImage.url)
+                .from(reviewImage)
+                .join(review).on(reviewImage.review.eq(review))
+                .where(review.place.kakaoMapId.eq(kakaoPlaceId)
+                        .and(review.member.id.eq(loginMemberId)
+                                .or(review.member.id.in(getFriendMemberIds(loginMemberId))))
+                        .and(reviewImage.url.isNotNull()))
+                .orderBy(reviewImage.createdAt.asc())
+                .limit(3)
+                .fetch();
+    }
+
+    private List<String> fetchReviewerProfileImageUrls(String kakaoPlaceId, Long loginMemberId) {
+        return queryFactory
+                .select(member.profileImageUrl)
+                .from(member)
+                .join(review).on(member.eq(review.member))
+                .where(review.place.kakaoMapId.eq(kakaoPlaceId)
+                        .and(review.member.id.eq(loginMemberId)
+                                .or(review.member.id.in(getFriendMemberIds(loginMemberId)))))
+                .orderBy(review.updatedAt.desc())
+                .limit(3)
+                .fetch();
+    }
+
+    private NumberTemplate<Double> calculateDistance(
+            double latitude1, double longitude1, NumberPath<Double> latitude2, NumberPath<Double> longitude2
+    ) {
         return Expressions.numberTemplate(Double.class,
-                "(6371 * acos(cos(radians({0})) * cos(radians({1})) * cos(radians({2}) - radians({3})) + sin(radians({4})) * sin(radians({5})))) / 1000",
-                latitude1,
-                Expressions.numberTemplate(Double.class, "CAST({0} AS DOUBLE)", latitude2),
-                Expressions.numberTemplate(Double.class, "CAST({0} AS DOUBLE)", longitude2),
-                longitude1,
-                latitude1,
-                Expressions.numberTemplate(Double.class, "CAST({0} AS DOUBLE)", latitude2)
+                "6371 * acos(cos(radians({0})) * cos(radians({1})) * cos(radians({2}) - radians({3})) + sin(radians({4})) * sin(radians({5})))",
+                latitude1, latitude2, longitude2, longitude1, latitude1, latitude2
         );
     }
 

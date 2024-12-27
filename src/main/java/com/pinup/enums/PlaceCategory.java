@@ -14,4 +14,13 @@ public enum PlaceCategory {
 
     private final String description;
     private final String code;
+
+    public static PlaceCategory getCategoryByDescription(String category) {
+        for (PlaceCategory placeCategory : PlaceCategory.values()) {
+            if (placeCategory.description.equals(category)) {
+                return placeCategory;
+            }
+        }
+        return null;
+    }
 }

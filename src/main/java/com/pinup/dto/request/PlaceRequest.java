@@ -34,27 +34,20 @@ public class PlaceRequest {
 
     @Schema(description = "위도", example = "37.56706784998933")
     @NotBlank(message = "위도를 입력하세요.")
-    private String latitude; // 위도(Y)
+    private Double latitude; // 위도(Y)
 
     @Schema(description = "경도", example = "126.82759102697081")
     @NotBlank(message = "경도를 입력하세요.")
-    private String longitude; // 경도(X)
+    private Double longitude; // 경도(X)
 
     public Place toEntity() {
 
-        PlaceCategory newPlaceCategory = null;
-
-        for (PlaceCategory placeCategory : PlaceCategory.values()) {
-            String placeType = placeCategory.getDescription();
-            if (placeType.equals(category)) {
-                newPlaceCategory = placeCategory;
-            }
-        }
+        PlaceCategory placeCategory = PlaceCategory.getCategoryByDescription(category);
 
         return Place.builder()
                 .kakaoMapId(kakaoPlaceId)
                 .name(name)
-                .placeCategory(newPlaceCategory)
+                .placeCategory(placeCategory)
                 .address(address)
                 .roadAddress(roadAddress)
                 .latitude(latitude)

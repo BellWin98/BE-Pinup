@@ -12,11 +12,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static com.pinup.global.response.ResultCode.GET_PLACES_SUCCESS;
 import static com.pinup.global.response.ResultCode.GET_PLACE_DETAIL_SUCCESS;
@@ -47,13 +46,19 @@ public class PlaceController {
                     }
             )
     })
-    public ResponseEntity<ResultResponse> getPlacePage(
-            @Schema(description = "현재 위치 위도", example = "37.56706784998933") @RequestParam(value = "latitude") double latitude,
-            @Schema(description = "현재 위치 경도", example = "126.82759102697081") @RequestParam(value = "longitude") double longitude,
-            @PageableDefault Pageable pageable
+    public ResponseEntity<ResultResponse> getPlaces(
+            @Schema(description = "SW 위도", example = "37.600720") @RequestParam(value = "swLatitude") double swLatitude,
+            @Schema(description = "SW 경도", example = "127.013901") @RequestParam(value = "swLongitude") double swLongitude,
+            @Schema(description = "NE 위도", example = "37.613230") @RequestParam(value = "neLatitude") double neLatitude,
+            @Schema(description = "NE 경도", example = "127.030003") @RequestParam(value = "neLongitude") double neLongitude,
+            @Schema(description = "현 위치 위도(집)", example = "37.607798") @RequestParam(value = "currentLatitude") double currentLatitude,
+            @Schema(description = "현 위치 경도(집)", example = "127.025612") @RequestParam(value = "currentLongitude") double currentLongitude
     ) {
 
-        Page<PlaceResponseWithFriendReview> result = placeService.getPlacePage(latitude, longitude, pageable);
+//        Page<PlaceResponseWithFriendReview> result = placeService.getPlacePage(latitude, longitude, pageable);
+        List<PlaceResponseWithFriendReview> result = placeService.getPlaces(
+                swLatitude, swLongitude, neLatitude, neLongitude, currentLatitude, currentLongitude
+        );
 
         return ResponseEntity.ok(ResultResponse.of(GET_PLACES_SUCCESS, result));
     }
@@ -79,27 +84,6 @@ public class PlaceController {
         return ResponseEntity.ok(ResultResponse.of(GET_PLACE_DETAIL_SUCCESS, result));
     }
 
-/*    @GetMapping("/{placeId}")
-    @Operation(summary = "장소 상세 조회 API", description = "DB 고유 ID로 장소 상세 조회")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "장소 상세 조회에 성공하였습니다.",
-                    content = {
-                            @Content(schema = @Schema(implementation = PlaceDetailResponse.class))
-                    }
-            )
-    })
-    public ResponseEntity<ResultResponse> getPlaceDetail(
-            @Schema(description = "DB에 등록된 장소 고유 ID", example = "1")
-            @PathVariable("placeId") Long placeId
-    ) {
-
-        PlaceDetailResponse result = placeService.getPlaceDetail(placeId);
-
-        return ResponseEntity.ok(ResultResponse.of(GET_PLACE_DETAIL_SUCCESS, result));
-    }*/
-
     @GetMapping("/list/keyword")
     @Operation(summary = "키워드로 장소 목록 조회 API", description = "리뷰 작성 시 장소 목록 조회할 때 사용 / 카카오맵 API 호출함")
     @ApiResponses(value = {
@@ -111,31 +95,44 @@ public class PlaceController {
                     }
             )
     })
-    public ResponseEntity<ResultResponse> getPlacePageByKeyword(
-            @Schema(description = "검색어", example = "하루카페") @RequestParam(value = "keyword") String keyword,
-            @PageableDefault Pageable pageable
+    public ResponseEntity<ResultResponse> getPlacesByKeyword(
+            @Schema(description = "검색어", example = "하루카페") @RequestParam(value = "keyword") String keyword
     ) {
 
-        Page<PlaceResponseByKeyword> result =
-                placeService.getPlacePageByKeyword(keyword, pageable);
+        List<PlaceResponseByKeyword> result = placeService.getPlacesByKeyword(keyword);
+//        Page<PlaceResponseByKeyword> result = placeService.getPlacePageByKeyword(keyword, pageable);
 
         return ResponseEntity.ok(ResultResponse.of(GET_PLACES_SUCCESS, result));
     }
 
-//    public ResponseEntity<ResultResponse> getPlacePageByCategory(
-//            @RequestParam(value = "category") String category,
-//            @RequestParam(value = "neLatitude") double neLatitude,
-//            @RequestParam(value = "neLongitude") double neLongitude,
-//            @RequestParam(value = "swLatitude") double swLatitude,
-//            @RequestParam(value = "swLongitude") double swLongitude,
-//            @PageableDefault Pageable pageable
-//    ) {
-//
-//        Page<PlaceResponseWithFriendReview> result =
-//                placeService.getPlacePageByCategory(category, neLatitude, neLongitude, swLatitude, swLongitude, pageable);
-//
-//        return ResponseEntity.ok(ResultResponse.of(GET_PLACES_SUCCESS, result));
-//    }
+    @GetMapping("/list/category")
+    @Operation(summary = "카테고리로 장소 목록 조회 API", description = "SW, NE 위도/경도 좌표 활용")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "장소 목록 조회에 성공하였습니다.",
+                    content = {
+                            @Content(schema = @Schema(implementation = PlaceResponseWithFriendReview.class))
+                    }
+            )
+    })
+    public ResponseEntity<ResultResponse> getPlacesByCategory(
+            @Schema(description = "카테고리", example = "카페")@RequestParam(value = "category") String category,
+            @Schema(description = "SW 위도", example = "37.600720") @RequestParam(value = "swLatitude") double swLatitude,
+            @Schema(description = "SW 경도", example = "127.013901") @RequestParam(value = "swLongitude") double swLongitude,
+            @Schema(description = "NE 위도", example = "37.613230") @RequestParam(value = "neLatitude") double neLatitude,
+            @Schema(description = "NE 경도", example = "127.030003") @RequestParam(value = "neLongitude") double neLongitude,
+            @Schema(description = "현 위치 위도(집)", example = "37.607798") @RequestParam(value = "currentLatitude") double currentLatitude,
+            @Schema(description = "현 위치 경도(집)", example = "127.025612") @RequestParam(value = "currentLongitude") double currentLongitude
+    ) {
+
+        List<PlaceResponseWithFriendReview> result = placeService.getPlacesByCategory(
+                category, swLatitude, swLongitude,
+                neLatitude, neLongitude, currentLatitude, currentLongitude
+        );
+
+        return ResponseEntity.ok(ResultResponse.of(GET_PLACES_SUCCESS, result));
+    }
 
 //    public ResponseEntity<ResultResponse> getPlacePageByKeyword(
 //            @Schema(description = "검색어", example = "맛집") @RequestParam(value = "keyword") String keyword,
