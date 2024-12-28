@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum PlaceCategory {
 
+    ALL("전체", ""),
     RESTAURANT("음식점", "FD6"),
     CAFE("카페", "CE7"),
 
