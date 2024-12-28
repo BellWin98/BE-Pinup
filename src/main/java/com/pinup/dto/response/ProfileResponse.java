@@ -1,5 +1,6 @@
 package com.pinup.dto.response;
 
+import com.pinup.enums.MemberRelationType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,4 +15,5 @@ public class ProfileResponse {
     private Integer reviewCount;
     private Integer friendCount;
     private Double averageRating;
+    private MemberRelationType relationType;
 }

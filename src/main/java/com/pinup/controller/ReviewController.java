@@ -37,45 +37,42 @@ public class ReviewController {
             @Valid @RequestPart ReviewRequest reviewRequest,
             @Valid @RequestPart PlaceRequest placeRequest,
             @RequestPart(name = "multipartFiles", required = false) List<MultipartFile> multipartFiles) {
-
         Long reviewId = reviewService.register(reviewRequest, placeRequest, multipartFiles);
         return ResponseEntity.ok(ResultResponse.of(ResultCode.CREATE_REVIEW_SUCCESS, reviewId));
     }
 
-    @GetMapping("/my/photo")
-    @Operation(summary = "내 포토 리뷰 상세 API")
-    public ResponseEntity<List<ReviewResponse>> getMyPhotoReviewDetails() {
-        return ResponseEntity.ok(reviewService.getMyPhotoReviewDetails());
+    @GetMapping("/{reviewId}")
+    @Operation(summary = "리뷰 상세 조회 API")
+    public ResponseEntity<ResultResponse> getReviewDetail(@PathVariable Long reviewId) {
+        ReviewResponse result = reviewService.getReviewById(reviewId);
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_REVIEW_DETAIL_SUCCESS, result));
     }
 
-    @GetMapping("/my/photo/preview")
-    @Operation(summary = "내 포토 리뷰 미리보기 API")
-    public ResponseEntity<List<ReviewPreviewResponse>> getMyPhotoReviewPreviews() {
-        return ResponseEntity.ok(reviewService.getMyPhotoReviewPreviews());
+    @GetMapping("/my/photo")
+    @Operation(summary = "내 포토 리뷰 미리보기 목록 API")
+    public ResponseEntity<ResultResponse> getMyPhotoReviewPreviews() {
+        List<ReviewPreviewResponse> result = reviewService.getPhotoReviewPreviews();
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_MY_PHOTO_REVIEW_PREVIEW_SUCCESS, result));
     }
 
     @GetMapping("/my/text")
-    @Operation(summary = "내 텍스트 리뷰 상세 API")
-    public ResponseEntity<List<ReviewResponse>> getMyTextReviewDetails() {
-        return ResponseEntity.ok(reviewService.getMyTextReviewDetails());
+    @Operation(summary = "내 텍스트 리뷰 목록 API")
+    public ResponseEntity<ResultResponse> getMyTextReviews() {
+        List<ReviewResponse> result = reviewService.getMyTextReviewDetails();
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_MY_TEXT_REVIEW_SUCCESS, result));
     }
 
-    @GetMapping("/friends/{friendId}/photo")
-    @Operation(summary = "친구 포토 리뷰 상세 API")
-    public ResponseEntity<List<ReviewResponse>> getFriendPhotoReviewDetails(@PathVariable Long friendId) {
-        return ResponseEntity.ok(reviewService.getFriendPhotoReviewDetails(friendId));
+    @GetMapping("/members/{memberId}/photo/preview")
+    @Operation(summary = "멤버의 포토 리뷰 미리보기 목록 API")
+    public ResponseEntity<ResultResponse> getMemberPhotoReviewPreviews(@PathVariable Long memberId) {
+        List<ReviewPreviewResponse> result = reviewService.getMemberPhotoReviewPreviews(memberId);
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_MEMBER_PHOTO_REVIEW_PREVIEW_SUCCESS, result));
     }
 
-    @GetMapping("/friends/{friendId}/photo/preview")
-    @Operation(summary = "친구 포토 리뷰 미리보기 API")
-    public ResponseEntity<List<ReviewPreviewResponse>> getFriendPhotoReviewPreviews(@PathVariable Long friendId) {
-        return ResponseEntity.ok(reviewService.getFriendPhotoReviewPreviews(friendId));
+    @GetMapping("/members/{memberId}/text")
+    @Operation(summary = "멤버의 텍스트 리뷰 목록 API")
+    public ResponseEntity<ResultResponse> getMemberTextReviews(@PathVariable Long memberId) {
+        List<ReviewResponse> result = reviewService.getMemberTextReviews(memberId);
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_MEMBER_TEXT_REVIEW_SUCCESS, result));
     }
-
-    @GetMapping("/friends/{friendId}/text")
-    @Operation(summary = "친구 텍스트 리뷰 상세 API")
-    public ResponseEntity<List<ReviewResponse>> getFriendTextReviewDetails(@PathVariable Long friendId) {
-        return ResponseEntity.ok(reviewService.getFriendTextReviewDetails(friendId));
-    }
-
 }

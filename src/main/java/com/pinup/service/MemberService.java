@@ -6,13 +6,13 @@ import com.pinup.dto.response.MemberResponse;
 import com.pinup.dto.response.ProfileResponse;
 import com.pinup.entity.Member;
 import com.pinup.entity.Review;
+import com.pinup.enums.MemberRelationType;
 import com.pinup.exception.AlreadyExistNicknameException;
 import com.pinup.exception.MemberNotFoundException;
 import com.pinup.exception.NicknameUpdateTimeLimitException;
 import com.pinup.global.s3.S3Service;
 import com.pinup.global.util.AuthUtil;
 import com.pinup.repository.MemberRepository;
-import com.pinup.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,9 +25,9 @@ public class MemberService {
     private static final String PROFILE_IMAGE_DIRECTORY = "profiles";
 
     private final MemberRepository memberRepository;
-    private final ReviewRepository reviewRepository;
     private final S3Service s3Service;
     private final MemberCacheManager memberCacheManager;
+    private final FriendShipService friendShipService;
     private final AuthUtil authUtil;
 
     @Transactional(readOnly = true)
@@ -113,6 +113,17 @@ public class MemberService {
     }
 
     private ProfileResponse getProfileForMember(Member member) {
+        Member currentMember = authUtil.getLoginMember();
+        MemberRelationType relationType;
+
+        if (currentMember.getId().equals(member.getId())) {
+            relationType = MemberRelationType.SELF;
+        } else if (friendShipService.existsFriendship(currentMember, member)) {
+            relationType = MemberRelationType.FRIEND;
+        } else {
+            relationType = MemberRelationType.STRANGER;
+        }
+
         double averageRating = member.getReviews().stream()
                 .mapToDouble(Review::getStarRating)
                 .average()
@@ -123,6 +134,7 @@ public class MemberService {
                 .reviewCount(member.getReviews().size())
                 .friendCount(member.getFriendships().size())
                 .averageRating(Math.round(averageRating * 10.0) / 10.0)
+                .relationType(relationType)
                 .build();
     }
 }
