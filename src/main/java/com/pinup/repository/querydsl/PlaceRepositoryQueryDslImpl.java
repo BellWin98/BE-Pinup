@@ -4,8 +4,11 @@ import com.pinup.dto.response.PlaceDetailResponse;
 import com.pinup.dto.response.PlaceResponseWithFriendReview;
 import com.pinup.entity.Member;
 import com.pinup.enums.PlaceCategory;
+import com.pinup.enums.SortType;
 import com.pinup.exception.PlaceNotFoundException;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberPath;
 import com.querydsl.core.types.dsl.NumberTemplate;
@@ -14,9 +17,6 @@ import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -34,32 +34,33 @@ public class PlaceRepositoryQueryDslImpl implements PlaceRepositoryQueryDsl{
 
     @Override
     public List<PlaceResponseWithFriendReview> findAllByMemberAndLocation(
-            Member loginMember, double swLatitude, double swLongitude,
-            double neLatitude, double neLongitude, double currentLatitude, double currentLongitude
-    ) {
-        List<PlaceResponseWithFriendReview> result = fetchPlaces(
-                loginMember, swLatitude, swLongitude,
-                neLatitude, neLongitude, currentLatitude,
-                currentLongitude, null
-        );
-
-        addImageInfoOnPlaceResult(result, loginMember);
-
-        return result;
-    }
-
-    @Override
-    public List<PlaceResponseWithFriendReview> findAllByMemberAndCategoryAndLocation(
-            Member loginMember, PlaceCategory placeCategory, double swLatitude,
-            double swLongitude, double neLatitude, double neLongitude,
-            double currentLatitude, double currentLongitude
+            Member loginMember, PlaceCategory placeCategory, SortType sortType,
+            double swLatitude, double swLongitude, double neLatitude,
+            double neLongitude, double currentLatitude, double currentLongitude
     ) {
 
-        List<PlaceResponseWithFriendReview> result = fetchPlaces(
-                loginMember, swLatitude, swLongitude,
-                neLatitude, neLongitude, currentLatitude,
-                currentLongitude, placeCategory
-        );
+        List<PlaceResponseWithFriendReview> result = queryFactory
+                .select(Projections.constructor(PlaceResponseWithFriendReview.class,
+                        place.id.as("placeId"),
+                        place.kakaoMapId.as("kakaoPlaceId"),
+                        place.name.as("name"),
+                        review.starRating.avg().as("averageStarRating"),
+                        review.id.countDistinct().as("reviewCount"),
+                        calculateDistance(currentLatitude, currentLongitude, place.latitude, place.longitude).as("distance")
+                ))
+                .from(review)
+                .join(review.place, place)
+                .where(place.status.eq("Y")
+                        .and(review.member.id.eq(loginMember.getId())
+                                .or(review.member.id.in(getFriendMemberIds(loginMember.getId())))
+                        )
+                        .and(place.latitude.between(swLatitude, neLatitude))
+                        .and(place.longitude.between(swLongitude, neLongitude))
+                        .and(searchByPlaceCategory(placeCategory))
+                )
+                .groupBy(place)
+                .orderBy(searchBySortType(sortType, currentLatitude, currentLongitude, place.latitude, place.longitude))
+                .fetch();
 
         addImageInfoOnPlaceResult(result, loginMember);
 
@@ -156,39 +157,29 @@ public class PlaceRepositoryQueryDslImpl implements PlaceRepositoryQueryDsl{
                 .fetchOne();
     }
 
-    private List<PlaceResponseWithFriendReview> fetchPlaces(
-            Member loginMember, double swLatitude, double swLongitude,
-            double neLatitude, double neLongitude, double currentLatitude,
-            double currentLongitude, PlaceCategory placeCategory
+    private BooleanExpression searchByPlaceCategory(PlaceCategory placeCategory) {
+        return !placeCategory.equals(PlaceCategory.ALL) ? place.placeCategory.eq(placeCategory) : null;
+    }
+
+    private OrderSpecifier<?> searchBySortType(
+            SortType sortType, double currLat, double currLon,
+            NumberPath<Double> placeLat, NumberPath<Double> placeLon
+
     ) {
-
-        var query = queryFactory
-                .select(Projections.constructor(
-                        PlaceResponseWithFriendReview.class,
-                        place.id.as("placeId"),
-                        place.kakaoMapId.as("kakaoPlaceId"),
-                        place.name.as("name"),
-                        review.starRating.avg().as("averageStarRating"),
-                        review.id.countDistinct().as("reviewCount"),
-                        calculateDistance(currentLatitude, currentLongitude, place.latitude, place.longitude).as("distance")
-                ))
-                .from(place)
-                .join(review).on(place.eq(review.place))
-                .where(place.status.eq("Y")
-                        .and(review.member.id.eq(loginMember.getId())
-                                .or(review.member.id.in(getFriendMemberIds(loginMember.getId()))))
-                        .and(place.latitude.between(swLatitude, neLatitude))
-                        .and(place.longitude.between(swLongitude, neLongitude)));
-
-        if (placeCategory != null) {
-            query.where(place.placeCategory.eq(placeCategory));
+        switch (sortType) {
+            case LATEST -> {
+                return review.createdAt.desc();
+            }
+            case STAR_HIGH -> {
+                return review.starRating.avg().desc();
+            }
+            case STAR_LOW -> {
+                return review.starRating.avg().asc();
+            }
+            default -> {
+                return calculateDistance(currLat, currLon, placeLat, placeLon).asc();
+            }
         }
-
-        return query
-                .groupBy(place)
-                .orderBy(calculateDistance(currentLatitude, currentLongitude, place.latitude, place.longitude).asc())
-                .fetch();
-
     }
 
     private void addImageInfoOnPlaceResult(List<PlaceResponseWithFriendReview> result, Member loginMember) {
@@ -241,5 +232,4 @@ public class PlaceRepositoryQueryDslImpl implements PlaceRepositoryQueryDsl{
                 .from(friendShip)
                 .where(friendShip.member.id.eq(loginMemberId));
     }
-
 }

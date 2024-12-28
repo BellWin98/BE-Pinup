@@ -4,8 +4,7 @@ import com.pinup.dto.response.PlaceDetailResponse;
 import com.pinup.dto.response.PlaceResponseWithFriendReview;
 import com.pinup.entity.Member;
 import com.pinup.enums.PlaceCategory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.pinup.enums.SortType;
 
 import java.util.List;
 
@@ -13,6 +12,8 @@ public interface PlaceRepositoryQueryDsl {
 
     List<PlaceResponseWithFriendReview> findAllByMemberAndLocation(
             Member loginMember,
+            PlaceCategory category,
+            SortType sortType,
             double swLatitude,
             double swLongitude,
             double neLatitude,
@@ -20,19 +21,6 @@ public interface PlaceRepositoryQueryDsl {
             double currentLatitude,
             double currentLongitude
     );
-
-    List<PlaceResponseWithFriendReview> findAllByMemberAndCategoryAndLocation(
-            Member loginMember,
-            PlaceCategory placeCategory,
-            double swLatitude,
-            double swLongitude,
-            double neLatitude,
-            double neLongitude,
-            double currentLatitude,
-            double currentLongitude
-    );
-
-
 
     PlaceDetailResponse findByKakaoPlaceIdAndMember(
             Member loginMember,
