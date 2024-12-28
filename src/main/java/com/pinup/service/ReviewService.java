@@ -2,15 +2,17 @@ package com.pinup.service;
 
 import com.pinup.dto.request.PlaceRequest;
 import com.pinup.dto.request.ReviewRequest;
-import com.pinup.dto.response.ReviewTempResponse;
+import com.pinup.dto.response.ReviewPreviewResponse;
+import com.pinup.dto.response.ReviewResponse;
 import com.pinup.entity.Member;
 import com.pinup.entity.Place;
 import com.pinup.entity.Review;
 import com.pinup.entity.ReviewImage;
+import com.pinup.enums.ReviewType;
+import com.pinup.exception.FriendNotFoundException;
 import com.pinup.exception.ImagesLimitExceededException;
 import com.pinup.exception.MemberNotFoundException;
 import com.pinup.global.s3.S3Service;
-import com.pinup.global.util.AuthUtil;
 import com.pinup.repository.MemberRepository;
 import com.pinup.repository.PlaceRepository;
 import com.pinup.repository.ReviewRepository;
@@ -36,65 +38,93 @@ public class ReviewService {
     private static final int IMAGES_LIMIT = 3;
 
     private final MemberRepository memberRepository;
-    private final AuthUtil authUtil;
     private final PlaceRepository placeRepository;
     private final ReviewRepository reviewRepository;
+    private final FriendShipService friendShipService;
     private final S3Service s3Service;
 
     @Transactional
     public Long register(ReviewRequest reviewRequest, PlaceRequest placeRequest, List<MultipartFile> images) {
-
-        Member loginMember = authUtil.getLoginMember();
+        Member loginMember = findMember();
         Place place = findOrCreatePlace(placeRequest);
         List<String> uploadedFileUrls = uploadImages(images);
-        Review newReview = createReview(reviewRequest, loginMember, place, uploadedFileUrls);
-        Review savedReview = reviewRepository.save(newReview);
 
+        Review newReview = createReview(reviewRequest, loginMember, place, uploadedFileUrls);
+        newReview.setType(images != null && !images.isEmpty() ? ReviewType.PHOTO : ReviewType.TEXT);
+
+        Review savedReview = reviewRepository.save(newReview);
         return savedReview.getId();
     }
 
     @Transactional(readOnly = true)
-    public List<ReviewTempResponse> getCurrentUserReviews() {
-        Member findMember = findMember();
-        return getReviews(findMember.getId());
-    }
-
-    @Transactional(readOnly = true)
-    public List<ReviewTempResponse> getReviews(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(MemberNotFoundException::new);
-
-        return reviewRepository.findAllByMember(member).stream()
-                .map(review -> ReviewTempResponse.of(
-                        review,
-                        review.getReviewImages().stream()
-                                .map(ReviewImage::getUrl)
-                                .collect(Collectors.toList())
-                ))
+    public List<ReviewResponse> getMyPhotoReviewDetails() {
+        Member currentUser = findMember();
+        return reviewRepository.findAllByMemberAndType(currentUser, ReviewType.PHOTO).stream()
+                .map(ReviewResponse::from)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public Double getCurrentUserAverageRating() {
-        Member findMember = findMember();
-
-        return getMemberAverageRating(findMember().getId());
+    public List<ReviewPreviewResponse> getMyPhotoReviewPreviews() {
+        Member currentUser = findMember();
+        return reviewRepository.findAllByMemberAndType(currentUser, ReviewType.PHOTO).stream()
+                .map(ReviewPreviewResponse::from)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public Integer getCurrentUserReviewsCount() {
-        Member findMember = findMember();
-
-        return getReviews(findMember.getId()).size();
+    public List<ReviewResponse> getMyTextReviewDetails() {
+        Member currentUser = findMember();
+        return reviewRepository.findAllByMemberAndType(currentUser, ReviewType.TEXT).stream()
+                .map(ReviewResponse::from)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public Integer getUserReviewsCount(Long memberId) {
-        Member member = memberRepository.findById(memberId)
+    public List<ReviewResponse> getFriendPhotoReviewDetails(Long friendId) {
+        Member currentUser = findMember();
+        Member friend = memberRepository.findById(friendId)
                 .orElseThrow(MemberNotFoundException::new);
 
-        return getReviews(member.getId()).size();
+        if (!friendShipService.existsFriendship(currentUser, friend)) {
+            throw new FriendNotFoundException();
+        }
+
+        return reviewRepository.findAllByMemberAndType(friend, ReviewType.PHOTO).stream()
+                .map(ReviewResponse::from)
+                .collect(Collectors.toList());
     }
+
+    @Transactional(readOnly = true)
+    public List<ReviewPreviewResponse> getFriendPhotoReviewPreviews(Long friendId) {
+        Member currentUser = findMember();
+        Member friend = memberRepository.findById(friendId)
+                .orElseThrow(MemberNotFoundException::new);
+
+        if (!friendShipService.existsFriendship(currentUser, friend)) {
+            throw new FriendNotFoundException();
+        }
+
+        return reviewRepository.findAllByMemberAndType(friend, ReviewType.PHOTO).stream()
+                .map(ReviewPreviewResponse::from)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReviewResponse> getFriendTextReviewDetails(Long friendId) {
+        Member currentUser = findMember();
+        Member friend = memberRepository.findById(friendId)
+                .orElseThrow(MemberNotFoundException::new);
+
+        if (!friendShipService.existsFriendship(currentUser, friend)) {
+            throw new FriendNotFoundException();
+        }
+
+        return reviewRepository.findAllByMemberAndType(friend, ReviewType.TEXT).stream()
+                .map(ReviewResponse::from)
+                .collect(Collectors.toList());
+    }
+
 
     @Transactional(readOnly = true)
     public Double getMemberAverageRating(Long memberId) {

@@ -2,6 +2,8 @@ package com.pinup.controller;
 
 import com.pinup.dto.request.PlaceRequest;
 import com.pinup.dto.request.ReviewRequest;
+import com.pinup.dto.response.ReviewPreviewResponse;
+import com.pinup.dto.response.ReviewResponse;
 import com.pinup.global.response.ResultCode;
 import com.pinup.global.response.ResultResponse;
 import com.pinup.service.ReviewService;
@@ -10,36 +12,26 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/places")
-@Tag(name = "리뷰 API", description = "리뷰 등록")
+@RequestMapping("/api/reviews")
+@RequiredArgsConstructor
+@Tag(name = "리뷰 API", description = "리뷰 등록 및 조회")
 public class ReviewController {
 
     private final ReviewService reviewService;
 
-    @Autowired
-    public ReviewController(ReviewService reviewService) {
-        this.reviewService = reviewService;
-    }
-
-    @PostMapping(value = "/reviews", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "리뷰 등록 API", description = "리뷰 등록 성공 시 리뷰 ID 반환")
     @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "리뷰 등록에 성공하였습니다."
-            )
+            @ApiResponse(responseCode = "201", description = "리뷰 등록에 성공하였습니다.")
     })
     public ResponseEntity<ResultResponse> register(
             @Valid @RequestPart ReviewRequest reviewRequest,
@@ -47,7 +39,43 @@ public class ReviewController {
             @RequestPart(name = "multipartFiles", required = false) List<MultipartFile> multipartFiles) {
 
         Long reviewId = reviewService.register(reviewRequest, placeRequest, multipartFiles);
-
         return ResponseEntity.ok(ResultResponse.of(ResultCode.CREATE_REVIEW_SUCCESS, reviewId));
     }
+
+    @GetMapping("/my/photo")
+    @Operation(summary = "내 포토 리뷰 상세 API")
+    public ResponseEntity<List<ReviewResponse>> getMyPhotoReviewDetails() {
+        return ResponseEntity.ok(reviewService.getMyPhotoReviewDetails());
+    }
+
+    @GetMapping("/my/photo/preview")
+    @Operation(summary = "내 포토 리뷰 미리보기 API")
+    public ResponseEntity<List<ReviewPreviewResponse>> getMyPhotoReviewPreviews() {
+        return ResponseEntity.ok(reviewService.getMyPhotoReviewPreviews());
+    }
+
+    @GetMapping("/my/text")
+    @Operation(summary = "내 텍스트 리뷰 상세 API")
+    public ResponseEntity<List<ReviewResponse>> getMyTextReviewDetails() {
+        return ResponseEntity.ok(reviewService.getMyTextReviewDetails());
+    }
+
+    @GetMapping("/friends/{friendId}/photo")
+    @Operation(summary = "친구 포토 리뷰 상세 API")
+    public ResponseEntity<List<ReviewResponse>> getFriendPhotoReviewDetails(@PathVariable Long friendId) {
+        return ResponseEntity.ok(reviewService.getFriendPhotoReviewDetails(friendId));
+    }
+
+    @GetMapping("/friends/{friendId}/photo/preview")
+    @Operation(summary = "친구 포토 리뷰 미리보기 API")
+    public ResponseEntity<List<ReviewPreviewResponse>> getFriendPhotoReviewPreviews(@PathVariable Long friendId) {
+        return ResponseEntity.ok(reviewService.getFriendPhotoReviewPreviews(friendId));
+    }
+
+    @GetMapping("/friends/{friendId}/text")
+    @Operation(summary = "친구 텍스트 리뷰 상세 API")
+    public ResponseEntity<List<ReviewResponse>> getFriendTextReviewDetails(@PathVariable Long friendId) {
+        return ResponseEntity.ok(reviewService.getFriendTextReviewDetails(friendId));
+    }
+
 }

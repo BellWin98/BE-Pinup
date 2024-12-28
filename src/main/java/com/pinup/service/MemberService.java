@@ -4,11 +4,8 @@ import com.pinup.cache.MemberCacheManager;
 import com.pinup.dto.request.MemberInfoUpdateRequest;
 import com.pinup.dto.response.MemberResponse;
 import com.pinup.dto.response.ProfileResponse;
-import com.pinup.dto.response.ReviewCountsResponse;
-import com.pinup.dto.response.ReviewTempResponse;
 import com.pinup.entity.Member;
 import com.pinup.entity.Review;
-import com.pinup.entity.ReviewImage;
 import com.pinup.exception.AlreadyExistNicknameException;
 import com.pinup.exception.MemberNotFoundException;
 import com.pinup.exception.NicknameUpdateTimeLimitException;
@@ -20,10 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
 
 @Service
 @RequiredArgsConstructor
@@ -120,39 +113,16 @@ public class MemberService {
     }
 
     private ProfileResponse getProfileForMember(Member member) {
-        List<Review> reviews = reviewRepository.findAllByMember(member);
-
-        ReviewCountsResponse reviewCounts = ReviewCountsResponse.builder()
-                .oneStarCount(getReviewCountForRating(reviews, 1.0))
-                .oneAndHalfStarCount(getReviewCountForRating(reviews, 1.5))
-                .twoStarCount(getReviewCountForRating(reviews, 2.0))
-                .twoAndHalfStarCount(getReviewCountForRating(reviews, 2.5))
-                .threeStarCount(getReviewCountForRating(reviews, 3.0))
-                .threeAndHalfStarCount(getReviewCountForRating(reviews, 3.5))
-                .fourStarCount(getReviewCountForRating(reviews, 4.0))
-                .fourAndHalfStarCount(getReviewCountForRating(reviews, 4.5))
-                .fiveStarCount(getReviewCountForRating(reviews, 5.0))
-                .build();
+        double averageRating = member.getReviews().stream()
+                .mapToDouble(Review::getStarRating)
+                .average()
+                .orElse(0.0);
 
         return ProfileResponse.builder()
                 .member(MemberResponse.from(member))
-                .reviewCount(reviews.size())
-                .reviewCounts(reviewCounts)
+                .reviewCount(member.getReviews().size())
                 .friendCount(member.getFriendships().size())
-                .reviews(reviews.stream()
-                        .map(review -> ReviewTempResponse.of(
-                                review,
-                                review.getReviewImages().stream()
-                                        .map(ReviewImage::getUrl)
-                                        .collect(Collectors.toList())
-                        ))
-                        .collect(Collectors.toList()))
+                .averageRating(Math.round(averageRating * 10.0) / 10.0)
                 .build();
-    }
-
-    private long getReviewCountForRating(List<Review> reviews, double rating) {
-        return reviews.stream()
-                .filter(review -> review.getStarRating() == rating)
-                .count();
     }
 }
