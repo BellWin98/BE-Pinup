@@ -6,6 +6,7 @@ import com.pinup.dto.response.MemberResponse;
 import com.pinup.dto.response.ProfileResponse;
 import com.pinup.entity.Member;
 import com.pinup.entity.Review;
+import com.pinup.enums.FriendRequestStatus;
 import com.pinup.enums.MemberRelationType;
 import com.pinup.exception.AlreadyExistNicknameException;
 import com.pinup.exception.MemberNotFoundException;
@@ -13,6 +14,7 @@ import com.pinup.exception.NicknameUpdateTimeLimitException;
 import com.pinup.global.s3.S3Service;
 import com.pinup.global.util.AuthUtil;
 import com.pinup.repository.MemberRepository;
+import com.pinup.repository.FriendRequestRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,7 @@ public class MemberService {
     private final S3Service s3Service;
     private final MemberCacheManager memberCacheManager;
     private final FriendShipService friendShipService;
+    private final FriendRequestRepository friendRequestRepository;
     private final AuthUtil authUtil;
 
     @Transactional(readOnly = true)
@@ -120,6 +123,9 @@ public class MemberService {
             relationType = MemberRelationType.SELF;
         } else if (friendShipService.existsFriendship(currentMember, member)) {
             relationType = MemberRelationType.FRIEND;
+        } else if (friendRequestRepository.findBySenderAndReceiverAndFriendRequestStatus(
+                currentMember, member, FriendRequestStatus.PENDING).isPresent()) {
+            relationType = MemberRelationType.PENDING;
         } else {
             relationType = MemberRelationType.STRANGER;
         }

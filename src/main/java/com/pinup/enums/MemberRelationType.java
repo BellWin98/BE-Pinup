@@ -6,5 +6,6 @@ import lombok.Getter;
 public enum MemberRelationType {
     SELF,
     FRIEND,
+    PENDING,
     STRANGER
 }
