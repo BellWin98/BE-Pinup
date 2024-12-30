@@ -1,7 +1,7 @@
 package com.pinup.service;
 
 import com.pinup.entity.Member;
-import com.pinup.global.response.TokenResponse;
+import com.pinup.global.response.LoginResponse;
 import com.pinup.global.jwt.JwtTokenProvider;
 import com.pinup.repository.MemberRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -43,7 +43,7 @@ public class AuthServiceTests {
         when(jwtTokenProvider.createAccessToken(any(), any())).thenReturn(TEST_NEW_ACCESS_TOKEN);
         when(jwtTokenProvider.createRefreshToken(any())).thenReturn(TEST_NEW_REFRESH_TOKEN);
 
-        TokenResponse response = authService.refresh(TEST_REFRESH_TOKEN);
+        LoginResponse response = authService.refresh(TEST_REFRESH_TOKEN);
 
         assertNotNull(response);
         assertEquals(TEST_NEW_ACCESS_TOKEN, response.getAccessToken());

@@ -3,10 +3,8 @@ package com.pinup.global.jwt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pinup.enums.Role;
 import com.pinup.exception.InvalidTokenException;
-import com.pinup.global.response.TokenResponse;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,7 +12,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.security.Key;
 import java.util.Collections;
 import java.util.Date;

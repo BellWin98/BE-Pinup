@@ -3,22 +3,30 @@ package com.pinup.repository.querydsl;
 import com.pinup.dto.response.PlaceDetailResponse;
 import com.pinup.dto.response.PlaceResponseWithFriendReview;
 import com.pinup.entity.Member;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.pinup.enums.PlaceCategory;
+import com.pinup.enums.SortType;
+
+import java.util.List;
 
 public interface PlaceRepositoryQueryDsl {
 
-    Page<PlaceResponseWithFriendReview> findPlaceListByMemberAndCoordinate(
+    List<PlaceResponseWithFriendReview> findAllByMemberAndLocation(
             Member loginMember,
-            Double latitude,
-            Double longitude,
-            Pageable pageable
+            PlaceCategory category,
+            SortType sortType,
+            double swLatitude,
+            double swLongitude,
+            double neLatitude,
+            double neLongitude,
+            double currentLatitude,
+            double currentLongitude
     );
 
-    PlaceDetailResponse findPlaceDetailByPlaceIdAndMember(
+    PlaceDetailResponse findByKakaoPlaceIdAndMember(
             Member loginMember,
-            Long placeId
+            String kakaoPlaceId
     );
 
     Long getReviewCount(Member loginMember, String kakaoMapId);
+    Double getAverageStarRating(Member loginMember, String kakaoMapId);
 }

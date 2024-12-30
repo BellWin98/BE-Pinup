@@ -26,6 +26,13 @@ public class PlaceDetailResponse {
     private List<ReviewDetailResponse> reviews;
 
     public PlaceDetailResponse(String placeName, Long reviewCount, Double averageStarRating) {
+
+        if (averageStarRating != null) {
+            averageStarRating = Math.round(averageStarRating * 10) / 10.0;
+        } else {
+            averageStarRating = 0.0;
+        }
+
         this.placeName = placeName;
         this.reviewCount = reviewCount;
         this.averageStarRating = averageStarRating;

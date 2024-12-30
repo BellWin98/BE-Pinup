@@ -32,4 +32,7 @@ public class PlaceResponseByKeyword {
 
     @Schema(description = "리뷰 수")
     private int reviewCount;
+
+    @Schema(description = "평균 별점")
+    private Double averageStarRating;
 }

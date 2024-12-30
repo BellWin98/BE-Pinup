@@ -101,7 +101,6 @@ public class ReviewService {
         Member currentUser = authUtil.getLoginMember();
         Member targetMember = memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
-
         validateFriendship(currentUser, targetMember);
 
         return reviewRepository.findAllByMemberAndType(targetMember, ReviewType.TEXT).stream()

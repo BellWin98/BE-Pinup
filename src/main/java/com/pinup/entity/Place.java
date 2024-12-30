@@ -27,8 +27,8 @@ public class Place extends BaseTimeEntity {
     private String address; // 주소
     private String roadAddress; // 도로명 주소
     private String defaultImgUrl; // 기본 이미지
-    private String latitude; // 위도(Y)
-    private String longitude; // 경도(X)
+    private Double latitude; // 위도(Y)
+    private Double longitude; // 경도(X)
     private String status; // 상태
 
     @Enumerated(EnumType.STRING)
@@ -39,7 +39,7 @@ public class Place extends BaseTimeEntity {
 
     @Builder
     public Place(String kakaoMapId, String name, String address, String roadAddress,
-                 String latitude, String longitude, PlaceCategory placeCategory) {
+                 Double latitude, Double longitude, PlaceCategory placeCategory) {
         this.kakaoMapId = kakaoMapId;
         this.name = name;
         this.address = address;

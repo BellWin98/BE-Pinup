@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum PlaceCategory {
 
+    ALL("전체", ""),
     RESTAURANT("음식점", "FD6"),
     CAFE("카페", "CE7"),
 
@@ -14,4 +15,13 @@ public enum PlaceCategory {
 
     private final String description;
     private final String code;
+
+    public static PlaceCategory getCategoryByDescription(String category) {
+        for (PlaceCategory placeCategory : PlaceCategory.values()) {
+            if (placeCategory.description.equals(category)) {
+                return placeCategory;
+            }
+        }
+        return null;
+    }
 }
