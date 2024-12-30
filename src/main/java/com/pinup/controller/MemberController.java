@@ -103,6 +103,14 @@ public class MemberController {
     }
 
     @PatchMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "소셜 로그인 후처리 API", description = "닉네임, 프로필사진, 마케팅 수신동의 여부 등록")
+    @ApiResponse(
+            responseCode = "200",
+            description = "유저 정보 수정에 성공하였습니다.",
+            content = {
+                    @Content(schema = @Schema(implementation = MemberResponse.class))
+            }
+    )
     public ResponseEntity<ResultResponse> updateInfoAfterLogin(
             @Valid @RequestPart UpdateMemberInfoAfterLoginRequest request,
             @RequestPart(name = "multipartFile", required = false) MultipartFile multipartFile
