@@ -1,5 +1,6 @@
 package com.pinup.entity;
 
+import com.pinup.enums.ReviewType;
 import com.pinup.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -28,6 +29,9 @@ public class Review extends BaseTimeEntity {
     @Column
     private String visitedDate;
 
+    @Enumerated(EnumType.STRING)
+    private ReviewType type;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
@@ -44,6 +48,10 @@ public class Review extends BaseTimeEntity {
         this.content = content;
         this.starRating = starRating;
         this.visitedDate = visitedDate;
+    }
+
+    public void setType(ReviewType type) {
+        this.type = type;
     }
 
     public void attachPlace(Place place){

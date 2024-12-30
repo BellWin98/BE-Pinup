@@ -1,11 +1,10 @@
 package com.pinup.dto.response;
 
+import com.pinup.enums.MemberRelationType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -14,7 +13,7 @@ import java.util.List;
 public class ProfileResponse {
     private MemberResponse member;
     private Integer reviewCount;
-    private ReviewCountsResponse reviewCounts;
     private Integer friendCount;
-    private List<ReviewTempResponse> reviews;
+    private Double averageRating;
+    private MemberRelationType relationType;
 }

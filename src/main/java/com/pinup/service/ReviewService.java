@@ -2,13 +2,17 @@ package com.pinup.service;
 
 import com.pinup.dto.request.PlaceRequest;
 import com.pinup.dto.request.ReviewRequest;
-import com.pinup.dto.response.ReviewTempResponse;
+import com.pinup.dto.response.ReviewPreviewResponse;
+import com.pinup.dto.response.ReviewResponse;
 import com.pinup.entity.Member;
 import com.pinup.entity.Place;
 import com.pinup.entity.Review;
 import com.pinup.entity.ReviewImage;
+import com.pinup.enums.ReviewType;
+import com.pinup.exception.FriendNotFoundException;
 import com.pinup.exception.ImagesLimitExceededException;
 import com.pinup.exception.MemberNotFoundException;
+import com.pinup.exception.ReviewNotFoundException;
 import com.pinup.global.s3.S3Service;
 import com.pinup.global.util.AuthUtil;
 import com.pinup.repository.MemberRepository;
@@ -16,8 +20,6 @@ import com.pinup.repository.PlaceRepository;
 import com.pinup.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,84 +38,74 @@ public class ReviewService {
     private static final int IMAGES_LIMIT = 3;
 
     private final MemberRepository memberRepository;
-    private final AuthUtil authUtil;
     private final PlaceRepository placeRepository;
     private final ReviewRepository reviewRepository;
+    private final FriendShipService friendShipService;
+    private final AuthUtil authUtil;
     private final S3Service s3Service;
 
     @Transactional
     public Long register(ReviewRequest reviewRequest, PlaceRequest placeRequest, List<MultipartFile> images) {
-
         Member loginMember = authUtil.getLoginMember();
         Place place = findOrCreatePlace(placeRequest);
         List<String> uploadedFileUrls = uploadImages(images);
-        Review newReview = createReview(reviewRequest, loginMember, place, uploadedFileUrls);
-        Review savedReview = reviewRepository.save(newReview);
 
+        Review newReview = createReview(reviewRequest, loginMember, place, uploadedFileUrls);
+        newReview.setType(images != null && !images.isEmpty() ? ReviewType.PHOTO : ReviewType.TEXT);
+
+        Review savedReview = reviewRepository.save(newReview);
         return savedReview.getId();
     }
 
     @Transactional(readOnly = true)
-    public List<ReviewTempResponse> getCurrentUserReviews() {
-        Member findMember = findMember();
-        return getReviews(findMember.getId());
+    public ReviewResponse getReviewById(Long reviewId) {
+        Member currentUser = authUtil.getLoginMember();
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(ReviewNotFoundException::new);
+
+        validateReviewAccess(currentUser, review);
+        return ReviewResponse.from(review);
     }
 
     @Transactional(readOnly = true)
-    public List<ReviewTempResponse> getReviews(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(MemberNotFoundException::new);
-
-        return reviewRepository.findAllByMember(member).stream()
-                .map(review -> ReviewTempResponse.of(
-                        review,
-                        review.getReviewImages().stream()
-                                .map(ReviewImage::getUrl)
-                                .collect(Collectors.toList())
-                ))
+    public List<ReviewPreviewResponse> getPhotoReviewPreviews() {
+        Member currentUser = authUtil.getLoginMember();
+        return reviewRepository.findAllByMemberAndType(currentUser, ReviewType.PHOTO).stream()
+                .map(ReviewPreviewResponse::from)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public Double getCurrentUserAverageRating() {
-        Member findMember = findMember();
-
-        return getMemberAverageRating(findMember().getId());
+    public List<ReviewResponse> getMyTextReviewDetails() {
+        Member currentUser = authUtil.getLoginMember();
+        return reviewRepository.findAllByMemberAndType(currentUser, ReviewType.TEXT).stream()
+                .map(ReviewResponse::from)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public Integer getCurrentUserReviewsCount() {
-        Member findMember = findMember();
-
-        return getReviews(findMember.getId()).size();
-    }
-
-    @Transactional(readOnly = true)
-    public Integer getUserReviewsCount(Long memberId) {
-        Member member = memberRepository.findById(memberId)
+    public List<ReviewPreviewResponse> getMemberPhotoReviewPreviews(Long memberId) {
+        Member currentUser = authUtil.getLoginMember();
+        Member targetMember = memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
 
-        return getReviews(member.getId()).size();
+        validateFriendship(currentUser, targetMember);
+
+        return reviewRepository.findAllByMemberAndType(targetMember, ReviewType.PHOTO).stream()
+                .map(ReviewPreviewResponse::from)
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public Double getMemberAverageRating(Long memberId) {
-        Member member = memberRepository.findById(memberId)
+    public List<ReviewResponse> getMemberTextReviews(Long memberId) {
+        Member currentUser = authUtil.getLoginMember();
+        Member targetMember = memberRepository.findById(memberId)
                 .orElseThrow(MemberNotFoundException::new);
+        validateFriendship(currentUser, targetMember);
 
-        return reviewRepository.findAllByMember(member).stream()
-                .mapToDouble(Review::getStarRating)
-                .average()
-                .orElse(0.0);
-    }
-
-    /**
-     * SecurityContextHolder 에서 현재 로그인 한 사용자 이메일 Get 후 회원 정보 탐색
-     */
-    private Member findMember() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        return memberRepository.findByEmail(authentication.getName()).orElseThrow(MemberNotFoundException::new);
+        return reviewRepository.findAllByMemberAndType(targetMember, ReviewType.TEXT).stream()
+                .map(ReviewResponse::from)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -172,5 +164,19 @@ public class ReviewService {
         }
 
         return newReview;
+    }
+
+    private void validateReviewAccess(Member currentUser, Review review) {
+        if (!review.getMember().equals(currentUser) &&
+                !friendShipService.existsFriendship(currentUser, review.getMember())) {
+            throw new FriendNotFoundException();
+        }
+    }
+
+    private void validateFriendship(Member currentUser, Member targetMember) {
+        if (!currentUser.equals(targetMember) &&
+                !friendShipService.existsFriendship(currentUser, targetMember)) {
+            throw new FriendNotFoundException();
+        }
     }
 }
