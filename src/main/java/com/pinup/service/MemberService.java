@@ -2,6 +2,7 @@ package com.pinup.service;
 
 import com.pinup.cache.MemberCacheManager;
 import com.pinup.dto.request.MemberInfoUpdateRequest;
+import com.pinup.dto.request.UpdateMemberInfoAfterLoginRequest;
 import com.pinup.dto.response.MemberResponse;
 import com.pinup.dto.response.ProfileResponse;
 import com.pinup.dto.response.ReviewCountsResponse;
@@ -87,6 +88,21 @@ public class MemberService {
         memberCacheManager.evictAllCaches(member.getId());
 
         return MemberResponse.from(member);
+    }
+
+    @Transactional
+    public MemberResponse updateInfoAfterLogin(UpdateMemberInfoAfterLoginRequest request, MultipartFile multipartFile) {
+        Member loginMember = authUtil.getLoginMember();
+        String nickname = request.getNickname();
+        String termsOfMarketing = request.getTermsOfMarketing();
+
+        loginMember.updateNickname(nickname);
+        loginMember.updateTermsOfMarketing(termsOfMarketing);
+
+        String imageUrl = s3Service.uploadFile(PROFILE_IMAGE_DIRECTORY, multipartFile);
+        loginMember.updateProfileImage(imageUrl);
+
+        return MemberResponse.from(memberRepository.save(loginMember));
     }
 
     @Transactional(readOnly = true)

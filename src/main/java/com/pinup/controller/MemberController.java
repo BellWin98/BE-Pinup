@@ -1,6 +1,7 @@
 package com.pinup.controller;
 
 import com.pinup.dto.request.MemberInfoUpdateRequest;
+import com.pinup.dto.request.UpdateMemberInfoAfterLoginRequest;
 import com.pinup.dto.response.MemberResponse;
 import com.pinup.dto.response.ProfileResponse;
 import com.pinup.global.response.ResultCode;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -98,6 +100,16 @@ public class MemberController {
     public ResponseEntity<ResultResponse> checkNicknameDuplicate(@RequestParam(value = "nickname") String nickname) {
         boolean isDuplicate = memberService.checkNicknameDuplicate(nickname);
         return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_NICKNAME_DUPLICATE_SUCCESS, isDuplicate));
+    }
+
+    @PatchMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ResultResponse> updateInfoAfterLogin(
+            @Valid @RequestPart UpdateMemberInfoAfterLoginRequest request,
+            @RequestPart(name = "multipartFile", required = false) MultipartFile multipartFile
+    ){
+        MemberResponse result = memberService.updateInfoAfterLogin(request, multipartFile);
+
+        return ResponseEntity.ok(ResultResponse.of(ResultCode.UPDATE_MEMBER_INFO_SUCCESS, result));
     }
 
     @PutMapping
