@@ -3,9 +3,9 @@ package com.pinup.service;
 import com.pinup.dto.response.AlarmResponse;
 import com.pinup.entity.Alarm;
 import com.pinup.entity.Member;
-import com.pinup.exception.AlarmNotFoundException;
-import com.pinup.exception.MemberNotFoundException;
 import com.pinup.exception.UnauthorizedAlarmAccessException;
+import com.pinup.global.exception.EntityNotFoundException;
+import com.pinup.global.exception.ErrorCode;
 import com.pinup.repository.AlarmRepository;
 import com.pinup.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +32,7 @@ public class AlarmService {
     public AlarmResponse getAlarm(Long alarmId) {
         Member currentMember = getCurrentMember();
         Alarm alarm = alarmRepository.findById(alarmId)
-                .orElseThrow(AlarmNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.ALARM_NOT_FOUND));
 
         if (!alarm.getReceiver().equals(currentMember)) {
             throw new UnauthorizedAlarmAccessException();
@@ -45,6 +45,6 @@ public class AlarmService {
     private Member getCurrentMember() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return memberRepository.findByEmail(email)
-                .orElseThrow(MemberNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_FOUND));
     }
 }

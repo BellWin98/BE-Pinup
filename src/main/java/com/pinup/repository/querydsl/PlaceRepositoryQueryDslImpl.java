@@ -5,7 +5,8 @@ import com.pinup.dto.response.PlaceResponseWithFriendReview;
 import com.pinup.entity.Member;
 import com.pinup.enums.PlaceCategory;
 import com.pinup.enums.SortType;
-import com.pinup.exception.PlaceNotFoundException;
+import com.pinup.global.exception.EntityNotFoundException;
+import com.pinup.global.exception.ErrorCode;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -122,7 +123,7 @@ public class PlaceRepositoryQueryDslImpl implements PlaceRepositoryQueryDsl{
         if (placeDetailResponse != null) {
             placeDetailResponse.setReviews(reviewDetailList);
         } else {
-            throw new PlaceNotFoundException();
+            throw new EntityNotFoundException(ErrorCode.PLACE_NOT_FOUND);
         }
 
         return placeDetailResponse;

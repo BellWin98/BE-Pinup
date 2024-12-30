@@ -3,8 +3,8 @@ package com.pinup.service;
 import com.pinup.dto.response.MemberResponse;
 import com.pinup.entity.FriendShip;
 import com.pinup.entity.Member;
-import com.pinup.exception.FriendNotFoundException;
-import com.pinup.exception.MemberNotFoundException;
+import com.pinup.global.exception.EntityNotFoundException;
+import com.pinup.global.exception.ErrorCode;
 import com.pinup.global.util.AuthUtil;
 import com.pinup.repository.FriendShipRepository;
 import com.pinup.repository.MemberRepository;
@@ -27,7 +27,7 @@ public class FriendShipService {
     @Transactional(readOnly = true)
     public List<MemberResponse> getUserAllFriends(Long memberId) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(MemberNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_FOUND));
 
         return friendShipRepository.findAllByMember(member)
                 .stream()
@@ -55,14 +55,14 @@ public class FriendShipService {
 
         Member currentUser = authUtil.getLoginMember();
         Member friend = memberRepository.findById(friendId)
-                .orElseThrow(FriendNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.FRIEND_NOT_FOUND));
 
         FriendShip friendship1 = friendShipRepository.findByMemberAndFriend(currentUser, friend)
-                .orElseThrow(FriendNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.FRIEND_NOT_FOUND));
         friendShipRepository.delete(friendship1);
 
         FriendShip friendship2 = friendShipRepository.findByMemberAndFriend(friend, currentUser)
-                .orElseThrow(FriendNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.FRIEND_NOT_FOUND));
         friendShipRepository.delete(friendship2);
     }
 
@@ -90,7 +90,7 @@ public class FriendShipService {
                 .filter(friend -> friend.getNickname().equals(query.trim()))
                 .map(MemberResponse::from)
                 .findFirst()
-                .orElseThrow(FriendNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.FRIEND_NOT_FOUND));
     }
 
     public boolean existsFriendship(Member sender, Member receiver) {

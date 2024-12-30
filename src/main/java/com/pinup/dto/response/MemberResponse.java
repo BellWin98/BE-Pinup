@@ -29,6 +29,9 @@ public class MemberResponse {
     @Schema(description = "소개글")
     private String bio;
 
+    @Schema(description = "마케팅 정보 수신 동의")
+    private String termsOfMarketing;
+
     public static MemberResponse from(Member member) {
         return MemberResponse.builder()
                 .memberId(member.getId())
@@ -37,6 +40,7 @@ public class MemberResponse {
                 .profilePictureUrl(member.getProfileImageUrl())
                 .nickname(StringUtils.hasText(member.getNickname()) ? member.getNickname() : "")
                 .bio(StringUtils.hasText(member.getBio()) ? member.getBio() : "")
+                .termsOfMarketing(member.getTermsOfMarketing())
                 .build();
     }
 }

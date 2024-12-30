@@ -51,6 +51,18 @@ public class Member extends BaseTimeEntity {
 
     private String password;
 
+    @Column(columnDefinition = "VARCHAR(1)")
+    private final String termsOfAgreement = "Y";
+
+    @Column(columnDefinition = "VARCHAR(1)")
+    private final String termsOfPrivacy = "Y";
+
+    @Column(columnDefinition = "VARCHAR(1)")
+    private final String termsOfGeolocation = "Y";
+
+    @Column(columnDefinition = "VARCHAR(1)")
+    private String termsOfMarketing;
+
     @OneToMany(mappedBy = "member")
     private List<Review> reviews = new ArrayList<>();
 
@@ -87,6 +99,10 @@ public class Member extends BaseTimeEntity {
 
     public void updateProfileImage(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
+    }
+
+    public void updateTermsOfMarketing(String termsOfMarketing) {
+        this.termsOfMarketing = termsOfMarketing;
     }
 
     public boolean canUpdateNickname() {

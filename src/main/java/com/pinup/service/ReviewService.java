@@ -11,8 +11,8 @@ import com.pinup.entity.ReviewImage;
 import com.pinup.enums.ReviewType;
 import com.pinup.exception.FriendNotFoundException;
 import com.pinup.exception.ImagesLimitExceededException;
-import com.pinup.exception.MemberNotFoundException;
-import com.pinup.exception.ReviewNotFoundException;
+import com.pinup.global.exception.EntityNotFoundException;
+import com.pinup.global.exception.ErrorCode;
 import com.pinup.global.s3.S3Service;
 import com.pinup.global.util.AuthUtil;
 import com.pinup.repository.MemberRepository;
@@ -61,8 +61,7 @@ public class ReviewService {
     public ReviewResponse getReviewById(Long reviewId) {
         Member currentUser = authUtil.getLoginMember();
         Review review = reviewRepository.findById(reviewId)
-                .orElseThrow(ReviewNotFoundException::new);
-
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.REVIEW_NOT_FOUND));
         validateReviewAccess(currentUser, review);
         return ReviewResponse.from(review);
     }
@@ -87,7 +86,7 @@ public class ReviewService {
     public List<ReviewPreviewResponse> getMemberPhotoReviewPreviews(Long memberId) {
         Member currentUser = authUtil.getLoginMember();
         Member targetMember = memberRepository.findById(memberId)
-                .orElseThrow(MemberNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_FOUND));
 
         validateFriendship(currentUser, targetMember);
 
@@ -97,10 +96,21 @@ public class ReviewService {
     }
 
     @Transactional(readOnly = true)
+    public Double getMemberAverageRating(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_FOUND));
+
+        return reviewRepository.findAllByMember(member).stream()
+                .mapToDouble(Review::getStarRating)
+                .average()
+                .orElse(0.0);
+    }
+
+    @Transactional(readOnly = true)
     public List<ReviewResponse> getMemberTextReviews(Long memberId) {
         Member currentUser = authUtil.getLoginMember();
         Member targetMember = memberRepository.findById(memberId)
-                .orElseThrow(MemberNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_FOUND));
         validateFriendship(currentUser, targetMember);
 
         return reviewRepository.findAllByMemberAndType(targetMember, ReviewType.TEXT).stream()
@@ -169,14 +179,14 @@ public class ReviewService {
     private void validateReviewAccess(Member currentUser, Review review) {
         if (!review.getMember().equals(currentUser) &&
                 !friendShipService.existsFriendship(currentUser, review.getMember())) {
-            throw new FriendNotFoundException();
+            throw new EntityNotFoundException(ErrorCode.FRIEND_NOT_FOUND));
         }
     }
 
     private void validateFriendship(Member currentUser, Member targetMember) {
         if (!currentUser.equals(targetMember) &&
                 !friendShipService.existsFriendship(currentUser, targetMember)) {
-            throw new FriendNotFoundException();
+            throw new EntityNotFoundException(ErrorCode.FRIEND_NOT_FOUND));
         }
     }
 }
