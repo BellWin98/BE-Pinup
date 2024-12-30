@@ -9,9 +9,10 @@ import com.pinup.dto.response.ReviewTempResponse;
 import com.pinup.entity.Member;
 import com.pinup.entity.Review;
 import com.pinup.entity.ReviewImage;
-import com.pinup.exception.AlreadyExistNicknameException;
-import com.pinup.exception.MemberNotFoundException;
 import com.pinup.exception.NicknameUpdateTimeLimitException;
+import com.pinup.global.exception.EntityAlreadyExistException;
+import com.pinup.global.exception.EntityNotFoundException;
+import com.pinup.global.exception.ErrorCode;
 import com.pinup.global.s3.S3Service;
 import com.pinup.global.util.AuthUtil;
 import com.pinup.repository.MemberRepository;
@@ -39,7 +40,8 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public MemberResponse searchMembers(String nickname) {
-        Member member = memberRepository.findByNickname(nickname).orElseThrow(MemberNotFoundException::new);
+        Member member = memberRepository.findByNickname(nickname)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_FOUND));
         return MemberResponse.from(member);
     }
 
@@ -60,7 +62,7 @@ public class MemberService {
     public MemberResponse getMemberInfo(Long memberId) {
         return memberCacheManager.getMemberWithCache(memberId, () -> {
             Member member = memberRepository.findById(memberId)
-                    .orElseThrow(MemberNotFoundException::new);
+                    .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_FOUND));
             return MemberResponse.from(member);
         });
     }
@@ -97,7 +99,7 @@ public class MemberService {
     public ProfileResponse getProfile(Long memberId) {
         return memberCacheManager.getProfileWithCache(memberId, () -> {
             Member member = memberRepository.findById(memberId)
-                    .orElseThrow(MemberNotFoundException::new);
+                    .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_FOUND));
             return getProfileForMember(member);
         });
     }
@@ -115,7 +117,7 @@ public class MemberService {
 
     private void validateNicknameDuplicate(String nickname) {
         if (checkNicknameDuplicate(nickname)) {
-            throw new AlreadyExistNicknameException();
+            throw new EntityAlreadyExistException(ErrorCode.ALREADY_EXIST_NICKNAME);
         }
     }
 

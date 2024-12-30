@@ -7,6 +7,9 @@ import com.pinup.dto.response.MemberResponse;
 import com.pinup.entity.Member;
 import com.pinup.enums.LoginType;
 import com.pinup.exception.*;
+import com.pinup.global.exception.EntityAlreadyExistException;
+import com.pinup.global.exception.EntityNotFoundException;
+import com.pinup.global.exception.ErrorCode;
 import com.pinup.global.jwt.JwtTokenProvider;
 import com.pinup.global.response.LoginResponse;
 import com.pinup.repository.MemberRepository;
@@ -153,7 +156,7 @@ public class AuthService {
         ResponseEntity<Map> response = restTemplate.exchange(googleTokenUri, HttpMethod.POST, request, Map.class);
 
         if (response.getBody() == null) {
-            throw new SocialLoginTokenNotFoundException();
+            throw new EntityNotFoundException(ErrorCode.SOCIAL_LOGIN_TOKEN_NOT_FOUND);
         }
 
         return (String) response.getBody().get("access_token");
@@ -168,7 +171,7 @@ public class AuthService {
         ResponseEntity<Map> response = restTemplate.exchange(googleResourceUri, HttpMethod.GET, entity, Map.class);
 
         if (response.getBody() == null) {
-            throw new SocialLoginUserInfoNotFoundException();
+            throw new EntityNotFoundException(ErrorCode.SOCIAL_LOGIN_USER_INFO_NOT_FOUND);
         }
 
         return response.getBody();
@@ -209,7 +212,7 @@ public class AuthService {
     private void validateExistEmail(String email) {
         memberRepository.findByEmail(email)
                 .ifPresent(member -> {
-                    throw new AlreadyExistEmailException();
+                    throw new EntityAlreadyExistException(ErrorCode.ALREADY_EXIST_EMAIL);
                 });
     }
 
@@ -229,7 +232,7 @@ public class AuthService {
 
     private Member getMemberByEmail(String email) {
         return memberRepository.findByEmail(email)
-                .orElseThrow(MemberNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_FOUND));
     }
 
     private void validatePassword(String requestPassword, String memberPassword) {

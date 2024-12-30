@@ -8,7 +8,8 @@ import com.pinup.entity.Place;
 import com.pinup.entity.Review;
 import com.pinup.entity.ReviewImage;
 import com.pinup.exception.ImagesLimitExceededException;
-import com.pinup.exception.MemberNotFoundException;
+import com.pinup.global.exception.EntityNotFoundException;
+import com.pinup.global.exception.ErrorCode;
 import com.pinup.global.s3.S3Service;
 import com.pinup.global.util.AuthUtil;
 import com.pinup.repository.MemberRepository;
@@ -62,7 +63,7 @@ public class ReviewService {
     @Transactional(readOnly = true)
     public List<ReviewTempResponse> getReviews(Long memberId) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(MemberNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_FOUND));
 
         return reviewRepository.findAllByMember(member).stream()
                 .map(review -> ReviewTempResponse.of(
@@ -91,7 +92,7 @@ public class ReviewService {
     @Transactional(readOnly = true)
     public Integer getUserReviewsCount(Long memberId) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(MemberNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_FOUND));
 
         return getReviews(member.getId()).size();
     }
@@ -99,7 +100,7 @@ public class ReviewService {
     @Transactional(readOnly = true)
     public Double getMemberAverageRating(Long memberId) {
         Member member = memberRepository.findById(memberId)
-                .orElseThrow(MemberNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_FOUND));
 
         return reviewRepository.findAllByMember(member).stream()
                 .mapToDouble(Review::getStarRating)
@@ -113,7 +114,8 @@ public class ReviewService {
     private Member findMember() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        return memberRepository.findByEmail(authentication.getName()).orElseThrow(MemberNotFoundException::new);
+        return memberRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_FOUND));
     }
 
     /**

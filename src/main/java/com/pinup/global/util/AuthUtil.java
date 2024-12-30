@@ -1,7 +1,8 @@
 package com.pinup.global.util;
 
 import com.pinup.entity.Member;
-import com.pinup.exception.MemberNotFoundException;
+import com.pinup.global.exception.EntityNotFoundException;
+import com.pinup.global.exception.ErrorCode;
 import com.pinup.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,6 +20,7 @@ public class AuthUtil {
 
     public Member getLoginMember() {
         String memberEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        return memberRepository.findByEmail(memberEmail).orElseThrow(MemberNotFoundException::new);
+        return memberRepository.findByEmail(memberEmail)
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_FOUND));
     }
 }

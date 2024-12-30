@@ -5,6 +5,9 @@ import com.pinup.entity.Alarm;
 import com.pinup.entity.FriendRequest;
 import com.pinup.entity.Member;
 import com.pinup.exception.*;
+import com.pinup.global.exception.EntityAlreadyExistException;
+import com.pinup.global.exception.EntityNotFoundException;
+import com.pinup.global.exception.ErrorCode;
 import com.pinup.global.util.AuthUtil;
 import com.pinup.repository.AlarmRepository;
 import com.pinup.repository.FriendRequestRepository;
@@ -35,9 +38,9 @@ public class FriendRequestService {
         String senderEmail = authUtil.getLoginMember().getEmail();
 
         Member sender = memberRepository.findByEmail(senderEmail)
-                .orElseThrow(MemberNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_FOUND));
         Member receiver = memberRepository.findById(receiverId)
-                .orElseThrow(MemberNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_FOUND));
 
         validateSelfFriendRequest(sender, receiver);
         validateDuplicateFriendRequest(sender, receiver);
@@ -66,20 +69,20 @@ public class FriendRequestService {
     private void validateDuplicateFriendRequest(Member sender, Member receiver) {
         friendRequestRepository.findBySenderAndReceiverAndFriendRequestStatus(sender, receiver, PENDING)
                 .ifPresent(request -> {
-                    throw new AlreadyExistFriendRequestException();
+                    throw new EntityAlreadyExistException(ErrorCode.ALREADY_EXIST_FRIEND_REQUEST);
                 });
     }
 
     private void validateAlreadyFriend(Member sender, Member receiver) {
         if (friendShipService.existsFriendship(sender, receiver)) {
-            throw new AlreadyFriendException();
+            throw new EntityAlreadyExistException(ErrorCode.ALREADY_FRIEND);
         }
     }
 
     @Transactional
     public FriendRequestResponse acceptFriendRequest(Long friendRequestId) {
         FriendRequest friendRequest = friendRequestRepository.findById(friendRequestId)
-                .orElseThrow(FriendRequestNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.FRIEND_REQUEST_NOT_FOUND));
         validateRequestReceiverIsCurrentUser(friendRequest);
         validateFriendRequestStatus(friendRequest);
 
@@ -98,7 +101,7 @@ public class FriendRequestService {
     @Transactional
     public FriendRequestResponse rejectFriendRequest(Long friendRequestId) {
         FriendRequest friendRequest = friendRequestRepository.findById(friendRequestId)
-                .orElseThrow(FriendRequestNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.FRIEND_REQUEST_NOT_FOUND));
         validateRequestReceiverIsCurrentUser(friendRequest);
         validateFriendRequestStatus(friendRequest);
 
@@ -115,7 +118,7 @@ public class FriendRequestService {
 
     private void validateFriendRequestStatus(FriendRequest friendRequest) {
         if (friendRequest.getFriendRequestStatus() != PENDING) {
-            throw new AlreadyProcessedFriendRequestException();
+            throw new EntityAlreadyExistException(ErrorCode.ALREADY_PROCESSED_FRIEND_REQUEST);
         }
     }
 
@@ -135,7 +138,7 @@ public class FriendRequestService {
         String receiverEmail = authUtil.getLoginMember().getEmail();
 
         Member receiver = memberRepository.findByEmail(receiverEmail)
-                .orElseThrow(MemberNotFoundException::new);
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.MEMBER_NOT_FOUND));
 
         return friendRequestRepository.findByReceiver(receiver)
                 .stream()
