@@ -9,7 +9,6 @@ import com.pinup.entity.Place;
 import com.pinup.entity.Review;
 import com.pinup.entity.ReviewImage;
 import com.pinup.enums.ReviewType;
-import com.pinup.exception.FriendNotFoundException;
 import com.pinup.exception.ImagesLimitExceededException;
 import com.pinup.global.exception.EntityNotFoundException;
 import com.pinup.global.exception.ErrorCode;
@@ -179,14 +178,14 @@ public class ReviewService {
     private void validateReviewAccess(Member currentUser, Review review) {
         if (!review.getMember().equals(currentUser) &&
                 !friendShipService.existsFriendship(currentUser, review.getMember())) {
-            throw new EntityNotFoundException(ErrorCode.FRIEND_NOT_FOUND));
+            throw new EntityNotFoundException(ErrorCode.FRIEND_NOT_FOUND);
         }
     }
 
     private void validateFriendship(Member currentUser, Member targetMember) {
         if (!currentUser.equals(targetMember) &&
                 !friendShipService.existsFriendship(currentUser, targetMember)) {
-            throw new EntityNotFoundException(ErrorCode.FRIEND_NOT_FOUND));
+            throw new EntityNotFoundException(ErrorCode.FRIEND_NOT_FOUND);
         }
     }
 }
