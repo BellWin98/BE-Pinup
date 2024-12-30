@@ -128,13 +128,13 @@ public class MemberController {
     }
 
     @GetMapping("/me/profile")
-    public ResponseEntity<ResultResponse> getMyFeed() {
+    public ResponseEntity<ResultResponse> getMyProfile() {
         ProfileResponse response = memberService.getMyProfile();
         return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_MY_FEED_SUCCESS, response));
     }
 
     @GetMapping("/{memberId}/profile")
-    public ResponseEntity<ResultResponse> getFeed(@PathVariable Long memberId) {
+    public ResponseEntity<ResultResponse> getProfile(@PathVariable Long memberId) {
         ProfileResponse response = memberService.getProfile(memberId);
         return ResponseEntity.ok(ResultResponse.of(ResultCode.GET_USER_FEED_SUCCESS, response));
     }
